@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
+import { getProfile, getResumeUrl, FALLBACK_PROFILE } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
-const navLinks = [
+const allNavLinks = [
   { href: "/projects", label: "Projects" },
-  { href: "/blog", label: "Writing" },
+  { href: "/blog", label: "Writing", feature: "blog" as const },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/contact", label: "Contact", feature: "contact" as const },
 ];
+const navLinks = allNavLinks.filter((l) => !l.feature || features[l.feature]);
 
 export async function Footer() {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
+  const resumeLink = getResumeUrl(profile);
   const year = new Date().getFullYear();
 
   const socialLinks = [
@@ -94,17 +97,29 @@ export async function Footer() {
             © {year} {profile.name} · Built with Next.js + Sanity + Cloudflare
           </p>
           <div className="flex items-center gap-4">
+            {resumeLink && (
+              <a
+                href={resumeLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-text-muted hover:text-accent transition-colors font-mono"
+              >
+                Resume
+              </a>
+            )}
             <a
               href={profile.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-text-muted hover:text-accent transition-colors font-mono"
             >
-              View source
+              GitHub
             </a>
-            <Link href="/contact" className="text-xs text-accent hover:underline font-mono">
-              Hire me →
-            </Link>
+            {features.contact && (
+              <Link href="/contact" className="text-xs text-accent hover:underline font-mono">
+                Hire me →
+              </Link>
+            )}
           </div>
         </div>
       </div>

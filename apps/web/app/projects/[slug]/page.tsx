@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, getAllProjects, urlFor } from "@/lib/sanity";
+import { PortableText } from "@portabletext/react";
+import { getProjectBySlug, getAllProjects, imageUrl } from "@/lib/sanity";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -28,9 +29,7 @@ export default async function ProjectPage({ params }: Props) {
   const project = await getProjectBySlug(slug).catch(() => null);
   if (!project) notFound();
 
-  const imageUrl = project.coverImage
-    ? urlFor(project.coverImage).width(1200).height(630).url()
-    : null;
+  const coverUrl = imageUrl(project.coverImage, 1200, 630);
 
   return (
     <div className="min-h-screen pt-28 pb-20">
@@ -104,9 +103,9 @@ export default async function ProjectPage({ params }: Props) {
         </div>
 
         {/* Cover image */}
-        {imageUrl && (
+        {coverUrl && (
           <div className="relative h-64 sm:h-96 rounded-xl overflow-hidden mb-12 border border-surface-border">
-            <Image src={imageUrl} alt={project.title} fill className="object-cover" priority />
+            <Image src={coverUrl} alt={project.title} fill className="object-cover" priority />
           </div>
         )}
 
@@ -148,6 +147,18 @@ export default async function ProjectPage({ params }: Props) {
             </div>
           )}
         </div>
+
+        {/* Solution */}
+        {project.solution && project.solution.length > 0 && (
+          <div className="card p-6 mb-8">
+            <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-4">
+              The Solution
+            </h2>
+            <div className="prose-portfolio">
+              <PortableText value={project.solution} />
+            </div>
+          </div>
+        )}
 
         {/* Results */}
         {project.results && project.results.length > 0 && (

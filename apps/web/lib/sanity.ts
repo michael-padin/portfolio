@@ -1,14 +1,25 @@
 import "server-only";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { defineQuery } from "next-sanity";
+import type { PortableTextBlock } from "@portabletext/react";
 import { client, isSanityConfigured } from "./sanity.client";
 import { sanityFetch } from "./sanity.live";
 
 // ── Image URL builder ───────────────────────────────────────────
 const builder = client ? createImageUrlBuilder(client) : null;
 export function urlFor(source: SanityImageSource) {
-  if (!builder) throw new Error("Sanity is not configured — cannot generate image URL");
+  if (!builder) return null;
   return builder.image(source);
+}
+
+export function imageUrl(
+  source: SanityImageSource | undefined,
+  width: number,
+  height: number,
+): string | null {
+  if (!source) return null;
+  const img = urlFor(source);
+  return img ? img.width(width).height(height).url() : null;
 }
 
 // ── Fetch helper ────────────────────────────────────────────────
@@ -39,7 +50,7 @@ export type Project = {
   order?: number;
   overview?: string;
   problem?: string;
-  solution?: unknown[];
+  solution?: PortableTextBlock[];
   results?: { metric: string; value: string }[];
   publishedAt?: string;
 };
@@ -50,7 +61,7 @@ export type Post = {
   slug: { current: string };
   excerpt: string;
   coverImage?: SanityImageSource;
-  content?: unknown[];
+  content?: PortableTextBlock[];
   tags?: string[];
   readTime?: number;
   publishedAt?: string;
@@ -241,7 +252,7 @@ export interface Profile {
   heroSubEmployer: string;
   heroStats: HeroStat[];
   terminalSkills: string[];
-  bio?: unknown[];
+  bio?: PortableTextBlock[];
   bioShort: string;
   values: ProfileValue[];
   skillGroups: SkillGroup[];

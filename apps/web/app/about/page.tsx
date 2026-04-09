@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
+import Image from "next/image";
+import { PortableText } from "@portabletext/react";
+import { getProfile, getResumeUrl, imageUrl, FALLBACK_PROFILE } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
@@ -12,33 +15,56 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
+  const resumeLink = getResumeUrl(profile);
+  const photoUrl = imageUrl(profile.photo, 200, 200);
 
   return (
     <div className="min-h-screen pt-28 pb-20">
       <div className="container-main">
         {/* Header */}
         <div className="mb-16">
-          <div className="label-tag mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            About me
+          <div className="flex items-start gap-8 mb-8">
+            {photoUrl && (
+              <div className="shrink-0 hidden sm:block">
+                <Image
+                  src={photoUrl}
+                  alt={profile.name}
+                  width={120}
+                  height={120}
+                  className="rounded-2xl border border-surface-border"
+                />
+              </div>
+            )}
+            <div>
+              <div className="label-tag mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                About me
+              </div>
+              <h1 className="text-display-xl text-text-primary mb-6">
+                Developer, builder,{" "}
+                <span
+                  className="italic"
+                  style={{
+                    background: "linear-gradient(135deg,#00d4aa,#00f0c0,#00b8d9)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  problem solver.
+                </span>
+              </h1>
+            </div>
           </div>
-          <h1 className="text-display-xl text-text-primary mb-6">
-            Developer, builder,{" "}
-            <span
-              className="italic"
-              style={{
-                background: "linear-gradient(135deg,#00d4aa,#00f0c0,#00b8d9)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              problem solver.
-            </span>
-          </h1>
-          <p className="text-text-secondary text-lg leading-relaxed max-w-2xl">
-            {profile.bioShort}
-          </p>
+          {profile.bio && profile.bio.length > 0 ? (
+            <div className="prose-portfolio max-w-2xl">
+              <PortableText value={profile.bio} />
+            </div>
+          ) : (
+            <p className="text-text-secondary text-lg leading-relaxed max-w-2xl">
+              {profile.bioShort}
+            </p>
+          )}
         </div>
 
         {/* Values */}
@@ -206,26 +232,35 @@ export default async function AboutPage() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link href="/contact" className="btn-primary">
-            Let&apos;s work together →
-          </Link>
-          <a
-            href="/MichaelPadinResume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost"
-          >
-            Download resume
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M7 1v8M3 6l4 4 4-4M2 13h10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
+          {features.contact && (
+            <Link href="/contact" className="btn-primary">
+              Let&apos;s work together →
+            </Link>
+          )}
+          {resumeLink && (
+            <a href={resumeLink} target="_blank" rel="noopener noreferrer" className="btn-ghost">
+              Download resume
+              {profile.resumeLastUpdated && (
+                <span className="text-text-muted text-xs ml-1">
+                  (Updated{" "}
+                  {new Date(profile.resumeLastUpdated).toLocaleDateString("en-US", {
+                    month: "short",
+                    year: "numeric",
+                  })}
+                  )
+                </span>
+              )}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M7 1v8M3 6l4 4 4-4M2 13h10"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          )}
         </div>
       </div>
     </div>

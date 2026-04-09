@@ -4,7 +4,13 @@ import { ProjectsSection } from "@/components/sections/ProjectsSection";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { BlogPreviewSection } from "@/components/sections/BlogPreviewSection";
 import { CTASection } from "@/components/sections/CTASection";
-import { getFeaturedProjects, getFeaturedPosts, getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
+import {
+  getFeaturedProjects,
+  getFeaturedPosts,
+  getProfile,
+  getResumeUrl,
+  FALLBACK_PROFILE,
+} from "@/lib/sanity";
 import { features } from "@/lib/features";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +32,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection profile={p} />
+      <HeroSection profile={p} resumeUrl={getResumeUrl(p)} />
       <ProjectsSection projects={projects} />
       <AboutSection profile={p} />
       {features.blog && <BlogPreviewSection posts={posts} />}

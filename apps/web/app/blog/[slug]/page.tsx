@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPostBySlug, getAllPosts, urlFor } from "@/lib/sanity";
+import { PortableText } from "@portabletext/react";
+import { getPostBySlug, getAllPosts, imageUrl } from "@/lib/sanity";
 import { features } from "@/lib/features";
 
 interface Props {
@@ -36,7 +37,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(slug).catch(() => null);
   if (!post) notFound();
 
-  const imageUrl = post.coverImage ? urlFor(post.coverImage).width(1200).height(630).url() : null;
+  const coverUrl = imageUrl(post.coverImage, 1200, 630);
 
   return (
     <div className="min-h-screen pt-28 pb-20">
@@ -90,21 +91,19 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {/* Cover */}
-        {imageUrl && (
+        {coverUrl && (
           <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden mb-12 border border-surface-border">
-            <Image src={imageUrl} alt={post.title} fill className="object-cover" priority />
+            <Image src={coverUrl} alt={post.title} fill className="object-cover" priority />
           </div>
         )}
 
-        {/* Content — rendered from Sanity portable text */}
+        {/* Content */}
         <div className="prose-portfolio">
-          {/* When post.content (Portable Text) is available, render it here with @portabletext/react */}
-          {/* For now show excerpt as placeholder */}
-          <p className="text-text-muted italic border border-surface-border rounded-lg p-6 text-sm">
-            📝 Full post content renders here from Sanity Portable Text via{" "}
-            <code>@portabletext/react</code>. Add content in Sanity Studio at{" "}
-            <strong>studio.yourdomain.com</strong>.
-          </p>
+          {post.content && post.content.length > 0 ? (
+            <PortableText value={post.content} />
+          ) : (
+            <p className="text-text-muted italic">{post.excerpt}</p>
+          )}
         </div>
 
         {/* Footer */}

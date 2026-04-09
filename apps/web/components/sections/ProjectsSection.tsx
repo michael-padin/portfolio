@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { SanityProject } from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
+import { imageUrl } from "@/lib/sanity";
 import { ProjectLink } from "../features/ProjectLink";
 
 interface Props {
@@ -48,19 +48,22 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
       className={`card group block overflow-hidden ${featured ? "md:col-span-2" : ""}`}
     >
       {/* Image */}
-      <div className={`relative overflow-hidden bg-surface ${featured ? "h-72" : "h-48"}`}>
-        {project.coverImage ? (
+      <div
+        className="relative overflow-hidden bg-surface"
+        style={{ aspectRatio: featured ? "2/1" : "16/9" }}
+      >
+        {imageUrl(project.coverImage, featured ? 1200 : 800, featured ? 600 : 450) ? (
           <Image
-            src={urlFor(project.coverImage)
-              .width(800)
-              .height(featured ? 400 : 280)
-              .url()}
+            src={imageUrl(project.coverImage, featured ? 1200 : 800, featured ? 600 : 450)!}
             alt={project.title}
             fill
+            sizes={
+              featured ? "(max-width: 768px) 100vw, 1200px" : "(max-width: 768px) 100vw, 600px"
+            }
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <PlaceholderImage title={project.title} featured={featured} />
+          <PlaceholderImage title={project.title} />
         )}
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent opacity-60" />
@@ -97,11 +100,9 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
   );
 }
 
-function PlaceholderImage({ title, featured }: { title: string; featured: boolean }) {
+function PlaceholderImage({ title }: { title: string }) {
   return (
-    <div
-      className={`w-full ${featured ? "h-72" : "h-48"} flex items-center justify-center bg-gradient-to-br from-surface to-bg-secondary`}
-    >
+    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface to-bg-secondary">
       <div className="text-center">
         <div className="text-4xl font-display text-accent/30 font-bold">
           {title.charAt(0).toUpperCase()}

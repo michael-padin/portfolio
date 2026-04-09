@@ -2,12 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Profile } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 interface Props {
   profile: Profile;
+  resumeUrl?: string | null;
 }
 
-export function HeroSection({ profile }: Props) {
+export function HeroSection({ profile, resumeUrl }: Props) {
   const [mode, setMode] = useState<"client" | "employer">("client");
 
   const content = {
@@ -17,7 +19,9 @@ export function HeroSection({ profile }: Props) {
         : "Currently not taking freelance",
       headline: profile.heroTaglineClient,
       sub: profile.heroSubClient,
-      cta1: { label: "Start a project", href: "/contact" },
+      cta1: features.contact
+        ? { label: "Start a project", href: "/contact" }
+        : { label: "See my work", href: "/#projects" },
       cta2: { label: "See my work", href: "/#projects" },
     },
     employer: {
@@ -26,7 +30,9 @@ export function HeroSection({ profile }: Props) {
         : "Not currently job hunting",
       headline: profile.heroTaglineEmployer,
       sub: profile.heroSubEmployer,
-      cta1: { label: "Download resume", href: "/MichaelPadinResume.pdf" },
+      cta1: resumeUrl
+        ? { label: "Download resume", href: resumeUrl }
+        : { label: "View projects", href: "/#projects" },
       cta2: { label: "View projects", href: "/#projects" },
     },
   };
@@ -85,29 +91,7 @@ export function HeroSection({ profile }: Props) {
 
             {/* Headline */}
             <h1 className="text-display-xl text-text-primary mb-6">
-              {c.headline.split("actually work.")[0]}
-              {c.headline.includes("actually work.") && (
-                <span
-                  className="text-accent italic"
-                  style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}
-                >
-                  actually work.
-                </span>
-              )}
-              {!c.headline.includes("actually work.") &&
-                !c.headline.includes("join your team.") &&
-                c.headline}
-              {c.headline.includes("join your team.") && (
-                <>
-                  {c.headline.split("join your team.")[0]}
-                  <span
-                    className="text-accent italic"
-                    style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}
-                  >
-                    join your team.
-                  </span>
-                </>
-              )}
+              <HeadlineWithAccent text={c.headline} />
             </h1>
 
             {/* Sub */}
@@ -169,6 +153,28 @@ export function HeroSection({ profile }: Props) {
       </div>
     </section>
   );
+}
+
+const ACCENT_PHRASES = ["actually work.", "join your team."];
+
+function HeadlineWithAccent({ text }: { text: string }) {
+  for (const phrase of ACCENT_PHRASES) {
+    if (text.includes(phrase)) {
+      const [before] = text.split(phrase);
+      return (
+        <>
+          {before}
+          <span
+            className="text-accent italic"
+            style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}
+          >
+            {phrase}
+          </span>
+        </>
+      );
+    }
+  }
+  return <>{text}</>;
 }
 
 function TerminalCard({

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Project } from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
+import { imageUrl } from "@/lib/sanity";
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
@@ -11,9 +11,9 @@ export function ProjectCard({ project }: { project: Project }) {
     >
       {/* Thumbnail */}
       <div className="relative h-44 bg-[var(--surface-2)] overflow-hidden">
-        {project.coverImage ? (
+        {imageUrl(project.coverImage, 600, 350) ? (
           <Image
-            src={urlFor(project.coverImage).width(600).height(350).url()}
+            src={imageUrl(project.coverImage, 600, 350)!}
             alt={project.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

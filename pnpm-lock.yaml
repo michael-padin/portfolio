@@ -66,6 +66,9 @@ importers:
       '@next/third-parties':
         specifier: ^16.2.3
         version: 16.2.3(next@16.2.3(@babel/core@7.29.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)
+      '@portabletext/react':
+        specifier: ^6.0.3
+        version: 6.0.3(react@19.2.5)
       '@portfolio/sanity-schemas':
         specifier: workspace:*
         version: link:../../packages/sanity-schemas

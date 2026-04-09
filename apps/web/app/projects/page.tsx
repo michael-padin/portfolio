@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { getAllProjects, urlFor, type SanityProject } from "@/lib/sanity";
+import { getAllProjects, imageUrl, type SanityProject } from "@/lib/sanity";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -90,9 +90,9 @@ export default async function ProjectsPage() {
               >
                 {/* Image placeholder */}
                 <div className="h-48 bg-gradient-to-br from-surface to-bg-secondary relative overflow-hidden">
-                  {project.coverImage ? (
+                  {imageUrl(project.coverImage, 600, 300) ? (
                     <Image
-                      src={urlFor(project.coverImage).width(600).height(300).url()}
+                      src={imageUrl(project.coverImage, 600, 300)!}
                       alt={project.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"

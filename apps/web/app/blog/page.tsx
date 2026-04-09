@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getAllPosts, urlFor, type Post } from "@/lib/sanity";
+import { getAllPosts, imageUrl, type Post } from "@/lib/sanity";
 import { features } from "@/lib/features";
 
 export const metadata: Metadata = {
@@ -56,7 +56,7 @@ export default async function BlogPage() {
 }
 
 function PostRow({ post, index }: { post: Post; index: number }) {
-  const imageUrl = post.coverImage ? urlFor(post.coverImage).width(320).height(200).url() : null;
+  const coverUrl = imageUrl(post.coverImage, 320, 200);
 
   return (
     <Link
@@ -64,10 +64,10 @@ function PostRow({ post, index }: { post: Post; index: number }) {
       className="card card-hover group flex gap-6 p-6 animate-fade-up animate-hidden"
       style={{ animationDelay: `${index * 0.07}s` }}
     >
-      {imageUrl && (
+      {coverUrl && (
         <div className="relative w-32 h-20 rounded-lg overflow-hidden shrink-0 hidden sm:block">
           <Image
-            src={imageUrl}
+            src={coverUrl}
             alt={post.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

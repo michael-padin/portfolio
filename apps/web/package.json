@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.86.1",
     "@next/third-parties": "^16.2.3",
+    "@portabletext/react": "^6.0.3",
     "@portfolio/sanity-schemas": "workspace:*",
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/postcss": "^4.2.2",
