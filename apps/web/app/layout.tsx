@@ -6,6 +6,7 @@ import { ChatBot } from "@/components/features/ChatBot";
 import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -91,25 +92,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             strategy="afterInteractive"
           />
         )}
-        {/* GA4 */}
-        {gaId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-init" strategy="afterInteractive">{`
-              window.dataLayer=window.dataLayer||[];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js',new Date());
-              gtag('config','${gaId}',{anonymize_ip:true});
-            `}</Script>
-          </>
-        )}
         <Navbar />
         <main>{children}</main>
         <Footer />
         {features.chatbot && <ChatBot />}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
         <Analytics />
         <SpeedInsights />
       </body>
