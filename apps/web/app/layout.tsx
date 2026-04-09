@@ -9,6 +9,9 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VisualEditing } from "next-sanity/visual-editing";
+import { SanityLive } from "@/lib/sanity.live";
+import { draftMode } from "next/headers";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
@@ -55,6 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
   const siteUrl = profile.websiteUrl ?? "https://michaelpadin.com";
+  const isDraftMode = (await draftMode()).isEnabled;
 
   const umamiId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -96,6 +100,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main>{children}</main>
         <Footer />
         {features.chatbot && <ChatBot />}
+        {isDraftMode && <VisualEditing />}
+        {SanityLive && <SanityLive />}
         {gaId && <GoogleAnalytics gaId={gaId} />}
         <Analytics />
         <SpeedInsights />

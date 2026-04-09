@@ -1,10 +1,12 @@
 import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
+import { presentationTool } from "sanity/presentation";
 import { visionTool } from "@sanity/vision";
 import { profileSchema, projectSchema, postSchema } from "@portfolio/sanity-schemas";
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+const projectId = String(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID);
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export default defineConfig({
   name: "michael-padin-portfolio",
@@ -18,7 +20,6 @@ export default defineConfig({
         S.list()
           .title("Content")
           .items([
-            // Profile is a singleton — only one document
             S.listItem()
               .title("Profile")
               .id("profile")
@@ -27,6 +28,14 @@ export default defineConfig({
             S.documentTypeListItem("project").title("Projects"),
             S.documentTypeListItem("post").title("Blog Posts"),
           ]),
+    }),
+    presentationTool({
+      previewUrl: {
+        origin: siteUrl,
+        previewMode: {
+          enable: "/api/draft-mode/enable",
+        },
+      },
     }),
     visionTool(),
   ],

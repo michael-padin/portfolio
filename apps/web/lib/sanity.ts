@@ -1,27 +1,30 @@
 import "server-only";
-import { createClient } from "next-sanity";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
+import { defineQuery } from "next-sanity";
+import { client, isSanityConfigured } from "./sanity.client";
+import { sanityFetch } from "./sanity.live";
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "";
-export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
-export const isSanityConfigured = projectId.length > 0;
-
-export const client = isSanityConfigured
-  ? createClient({
-      projectId,
-      dataset,
-      apiVersion: "2024-01-01",
-      useCdn: process.env.NODE_ENV === "production",
-      token: process.env.SANITY_API_READ_TOKEN,
-    })
-  : null;
-
+// ── Image URL builder ───────────────────────────────────────────
 const builder = client ? createImageUrlBuilder(client) : null;
 export function urlFor(source: SanityImageSource) {
   if (!builder) throw new Error("Sanity is not configured — cannot generate image URL");
   return builder.image(source);
 }
 
+// ── Fetch helper ────────────────────────────────────────────────
+// Uses sanityFetch (live) when available, falls back to client.fetch
+async function fetchSanity<T>(query: string, params = {}, tags: string[] = []): Promise<T> {
+  if (sanityFetch) {
+    const { data } = await sanityFetch({ query, params, tags });
+    return data as T;
+  }
+  if (client) {
+    return client.fetch<T>(query, params, { next: { tags } });
+  }
+  throw new Error("Sanity is not configured");
+}
+
+// ── Types ───────────────────────────────────────────────────────
 export type Project = {
   _id: string;
   title: string;
@@ -54,121 +57,97 @@ export type Post = {
   featured: boolean;
 };
 
-export async function getFeaturedProjects(): Promise<Project[]> {
-  if (!client) return [];
-  return client.fetch(
-    `*[_type == "project" && featured == true] | order(order asc) [0...6] {
-      _id, title, slug, tagline, coverImage, techStack, category,
-      liveUrl, githubUrl, featured, order, overview
-    }`,
-  );
-}
-
-export async function getAllProjects(): Promise<Project[]> {
-  if (!client) return [];
-  return client.fetch(
-    `*[_type == "project"] | order(order asc) {
-      _id, title, slug, tagline, coverImage, techStack, category,
-      liveUrl, githubUrl, featured, order
-    }`,
-  );
-}
-
-export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  if (!client) return null;
-  return client.fetch(
-    `*[_type == "project" && slug.current == $slug][0] {
-      _id, title, slug, tagline, coverImage, techStack, category,
-      liveUrl, githubUrl, overview, problem, solution, results, publishedAt
-    }`,
-    { slug },
-  );
-}
-
-export async function getFeaturedPosts(): Promise<Post[]> {
-  if (!client) return [];
-  return client.fetch(
-    `*[_type == "post" && featured == true] | order(publishedAt desc) [0...3] {
-      _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
-    }`,
-  );
-}
-
-export async function getAllPosts(): Promise<Post[]> {
-  if (!client) return [];
-  return client.fetch(
-    `*[_type == "post"] | order(publishedAt desc) {
-      _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
-    }`,
-  );
-}
-
-export async function getPostBySlug(slug: string): Promise<Post | null> {
-  if (!client) return null;
-  return client.fetch(
-    `*[_type == "post" && slug.current == $slug][0] {
-      _id, title, slug, excerpt, coverImage, content, tags, readTime, publishedAt
-    }`,
-    { slug },
-  );
-}
-
-// Type aliases for backwards-compat with existing components
 export type SanityProject = Project;
 export type SanityPost = Post;
 
-// ─── Profile ─────────────────────────────────────────────────────
-// export type Profile = {
-//   name: string;
-//   title: string;
-//   location: string;
-//   timezone: string;
-//   photo?: SanityImageSource;
-//   availableForFreelance: boolean;
-//   availableForFullTime: boolean;
-//   availabilityNote: string;
-//   email: string;
-//   githubUrl?: string;
-//   linkedinUrl?: string;
-//   twitterUrl?: string;
-//   websiteUrl?: string;
-//   heroTaglineClient: string;
-//   heroSubClient: string;
-//   heroTaglineEmployer: string;
-//   heroSubEmployer: string;
-//   heroStats: { value: string; label: string }[];
-//   terminalSkills: string[];
-//   bio?: unknown[];
-//   bioShort: string;
-//   values?: { emoji: string; title: string; body: string }[];
-//   skillGroups?: { category: string; skills: string[] }[];
-//   experience?: {
-//     company: string;
-//     role: string;
-//     period: string;
-//     location: string;
-//     current: boolean;
-//     companyUrl?: string;
-//     highlights: string[];
-//   }[];
-//   education?: {
-//     institution: string;
-//     degree: string;
-//     period: string;
-//     location: string;
-//   }[];
-//   seoDescription?: string;
-// };
+// ── Queries ─────────────────────────────────────────────────────
+const featuredProjectsQuery = defineQuery(
+  `*[_type == "project" && featured == true] | order(order asc) [0...6] {
+    _id, title, slug, tagline, coverImage, techStack, category,
+    liveUrl, githubUrl, featured, order, overview
+  }`,
+);
 
-// export async function getProfile(): Promise<Profile | null> {
-//   return client.fetch(
-//     `*[_id == "singleton-profile"][0]`,
-//     {},
-//     { next: { revalidate: 3600 } },
-//   );
-// }
+const allProjectsQuery = defineQuery(
+  `*[_type == "project"] | order(order asc) {
+    _id, title, slug, tagline, coverImage, techStack, category,
+    liveUrl, githubUrl, featured, order
+  }`,
+);
 
-// Serialise profile to plain text for the AI chatbot system prompt
+const projectBySlugQuery = defineQuery(
+  `*[_type == "project" && slug.current == $slug][0] {
+    _id, title, slug, tagline, coverImage, techStack, category,
+    liveUrl, githubUrl, overview, problem, solution, results, publishedAt
+  }`,
+);
+
+const featuredPostsQuery = defineQuery(
+  `*[_type == "post" && featured == true] | order(publishedAt desc) [0...3] {
+    _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
+  }`,
+);
+
+const allPostsQuery = defineQuery(
+  `*[_type == "post"] | order(publishedAt desc) {
+    _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
+  }`,
+);
+
+const postBySlugQuery = defineQuery(
+  `*[_type == "post" && slug.current == $slug][0] {
+    _id, title, slug, excerpt, coverImage, content, tags, readTime, publishedAt
+  }`,
+);
+
+const profileQuery = defineQuery(
+  `*[_id == "singleton-profile"][0] {
+    ...,
+    "resume": resume { "asset": asset-> { _ref, url } }
+  }`,
+);
+
+// ── Data fetchers ───────────────────────────────────────────────
+export async function getFeaturedProjects(): Promise<Project[]> {
+  if (!isSanityConfigured) return [];
+  return fetchSanity<Project[]>(featuredProjectsQuery, {}, ["project"]);
+}
+
+export async function getAllProjects(): Promise<Project[]> {
+  if (!isSanityConfigured) return [];
+  return fetchSanity<Project[]>(allProjectsQuery, {}, ["project"]);
+}
+
+export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  if (!isSanityConfigured) return null;
+  return fetchSanity<Project | null>(projectBySlugQuery, { slug }, ["project", `project:${slug}`]);
+}
+
+export async function getFeaturedPosts(): Promise<Post[]> {
+  if (!isSanityConfigured) return [];
+  return fetchSanity<Post[]>(featuredPostsQuery, {}, ["post"]);
+}
+
+export async function getAllPosts(): Promise<Post[]> {
+  if (!isSanityConfigured) return [];
+  return fetchSanity<Post[]>(allPostsQuery, {}, ["post"]);
+}
+
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  if (!isSanityConfigured) return null;
+  return fetchSanity<Post | null>(postBySlugQuery, { slug }, ["post", `post:${slug}`]);
+}
+
+export async function getProfile(): Promise<Profile | null> {
+  if (!isSanityConfigured) return null;
+  return fetchSanity<Profile | null>(profileQuery, {}, ["profile"]);
+}
+
+export function getResumeUrl(profile: Profile): string | null {
+  return profile.resume?.asset?.url ?? null;
+}
+
+// ── Profile prompt context (for AI chatbot) ─────────────────────
 export function profileToPromptContext(p: Profile): string {
   const availability = [
     p.availableForFreelance ? "Available for freelance projects" : "Not taking freelance right now",
@@ -212,7 +191,7 @@ ${(p.education ?? []).map((e) => `- ${e.institution} · ${e.degree} · ${e.perio
 `.trim();
 }
 
-// ─── Profile (singleton) ─────────────────────────────────────────
+// ── Profile types ───────────────────────────────────────────────
 export interface SkillGroup {
   category: string;
   skills: string[];
@@ -243,62 +222,38 @@ export interface ProfileValue {
 }
 
 export interface Profile {
-  // Identity
   name: string;
   title: string;
   location: string;
   timezone: string;
   photo?: SanityImageSource;
-  // Availability
   availableForFreelance: boolean;
   availableForFullTime: boolean;
   availabilityNote: string;
-  // Contact
   email: string;
   githubUrl: string;
   linkedinUrl: string;
   twitterUrl?: string;
   websiteUrl: string;
-  // Hero
   heroTaglineClient: string;
   heroSubClient: string;
   heroTaglineEmployer: string;
   heroSubEmployer: string;
   heroStats: HeroStat[];
   terminalSkills: string[];
-  // Bio
   bio?: unknown[];
   bioShort: string;
-  // About
   values: ProfileValue[];
   skillGroups: SkillGroup[];
   experience: Experience[];
   education: Education[];
-  // Resume
   resume?: { asset: { _ref: string; url?: string } };
   resumeLastUpdated?: string;
-  // SEO
   ogImage?: SanityImageSource;
   seoDescription: string;
 }
 
-export async function getProfile(): Promise<Profile | null> {
-  if (!client) return null;
-  return client.fetch<Profile | null>(
-    `*[_id == "singleton-profile"][0] {
-      ...,
-      "resume": resume { "asset": asset-> { _ref, url } }
-    }`,
-    {},
-    { next: { revalidate: 300 } }, // 5-min cache — fast to update
-  );
-}
-
-export function getResumeUrl(profile: Profile): string | null {
-  return profile.resume?.asset?.url ?? null;
-}
-
-// Fallback profile when Sanity isn't set up yet
+// ── Fallback profile (when Sanity isn't configured) ─────────────
 export const FALLBACK_PROFILE: Profile = {
   name: "Michael Padin",
   title: "Full-Stack Developer",

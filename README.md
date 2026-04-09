@@ -47,13 +47,17 @@ pnpm install
 
 ### Environment Variables
 
-Copy the example and fill in your values:
+Each app has its own `.env` file (per Turborepo best practice — no root `.env`):
 
 ```bash
-cp .env.example apps/web/.env.local
+# Web app (Next.js) — all env vars
+cp apps/web/.env.example apps/web/.env.local
+
+# Studio (Sanity) — only project ID + dataset
+cp apps/studio/.env.example apps/studio/.env
 ```
 
-See `.env.example` for all available variables. The site works without any env vars — it uses hardcoded fallback data when Sanity is not configured.
+See `apps/web/.env.example` for all available variables. The site works without any env vars — it uses hardcoded fallback data when Sanity is not configured.
 
 ### Development
 
