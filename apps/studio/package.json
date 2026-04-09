@@ -11,15 +11,15 @@
   "dependencies": {
     "@portfolio/sanity-schemas": "workspace:*",
     "@sanity/vision": "^3.68.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "sanity": "^3.68.0",
     "styled-components": "^6.1.13"
   },
   "devDependencies": {
     "@portfolio/config-typescript": "workspace:*",
-    "@types/react": "^18.3.14",
-    "@types/react-dom": "^18.3.5",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "typescript": "^5.7.2"
   }
 }
