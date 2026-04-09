@@ -5,8 +5,13 @@ import Anthropic from "@anthropic-ai/sdk";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
+
+function getAnthropic() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
 
 // Rate limiting
 const submissions = new Map<string, number[]>();
@@ -54,7 +59,7 @@ async function scoreLeadWithAI(data: {
   budget?: string;
 }): Promise<string> {
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 200,
       messages: [
@@ -153,7 +158,7 @@ export async function POST(req: NextRequest) {
     const aiAssessment = await aiAssessmentPromise;
 
     // Send notification email to Michael
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "Portfolio Contact <noreply@michaelpadin.com>",
       to: process.env.CONTACT_EMAIL ?? "hello@michaelpadin.com",
       replyTo: email,
@@ -189,7 +194,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Auto-reply to sender
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "Michael Padin <hello@michaelpadin.com>",
       to: email,
       subject: `Got your message, ${name.split(" ")[0]}!`,

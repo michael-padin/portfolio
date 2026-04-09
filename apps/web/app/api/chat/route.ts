@@ -4,7 +4,9 @@ import { getProfile, profileToPromptContext } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+function getClient() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
 
 // ── Per-IP rate limiting (in-memory; reset on cold start) ──────────
 const sessions = new Map<string, { count: number; cost: number; reset: number }>();
@@ -96,7 +98,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Call Claude API ─────────────────────────────────────────
-    const response = await client.messages.create({
+    const response = await getClient().messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 300,
       system: systemPrompt,
