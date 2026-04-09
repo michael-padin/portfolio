@@ -159,9 +159,7 @@ export type SanityPost = Post;
 // Serialise profile to plain text for the AI chatbot system prompt
 export function profileToPromptContext(p: Profile): string {
   const availability = [
-    p.availableForFreelance
-      ? "Available for freelance projects"
-      : "Not taking freelance right now",
+    p.availableForFreelance ? "Available for freelance projects" : "Not taking freelance right now",
     p.availableForFullTime
       ? "Open to full-time remote roles"
       : "Not looking for full-time right now",
@@ -368,32 +366,15 @@ export const FALLBACK_PROFILE: Profile = {
     },
     {
       category: "Cloud & DevOps",
-      skills: [
-        "AWS S3",
-        "Cloudflare Workers",
-        "Cloudflare Pages",
-        "Docker",
-        "GitHub Actions",
-      ],
+      skills: ["AWS S3", "Cloudflare Workers", "Cloudflare Pages", "Docker", "GitHub Actions"],
     },
     {
       category: "Tooling",
-      skills: [
-        "Turborepo",
-        "pnpm workspaces",
-        "Git",
-        "Sanity CMS",
-        "Keystatic",
-      ],
+      skills: ["Turborepo", "pnpm workspaces", "Git", "Sanity CMS", "Keystatic"],
     },
     {
       category: "Soft Skills",
-      skills: [
-        "Async-first communication",
-        "Technical writing",
-        "Code review",
-        "Mentoring",
-      ],
+      skills: ["Async-first communication", "Technical writing", "Code review", "Mentoring"],
     },
   ],
   experience: [

@@ -138,7 +138,12 @@ export const profileSchema = defineType({
           type: "object",
           fields: [
             { name: "value", type: "string", title: "Value", description: "e.g. '3+'" },
-            { name: "label", type: "string", title: "Label", description: "e.g. 'Years experience'" },
+            {
+              name: "label",
+              type: "string",
+              title: "Label",
+              description: "e.g. 'Years experience'",
+            },
           ],
           preview: { select: { title: "value", subtitle: "label" } },
         },
@@ -157,9 +162,18 @@ export const profileSchema = defineType({
       type: "array",
       of: [{ type: "string" }],
       initialValue: [
-        "TypeScript", "React", "Next.js", "Node.js", "Express",
-        "PostgreSQL", "MongoDB", "AWS S3", "Cloudflare Workers",
-        "Turborepo", "Prisma", "Sanity CMS",
+        "TypeScript",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Express",
+        "PostgreSQL",
+        "MongoDB",
+        "AWS S3",
+        "Cloudflare Workers",
+        "Turborepo",
+        "Prisma",
+        "Sanity CMS",
       ],
     }),
 
@@ -194,7 +208,7 @@ export const profileSchema = defineType({
     // ── Values / How I Work ───────────────────────────────────
     defineField({
       name: "values",
-      title: "Values — \"How I Work\" cards",
+      title: 'Values — "How I Work" cards',
       type: "array",
       of: [
         {
@@ -208,10 +222,26 @@ export const profileSchema = defineType({
         },
       ],
       initialValue: [
-        { emoji: "🚢", title: "Ship it", body: "Perfect is the enemy of done. I prefer iterating on live products over endless planning cycles." },
-        { emoji: "📖", title: "Write to think", body: "I document decisions, write clear PR descriptions, and believe good writing is a core engineering skill." },
-        { emoji: "🌐", title: "Async by default", body: "Working across timezones (PH ↔ AU ↔ US) taught me to over-communicate and never block teammates." },
-        { emoji: "🔍", title: "Understand the why", body: "I ask questions before writing a line of code. Solving the right problem matters more than elegant solutions to the wrong one." },
+        {
+          emoji: "🚢",
+          title: "Ship it",
+          body: "Perfect is the enemy of done. I prefer iterating on live products over endless planning cycles.",
+        },
+        {
+          emoji: "📖",
+          title: "Write to think",
+          body: "I document decisions, write clear PR descriptions, and believe good writing is a core engineering skill.",
+        },
+        {
+          emoji: "🌐",
+          title: "Async by default",
+          body: "Working across timezones (PH ↔ AU ↔ US) taught me to over-communicate and never block teammates.",
+        },
+        {
+          emoji: "🔍",
+          title: "Understand the why",
+          body: "I ask questions before writing a line of code. Solving the right problem matters more than elegant solutions to the wrong one.",
+        },
       ],
     }),
 
@@ -224,17 +254,51 @@ export const profileSchema = defineType({
         {
           type: "object",
           fields: [
-            { name: "category", type: "string", title: "Category", description: "e.g. Frontend, Backend, Cloud" },
+            {
+              name: "category",
+              type: "string",
+              title: "Category",
+              description: "e.g. Frontend, Backend, Cloud",
+            },
             { name: "skills", type: "array", title: "Skills", of: [{ type: "string" }] },
           ],
           preview: { select: { title: "category" } },
         },
       ],
       initialValue: [
-        { category: "Frontend", skills: ["TypeScript", "React", "Next.js", "TanStack Query", "Tailwind CSS", "Shadcn/ui", "Framer Motion"] },
-        { category: "Backend", skills: ["Node.js", "Express.js", "Hono", "PostgreSQL", "MongoDB", "Prisma ORM", "BullMQ", "Socket.io"] },
-        { category: "Cloud & DevOps", skills: ["AWS S3", "Cloudflare Workers", "Cloudflare Pages", "Docker", "GitHub Actions"] },
-        { category: "Tooling", skills: ["Turborepo", "pnpm workspaces", "Git", "Sanity CMS", "Keystatic"] },
+        {
+          category: "Frontend",
+          skills: [
+            "TypeScript",
+            "React",
+            "Next.js",
+            "TanStack Query",
+            "Tailwind CSS",
+            "Shadcn/ui",
+            "Framer Motion",
+          ],
+        },
+        {
+          category: "Backend",
+          skills: [
+            "Node.js",
+            "Express.js",
+            "Hono",
+            "PostgreSQL",
+            "MongoDB",
+            "Prisma ORM",
+            "BullMQ",
+            "Socket.io",
+          ],
+        },
+        {
+          category: "Cloud & DevOps",
+          skills: ["AWS S3", "Cloudflare Workers", "Cloudflare Pages", "Docker", "GitHub Actions"],
+        },
+        {
+          category: "Tooling",
+          skills: ["Turborepo", "pnpm workspaces", "Git", "Sanity CMS", "Keystatic"],
+        },
       ],
     }),
 
@@ -249,8 +313,18 @@ export const profileSchema = defineType({
           fields: [
             { name: "company", type: "string", title: "Company" },
             { name: "role", type: "string", title: "Role" },
-            { name: "period", type: "string", title: "Period", description: "e.g. Aug 2023 – Present" },
-            { name: "location", type: "string", title: "Location", description: "e.g. Brisbane, Australia (Remote)" },
+            {
+              name: "period",
+              type: "string",
+              title: "Period",
+              description: "e.g. Aug 2023 – Present",
+            },
+            {
+              name: "location",
+              type: "string",
+              title: "Location",
+              description: "e.g. Brisbane, Australia (Remote)",
+            },
             { name: "current", type: "boolean", title: "Current role?", initialValue: false },
             { name: "companyUrl", type: "url", title: "Company URL (optional)" },
             {

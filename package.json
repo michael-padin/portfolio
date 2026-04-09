@@ -1,16 +1,20 @@
 {
   "name": "michael-padin-portfolio",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
     "type-check": "turbo type-check",
     "clean": "turbo clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    "format": "oxfmt --check",
+    "format:fix": "oxfmt ."
   },
   "devDependencies": {
-    "prettier": "^3.8.1",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
     "turbo": "^2.9.5",
     "typescript": "^6.0.2"
   },

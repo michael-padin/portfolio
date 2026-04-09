@@ -6,10 +6,10 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
 // ── Per-IP rate limiting (in-memory; reset on cold start) ──────────
 const sessions = new Map<string, { count: number; cost: number; reset: number }>();
-const MAX_MESSAGES      = 20;
-const MAX_COST_CENTS    = 5;        // $0.05 per session
-const RESET_INTERVAL    = 60 * 60 * 1000;
-const COST_PER_EXCHANGE = 0.12;     // ~$0.0012 (Haiku 500in/200out)
+const MAX_MESSAGES = 20;
+const MAX_COST_CENTS = 5; // $0.05 per session
+const RESET_INTERVAL = 60 * 60 * 1000;
+const COST_PER_EXCHANGE = 0.12; // ~$0.0012 (Haiku 500in/200out)
 
 // ── Prompt injection patterns ──────────────────────────────────────
 const INJECTION = [
@@ -47,7 +47,7 @@ RULES:
 export async function POST(req: NextRequest) {
   try {
     // ── Rate limiting ───────────────────────────────────────────
-    const ip  = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
     const now = Date.now();
     const session = sessions.get(ip) ?? { count: 0, cost: 0, reset: now + RESET_INTERVAL };
 
@@ -56,46 +56,46 @@ export async function POST(req: NextRequest) {
     } else if (session.count >= MAX_MESSAGES) {
       return NextResponse.json(
         { error: "Session limit reached. Please contact Michael directly." },
-        { status: 429 }
+        { status: 429 },
       );
     } else if (session.cost >= MAX_COST_CENTS) {
       return NextResponse.json(
         { error: "Session budget reached. Please reach out via email." },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
     // ── Parse & validate input ──────────────────────────────────
     const body = await req.json().catch(() => ({}));
-    const raw  = String(body.message ?? "").trim();
+    const raw = String(body.message ?? "").trim();
 
-    if (!raw)          return NextResponse.json({ error: "Message is required" }, { status: 400 });
-    if (raw.length > 500) return NextResponse.json({ error: "Message too long (500 char max)" }, { status: 400 });
+    if (!raw) return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    if (raw.length > 500)
+      return NextResponse.json({ error: "Message too long (500 char max)" }, { status: 400 });
 
     // ── Prompt injection guard ──────────────────────────────────
     if (INJECTION.some((p) => p.test(raw))) {
-      return NextResponse.json(
-        { reply: "I can only answer questions about Michael's professional background. What would you like to know?" }
-      );
+      return NextResponse.json({
+        reply:
+          "I can only answer questions about Michael's professional background. What would you like to know?",
+      });
     }
 
     // ── Build system prompt from live Sanity profile ────────────
     let systemPrompt: string;
     try {
       const profile = await getProfile();
-      systemPrompt = profile
-        ? buildSystemPrompt(profileToPromptContext(profile))
-        : FALLBACK_SYSTEM;
+      systemPrompt = profile ? buildSystemPrompt(profileToPromptContext(profile)) : FALLBACK_SYSTEM;
     } catch {
       systemPrompt = FALLBACK_SYSTEM;
     }
 
     // ── Call Claude API ─────────────────────────────────────────
     const response = await client.messages.create({
-      model:      "claude-haiku-4-5",
+      model: "claude-haiku-4-5",
       max_tokens: 300,
-      system:     systemPrompt,
-      messages:   [{ role: "user", content: raw }],
+      system: systemPrompt,
+      messages: [{ role: "user", content: raw }],
     });
 
     const reply =
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     // ── Update session ──────────────────────────────────────────
     sessions.set(ip, {
       count: session.count + 1,
-      cost:  session.cost  + COST_PER_EXCHANGE,
+      cost: session.cost + COST_PER_EXCHANGE,
       reset: session.reset,
     });
 
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     console.error("[chat]", err);
     return NextResponse.json(
       { error: "Something went wrong. Please try again or contact Michael directly." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

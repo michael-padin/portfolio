@@ -10,7 +10,8 @@ const DEMO_POSTS: SanityPost[] = [
     _id: "1",
     title: "How I migrated 5 Next.js apps to TanStack in a Turborepo monorepo",
     slug: { current: "nextjs-to-tanstack-migration" },
-    excerpt: "A deep dive into the architectural decisions, tooling challenges, and performance wins from migrating a large monorepo away from Next.js for internal tooling.",
+    excerpt:
+      "A deep dive into the architectural decisions, tooling challenges, and performance wins from migrating a large monorepo away from Next.js for internal tooling.",
     tags: ["TanStack", "Turborepo", "Next.js", "Migration"],
     readTime: 8,
     publishedAt: "2025-12-01",
@@ -20,7 +21,8 @@ const DEMO_POSTS: SanityPost[] = [
     _id: "2",
     title: "Building a secure AI chatbot for your portfolio with Claude API + Cloudflare Workers",
     slug: { current: "ai-chatbot-portfolio-claude-cloudflare" },
-    excerpt: "Step-by-step guide to deploying a cost-controlled, prompt-injection-resistant AI chatbot that answers questions about you — for about $1/month.",
+    excerpt:
+      "Step-by-step guide to deploying a cost-controlled, prompt-injection-resistant AI chatbot that answers questions about you — for about $1/month.",
     tags: ["Claude API", "Cloudflare Workers", "AI", "Security"],
     readTime: 12,
     publishedAt: "2025-11-15",
@@ -30,7 +32,8 @@ const DEMO_POSTS: SanityPost[] = [
     _id: "3",
     title: "Scaling BullMQ job queues for real estate image processing at volume",
     slug: { current: "bullmq-image-processing-scale" },
-    excerpt: "What I learned running thousands of image processing jobs through BullMQ with AWS S3, retry strategies, and progress tracking via Socket.io.",
+    excerpt:
+      "What I learned running thousands of image processing jobs through BullMQ with AWS S3, retry strategies, and progress tracking via Socket.io.",
     tags: ["BullMQ", "Node.js", "AWS S3", "Performance"],
     readTime: 10,
     publishedAt: "2025-10-20",
@@ -48,8 +51,7 @@ export function BlogPreviewSection({ posts }: Props) {
           <div className="label-tag mb-4">Writing</div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <h2 className="font-display text-display-lg text-text-primary max-w-lg">
-              Thoughts on{" "}
-              <span className="italic text-accent">shipping</span> software
+              Thoughts on <span className="italic text-accent">shipping</span> software
             </h2>
             <Link href="/blog" className="btn-ghost text-sm shrink-0 self-start sm:self-auto">
               All posts →
@@ -70,15 +72,24 @@ export function BlogPreviewSection({ posts }: Props) {
 function PostCard({ post }: { post: SanityPost }) {
   const slug = typeof post.slug === "string" ? post.slug : post.slug?.current;
   const date = post.publishedAt
-    ? new Date(post.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    ? new Date(post.publishedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
     : null;
 
   return (
-    <Link href={`/blog/${slug}`} className="card group p-6 flex flex-col gap-4 hover:border-accent/30">
+    <Link
+      href={`/blog/${slug}`}
+      className="card group p-6 flex flex-col gap-4 hover:border-accent/30"
+    >
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5">
         {(post.tags ?? []).slice(0, 3).map((tag) => (
-          <span key={tag} className="tech-badge text-2xs">{tag}</span>
+          <span key={tag} className="tech-badge text-2xs">
+            {tag}
+          </span>
         ))}
       </div>
 

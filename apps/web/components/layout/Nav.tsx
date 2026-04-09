@@ -39,7 +39,10 @@ export function Nav() {
     >
       <div className="container-main h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="font-display text-xl text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors">
+        <Link
+          href="/"
+          className="font-display text-xl text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+        >
           mp<span className="text-[var(--accent)]">.</span>
         </Link>
 
@@ -99,14 +102,54 @@ export function Nav() {
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             {menuOpen ? (
               <>
-                <line x1="4" y1="4" x2="18" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="18" y1="4" x2="4" y2="18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line
+                  x1="4"
+                  y1="4"
+                  x2="18"
+                  y2="18"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="18"
+                  y1="4"
+                  x2="4"
+                  y2="18"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </>
             ) : (
               <>
-                <line x1="3" y1="7" x2="19" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="3" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="3" y1="17" x2="19" y2="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <line
+                  x1="3"
+                  y1="7"
+                  x2="19"
+                  y2="7"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="3"
+                  y1="12"
+                  x2="19"
+                  y2="12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <line
+                  x1="3"
+                  y1="17"
+                  x2="19"
+                  y2="17"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </>
             )}
           </svg>
@@ -129,10 +172,26 @@ export function Nav() {
             </Link>
           ))}
           <div className="flex gap-3 pt-2 border-t border-[var(--border)]">
-            <button onClick={() => setMode("client")} className={`flex-1 py-2 text-xs rounded-full ${mode==="client"?"bg-[var(--accent)] text-[var(--background)] font-semibold":"border border-[var(--border)] text-[var(--text-muted)]"}`}>Hiring a dev?</button>
-            <button onClick={() => setMode("employer")} className={`flex-1 py-2 text-xs rounded-full ${mode==="employer"?"bg-[var(--accent)] text-[var(--background)] font-semibold":"border border-[var(--border)] text-[var(--text-muted)]"}`}>Recruiting?</button>
+            <button
+              onClick={() => setMode("client")}
+              className={`flex-1 py-2 text-xs rounded-full ${mode === "client" ? "bg-[var(--accent)] text-[var(--background)] font-semibold" : "border border-[var(--border)] text-[var(--text-muted)]"}`}
+            >
+              Hiring a dev?
+            </button>
+            <button
+              onClick={() => setMode("employer")}
+              className={`flex-1 py-2 text-xs rounded-full ${mode === "employer" ? "bg-[var(--accent)] text-[var(--background)] font-semibold" : "border border-[var(--border)] text-[var(--text-muted)]"}`}
+            >
+              Recruiting?
+            </button>
           </div>
-          <Link href="/contact" onClick={() => setMenuOpen(false)} className="btn-primary text-sm text-center">Let&apos;s talk</Link>
+          <Link
+            href="/contact"
+            onClick={() => setMenuOpen(false)}
+            className="btn-primary text-sm text-center"
+          >
+            Let&apos;s talk
+          </Link>
         </div>
       )}
     </header>

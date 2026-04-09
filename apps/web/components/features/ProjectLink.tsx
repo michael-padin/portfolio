@@ -1,12 +1,6 @@
 "use client";
 
-export function ProjectLink({
-  liveUrl,
-  name,
-}: {
-  liveUrl: string;
-  name: string;
-}) {
+export function ProjectLink({ liveUrl, name }: { liveUrl: string; name: string }) {
   return (
     <span
       onClick={(e) => {

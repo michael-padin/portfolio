@@ -65,7 +65,10 @@ export function ContactForm() {
         <h3 className="font-display text-2xl text-text-primary mb-2">Message sent!</h3>
         <p className="text-text-secondary">I'll get back to you within 24 hours.</p>
         <button
-          onClick={() => { setStatus("idle"); loadTimeRef.current = Date.now(); }}
+          onClick={() => {
+            setStatus("idle");
+            loadTimeRef.current = Date.now();
+          }}
           className="mt-6 btn-ghost text-sm"
         >
           Send another
@@ -91,7 +94,11 @@ export function ContactForm() {
                   : "border-surface-border text-text-muted hover:border-accent/30 hover:text-text-primary"
               }`}
             >
-              {t === "client" ? "Potential client" : t === "employer" ? "Recruiter / Hiring" : "Other"}
+              {t === "client"
+                ? "Potential client"
+                : t === "employer"
+                  ? "Recruiter / Hiring"
+                  : "Other"}
             </button>
           ))}
         </div>
@@ -100,7 +107,9 @@ export function ContactForm() {
       {/* Name + Email */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="name">Name *</label>
+          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="name">
+            Name *
+          </label>
           <input
             id="name"
             name="name"
@@ -113,7 +122,9 @@ export function ContactForm() {
           />
         </div>
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="email">Email *</label>
+          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="email">
+            Email *
+          </label>
           <input
             id="email"
             name="email"
@@ -128,14 +139,20 @@ export function ContactForm() {
 
       {/* Subject */}
       <div>
-        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="subject">Subject *</label>
+        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="subject">
+          Subject *
+        </label>
         <input
           id="subject"
           name="subject"
           type="text"
           required
           maxLength={200}
-          placeholder={visitorType === "employer" ? "Senior React Developer — Remote Role" : "Project idea or question"}
+          placeholder={
+            visitorType === "employer"
+              ? "Senior React Developer — Remote Role"
+              : "Project idea or question"
+          }
           className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all"
         />
       </div>
@@ -143,7 +160,9 @@ export function ContactForm() {
       {/* Budget (client only) */}
       {visitorType === "client" && (
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="budget">Approximate budget</label>
+          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="budget">
+            Approximate budget
+          </label>
           <select
             id="budget"
             name="budget"
@@ -161,7 +180,9 @@ export function ContactForm() {
 
       {/* Message */}
       <div>
-        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="message">Message *</label>
+        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="message">
+          Message *
+        </label>
         <textarea
           id="message"
           name="message"
@@ -173,8 +194,8 @@ export function ContactForm() {
             visitorType === "employer"
               ? "Tell me about the role, team, and tech stack..."
               : visitorType === "client"
-              ? "Describe your project, goals, and timeline..."
-              : "What's on your mind?"
+                ? "Describe your project, goals, and timeline..."
+                : "What's on your mind?"
           }
           className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all resize-none"
         />
@@ -183,13 +204,7 @@ export function ContactForm() {
       {/* Honeypot - hidden from real users */}
       <div aria-hidden="true" className="hidden">
         <label htmlFor="website_url">Website URL</label>
-        <input
-          id="website_url"
-          name="website_url"
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-        />
+        <input id="website_url" name="website_url" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       {/* Turnstile */}
@@ -226,7 +241,13 @@ export function ContactForm() {
           <>
             Send message
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M1 8h14M9 2l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path
+                d="M1 8h14M9 2l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </>
         )}

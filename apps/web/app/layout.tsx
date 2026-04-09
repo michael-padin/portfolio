@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Navbar }  from "@/components/layout/Navbar";
-import { Footer }  from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { ChatBot } from "@/components/features/ChatBot";
 import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
 import Script from "next/script";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = await getProfile().catch(() => null) ?? FALLBACK_PROFILE;
+  const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
   const siteUrl = profile.websiteUrl ?? "https://michaelpadin.com";
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default:  `${profile.name} — ${profile.title}`,
+      default: `${profile.name} — ${profile.title}`,
       template: `%s | ${profile.name}`,
     },
     description: profile.seoDescription,
@@ -24,26 +24,26 @@ export async function generateMetadata(): Promise<Metadata> {
       "hire freelance developer",
       "Node.js TypeScript developer",
     ],
-    authors:  [{ name: profile.name, url: siteUrl }],
-    creator:  profile.name,
+    authors: [{ name: profile.name, url: siteUrl }],
+    creator: profile.name,
     openGraph: {
-      type:      "website",
-      locale:    "en_US",
-      url:       siteUrl,
-      siteName:  profile.name,
-      title:     `${profile.name} — ${profile.title}`,
+      type: "website",
+      locale: "en_US",
+      url: siteUrl,
+      siteName: profile.name,
+      title: `${profile.name} — ${profile.title}`,
       description: profile.seoDescription,
       images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
-      card:        "summary_large_image",
-      title:       `${profile.name} — ${profile.title}`,
+      card: "summary_large_image",
+      title: `${profile.name} — ${profile.title}`,
       description: profile.seoDescription,
-      images:      ["/og-image.png"],
+      images: ["/og-image.png"],
     },
     robots: {
-      index:     true,
-      follow:    true,
+      index: true,
+      follow: true,
       googleBot: { index: true, follow: true, "max-image-preview": "large" },
     },
     alternates: { canonical: siteUrl },
@@ -51,24 +51,24 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const profile = await getProfile().catch(() => null) ?? FALLBACK_PROFILE;
+  const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
   const siteUrl = profile.websiteUrl ?? "https://michaelpadin.com";
 
   const umamiId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
-  const gaId    = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   const personJsonLd = {
-    "@context":  "https://schema.org",
-    "@type":     "Person",
-    name:        profile.name,
-    url:         siteUrl,
-    jobTitle:    profile.title,
-    knowsAbout:  profile.terminalSkills,
-    sameAs:      [profile.githubUrl, profile.linkedinUrl].filter(Boolean),
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.name,
+    url: siteUrl,
+    jobTitle: profile.title,
+    knowsAbout: profile.terminalSkills,
+    sameAs: [profile.githubUrl, profile.linkedinUrl].filter(Boolean),
     address: {
-      "@type":         "PostalAddress",
+      "@type": "PostalAddress",
       addressLocality: profile.location.split(",")[0],
-      addressCountry:  "PH",
+      addressCountry: "PH",
     },
   };
 
@@ -83,14 +83,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="bg-bg text-fg antialiased">
         {/* Umami — privacy-first, no cookie banner */}
         {umamiId && (
-          <Script defer src="https://cloud.umami.is/script.js"
-            data-website-id={umamiId} strategy="afterInteractive" />
+          <Script
+            defer
+            src="https://cloud.umami.is/script.js"
+            data-website-id={umamiId}
+            strategy="afterInteractive"
+          />
         )}
         {/* GA4 */}
         {gaId && (
           <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="afterInteractive" />
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
             <Script id="ga4-init" strategy="afterInteractive">{`
               window.dataLayer=window.dataLayer||[];
               function gtag(){dataLayer.push(arguments);}

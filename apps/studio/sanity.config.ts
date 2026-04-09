@@ -22,11 +22,7 @@ export default defineConfig({
             S.listItem()
               .title("Profile")
               .id("profile")
-              .child(
-                S.document()
-                  .schemaType("profile")
-                  .documentId("singleton-profile")
-              ),
+              .child(S.document().schemaType("profile").documentId("singleton-profile")),
             S.divider(),
             S.documentTypeListItem("project").title("Projects"),
             S.documentTypeListItem("post").title("Blog Posts"),

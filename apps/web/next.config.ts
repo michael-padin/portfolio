@@ -23,9 +23,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.sanity.io" },
-    ],
+    remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
   },
   // Transpile Sanity
   transpilePackages: ["@portfolio/sanity-schemas"],

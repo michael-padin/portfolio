@@ -26,9 +26,7 @@ const contactSchema = z.object({
   // Honeypot — must be empty
   website_url: z.string().max(0, "Bot detected").optional(),
   // Turnstile
-  "cf-turnstile-response": z
-    .string()
-    .min(1, "Please complete the verification"),
+  "cf-turnstile-response": z.string().min(1, "Please complete the verification"),
   // Timing check (ms since form loaded)
   _loadTime: z.number().min(0).optional(),
 });
@@ -36,14 +34,11 @@ const contactSchema = z.object({
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return true; // Skip in development
-  const res = await fetch(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-    },
-  );
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+  });
   const data = await res.json();
   return data.success === true;
 }
@@ -87,9 +82,7 @@ export async function POST(req: NextRequest) {
     // Per-IP rate limiting
     const now = Date.now();
     const hour = 60 * 60 * 1000;
-    const timestamps = (submissions.get(ip) ?? []).filter(
-      (t) => now - t < hour,
-    );
+    const timestamps = (submissions.get(ip) ?? []).filter((t) => now - t < hour);
     if (timestamps.length >= MAX_PER_HOUR) {
       return NextResponse.json(
         { error: "Too many submissions. Please try again later." },
@@ -99,8 +92,7 @@ export async function POST(req: NextRequest) {
 
     // Parse body
     const body = await req.json().catch(() => null);
-    if (!body)
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
     // Validate
     const result = contactSchema.safeParse(body);
@@ -151,10 +143,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Sanitize message for email
-    const safeMessage = message
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\n/g, "<br>");
+    const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
 
     const aiAssessment = await aiAssessmentPromise;
 

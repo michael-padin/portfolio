@@ -20,7 +20,8 @@ export function ChatBot() {
     {
       id: "0",
       role: "assistant",
-      content: "Hi! I'm Michael's AI assistant. Ask me anything about his skills, experience, availability, or projects.",
+      content:
+        "Hi! I'm Michael's AI assistant. Ask me anything about his skills, experience, availability, or projects.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -82,12 +83,27 @@ export function ChatBot() {
       >
         {open ? (
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <path
+              d="M4 4l12 12M16 4L4 16"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         ) : (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M8 10h.01M12 10h.01M16 10h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <path
+              d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M8 10h.01M12 10h.01M16 10h.01"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         )}
       </button>
@@ -98,7 +114,9 @@ export function ChatBot() {
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-surface-border">
             <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-accent-subtle border border-accent/30 flex items-center justify-center text-accent text-sm font-display">M</div>
+              <div className="w-8 h-8 rounded-full bg-accent-subtle border border-accent/30 flex items-center justify-center text-accent text-sm font-display">
+                M
+              </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-success border-2 border-bg-secondary" />
             </div>
             <div>
@@ -110,7 +128,12 @@ export function ChatBot() {
               className="ml-auto text-text-muted hover:text-text-primary transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path
+                  d="M2 2l12 12M14 2L2 14"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -137,9 +160,18 @@ export function ChatBot() {
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-surface text-text-muted px-4 py-3 rounded-2xl rounded-bl-sm border border-surface-border text-sm flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               </div>
             )}
@@ -171,7 +203,10 @@ export function ChatBot() {
           {/* Input */}
           <div className="p-3 border-t border-surface-border">
             <form
-              onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage(input);
+              }}
               className="flex gap-2"
             >
               <input
@@ -189,7 +224,13 @@ export function ChatBot() {
                 className="w-10 h-10 rounded-xl bg-accent text-bg flex items-center justify-center hover:bg-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M1 8h14M9 2l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M1 8h14M9 2l6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </form>

@@ -5,7 +5,10 @@ import { urlFor } from "@/lib/sanity";
 
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <Link href={`/projects/${project.slug.current}`} className="card card-accent flex flex-col overflow-hidden group">
+    <Link
+      href={`/projects/${project.slug.current}`}
+      className="card card-accent flex flex-col overflow-hidden group"
+    >
       {/* Thumbnail */}
       <div className="relative h-44 bg-[var(--surface-2)] overflow-hidden">
         {project.coverImage ? (
@@ -38,7 +41,9 @@ export function ProjectCard({ project }: { project: Project }) {
 
         <div className="flex flex-wrap gap-1.5 mt-auto">
           {project.techStack?.slice(0, 5).map((t) => (
-            <span key={t} className="tech-badge">{t}</span>
+            <span key={t} className="tech-badge">
+              {t}
+            </span>
           ))}
           {(project.techStack?.length ?? 0) > 5 && (
             <span className="tech-badge">+{project.techStack.length - 5}</span>

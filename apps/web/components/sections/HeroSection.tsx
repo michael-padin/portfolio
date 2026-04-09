@@ -3,7 +3,9 @@ import { useState } from "react";
 import Link from "next/link";
 import type { Profile } from "@/lib/sanity";
 
-interface Props { profile: Profile; }
+interface Props {
+  profile: Profile;
+}
 
 export function HeroSection({ profile }: Props) {
   const [mode, setMode] = useState<"client" | "employer">("client");
@@ -16,7 +18,7 @@ export function HeroSection({ profile }: Props) {
       headline: profile.heroTaglineClient,
       sub: profile.heroSubClient,
       cta1: { label: "Start a project", href: "/contact" },
-      cta2: { label: "See my work",     href: "/#projects" },
+      cta2: { label: "See my work", href: "/#projects" },
     },
     employer: {
       eyebrow: profile.availableForFullTime
@@ -25,7 +27,7 @@ export function HeroSection({ profile }: Props) {
       headline: profile.heroTaglineEmployer,
       sub: profile.heroSubEmployer,
       cta1: { label: "Download resume", href: "/MichaelPadinResume.pdf" },
-      cta2: { label: "View projects",   href: "/#projects" },
+      cta2: { label: "View projects", href: "/#projects" },
     },
   };
 
@@ -34,16 +36,22 @@ export function HeroSection({ profile }: Props) {
   return (
     <section className="relative min-h-screen flex items-center pt-20 pb-16 overflow-hidden">
       {/* Ambient orbs */}
-      <div className="absolute top-1/3 right-0 w-96 h-96 rounded-full blur-3xl pointer-events-none"
-        style={{ background: "rgba(0,212,170,0.05)" }} />
-      <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl pointer-events-none"
-        style={{ background: "rgba(0,212,170,0.03)" }} />
+      <div
+        className="absolute top-1/3 right-0 w-96 h-96 rounded-full blur-3xl pointer-events-none"
+        style={{ background: "rgba(0,212,170,0.05)" }}
+      />
+      <div
+        className="absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl pointer-events-none"
+        style={{ background: "rgba(0,212,170,0.03)" }}
+      />
 
       <div className="container-custom relative z-10 w-full">
         {/* Visitor toggle */}
         <div className="flex justify-start mb-10">
-          <div className="flex items-center gap-1 p-1 rounded-xl border border-surface-border"
-            style={{ background: "var(--color-surface)" }}>
+          <div
+            className="flex items-center gap-1 p-1 rounded-xl border border-surface-border"
+            style={{ background: "var(--color-surface)" }}
+          >
             {(["client", "employer"] as const).map((v) => (
               <button
                 key={v}
@@ -65,10 +73,13 @@ export function HeroSection({ profile }: Props) {
           <div>
             {/* Eyebrow */}
             <div className="label-tag mb-6">
-              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-                (mode === "client" ? profile.availableForFreelance : profile.availableForFullTime)
-                  ? "bg-success" : "bg-error"
-              }`} />
+              <span
+                className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                  (mode === "client" ? profile.availableForFreelance : profile.availableForFullTime)
+                    ? "bg-success"
+                    : "bg-error"
+                }`}
+              />
               {c.eyebrow}
             </div>
 
@@ -76,16 +87,23 @@ export function HeroSection({ profile }: Props) {
             <h1 className="text-display-xl text-text-primary mb-6">
               {c.headline.split("actually work.")[0]}
               {c.headline.includes("actually work.") && (
-                <span className="text-accent italic" style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}>
+                <span
+                  className="text-accent italic"
+                  style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}
+                >
                   actually work.
                 </span>
               )}
               {!c.headline.includes("actually work.") &&
-               !c.headline.includes("join your team.") && c.headline}
+                !c.headline.includes("join your team.") &&
+                c.headline}
               {c.headline.includes("join your team.") && (
                 <>
                   {c.headline.split("join your team.")[0]}
-                  <span className="text-accent italic" style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}>
+                  <span
+                    className="text-accent italic"
+                    style={{ textShadow: "0 0 40px rgba(0,212,170,0.5)" }}
+                  >
                     join your team.
                   </span>
                 </>
@@ -93,19 +111,25 @@ export function HeroSection({ profile }: Props) {
             </h1>
 
             {/* Sub */}
-            <p className="text-text-secondary text-lg leading-relaxed max-w-2xl mb-8">
-              {c.sub}
-            </p>
+            <p className="text-text-secondary text-lg leading-relaxed max-w-2xl mb-8">{c.sub}</p>
 
             {/* CTAs */}
             <div className="flex flex-wrap gap-3 mb-12">
               <Link href={c.cta1.href} className="btn-primary">
                 {c.cta1.label}
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path
+                    d="M1 7h12M8 2l5 5-5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </Link>
-              <Link href={c.cta2.href} className="btn-ghost">{c.cta2.label}</Link>
+              <Link href={c.cta2.href} className="btn-ghost">
+                {c.cta2.label}
+              </Link>
             </div>
 
             {/* Stats */}
@@ -135,7 +159,12 @@ export function HeroSection({ profile }: Props) {
         {/* Scroll cue */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-text-muted animate-float">
           <span className="text-xs font-mono">scroll</span>
-          <div className="w-px h-8" style={{ background: "linear-gradient(to bottom, var(--color-text-muted), transparent)" }} />
+          <div
+            className="w-px h-8"
+            style={{
+              background: "linear-gradient(to bottom, var(--color-text-muted), transparent)",
+            }}
+          />
         </div>
       </div>
     </section>
@@ -143,16 +172,27 @@ export function HeroSection({ profile }: Props) {
 }
 
 function TerminalCard({
-  name, title, location, skills, available, availabilityNote,
+  name,
+  title,
+  location,
+  skills,
+  available,
+  availabilityNote,
 }: {
-  name: string; title: string; location: string;
-  skills: string[]; available: boolean; availabilityNote: string;
+  name: string;
+  title: string;
+  location: string;
+  skills: string[];
+  available: boolean;
+  availabilityNote: string;
 }) {
   return (
     <div className="w-72 card overflow-hidden">
       {/* Title bar */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-surface-border"
-        style={{ background: "var(--color-surface)" }}>
+      <div
+        className="flex items-center gap-2 px-4 py-3 border-b border-surface-border"
+        style={{ background: "var(--color-surface)" }}
+      >
         <span className="w-3 h-3 rounded-full" style={{ background: "rgba(239,68,68,0.7)" }} />
         <span className="w-3 h-3 rounded-full" style={{ background: "rgba(245,158,11,0.7)" }} />
         <span className="w-3 h-3 rounded-full" style={{ background: "rgba(34,197,94,0.7)" }} />
@@ -163,7 +203,10 @@ function TerminalCard({
 
       {/* Body */}
       <div className="p-4 font-mono text-xs space-y-2">
-        <div><span className="text-accent">❯</span><span className="text-text-muted"> whoami</span></div>
+        <div>
+          <span className="text-accent">❯</span>
+          <span className="text-text-muted"> whoami</span>
+        </div>
         <div className="text-text-secondary pl-3">{title}</div>
 
         <div className="pt-1">
@@ -178,8 +221,15 @@ function TerminalCard({
         </div>
         <div className="pl-3 flex flex-wrap gap-1.5 pt-1">
           {skills.slice(0, 10).map((s) => (
-            <span key={s} className="px-1.5 py-0.5 rounded text-2xs border"
-              style={{ background: "var(--color-accent-subtle)", color: "var(--color-accent)", borderColor: "rgba(0,212,170,0.2)" }}>
+            <span
+              key={s}
+              className="px-1.5 py-0.5 rounded text-2xs border"
+              style={{
+                background: "var(--color-accent-subtle)",
+                color: "var(--color-accent)",
+                borderColor: "rgba(0,212,170,0.2)",
+              }}
+            >
               {s}
             </span>
           ))}
@@ -190,7 +240,9 @@ function TerminalCard({
           <span className="text-text-muted"> status</span>
         </div>
         <div className="pl-3 flex items-center gap-2">
-          <span className={`w-1.5 h-1.5 rounded-full ${available ? "bg-success animate-pulse" : "bg-error"}`} />
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${available ? "bg-success animate-pulse" : "bg-error"}`}
+          />
           <span className={available ? "text-success" : "text-error"}>{availabilityNote}</span>
         </div>
 
