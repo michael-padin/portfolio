@@ -1,0 +1,28 @@
+# Michael Padin — Full-Stack Developer
+> Available for freelance projects and full-time remote roles
+
+Michael Padin is a full-stack web developer based in Cebu, Philippines (UTC+8),
+specialising in JavaScript/TypeScript, React, Next.js, and Node.js.
+
+## Skills
+- Frontend: TypeScript, React, Next.js (App Router), TanStack, Tailwind CSS
+- Backend: Node.js, Express.js, Hono, PostgreSQL, MongoDB, Prisma, BullMQ, Socket.io
+- Cloud: AWS S3, Cloudflare Workers/Pages, Docker
+- Tooling: Turborepo, pnpm workspaces, Git
+
+## Experience
+- Image Edits (Aug 2023 – Present) — Full-Stack Developer, Brisbane AU (Remote)
+  Built bulk image-processing pipeline (BullMQ, AWS S3), led migration to TanStack in a 5-app Turborepo monorepo
+- ReallyBrief (Mar–Aug 2023) — Full-Stack Developer
+- CloudNext (Sep 2022–Mar 2023) — Node.js Developer
+- Techroad (May–Jun 2022) — DevOps Developer
+
+## Key Projects
+- [Image Edits Platform](https://imageedits.com) — Monorepo with 5 apps, real-time chat, S3 storage, AI image editing
+- [JimDaisy.com](https://jimdaisy.com) — Student housing website built with Next.js + Cloudflare
+
+## Contact
+- Email: hello@michaelpadin.com
+- LinkedIn: https://linkedin.com/in/michael-padin
+- GitHub: https://github.com/michael-padin
+- Portfolio: https://michaelpadin.com

@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# Allow AI search crawlers (visibility in ChatGPT, Perplexity, etc.)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Block AI training crawlers from private routes
+User-agent: CCBot
+Disallow: /
+
+# Block sensitive routes from all bots
+User-agent: *
+Disallow: /api/
+Disallow: /studio/
+
+Sitemap: https://michaelpadin.com/sitemap.xml
