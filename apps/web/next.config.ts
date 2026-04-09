@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const studioUrl = process.env.NEXT_PUBLIC_STUDIO_URL ?? "https://studio.michaelpadin.com";
+
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.umami.is https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://va.vercel-scripts.com",
@@ -8,13 +10,13 @@ const csp = [
   "img-src 'self' data: blob: https://cdn.sanity.io",
   "connect-src 'self' https://*.api.sanity.io https://cloud.umami.is https://api-gateway.umami.dev https://challenges.cloudflare.com https://www.google-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
   "frame-src 'self' https://challenges.cloudflare.com",
+  `frame-ancestors 'self' ${studioUrl}`,
 ].join("; ");
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "DENY" },
   { key: "X-XSS-Protection", value: "0" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
