@@ -1,6 +1,6 @@
 # michaelpadin.com
 
-Personal portfolio and developer website for Michael Padin — full-stack developer from Cebu, Philippines.
+Personal portfolio
 
 Built as a Turborepo monorepo with a Next.js 16 frontend and Sanity v5 CMS.
 
