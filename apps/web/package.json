@@ -13,6 +13,8 @@
     "@portfolio/sanity-schemas": "workspace:*",
     "@sanity/image-url": "^2.1.1",
     "@tailwindcss/postcss": "^4.2.2",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "next": "^16.2.3",
     "next-sanity": "^12.2.2",
     "react": "^19.2.5",

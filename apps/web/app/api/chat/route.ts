@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getProfile, profileToPromptContext } from "@/lib/sanity";
 import { features } from "@/lib/features";
+import { log } from "@/lib/logger";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -116,7 +117,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ reply });
   } catch (err) {
-    console.error("[chat]", err);
+    log.error("chat", "Failed to generate response", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Something went wrong. Please try again or contact Michael directly." },
       { status: 500 },

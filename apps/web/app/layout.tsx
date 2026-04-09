@@ -6,6 +6,8 @@ import { ChatBot } from "@/components/features/ChatBot";
 import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
@@ -34,13 +36,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: profile.name,
       title: `${profile.name} — ${profile.title}`,
       description: profile.seoDescription,
-      images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${profile.name} — ${profile.title}`,
       description: profile.seoDescription,
-      images: ["/og-image.png"],
     },
     robots: {
       index: true,
@@ -110,6 +110,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main>{children}</main>
         <Footer />
         {features.chatbot && <ChatBot />}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

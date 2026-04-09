@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
 import { features } from "@/lib/features";
+import { log } from "@/lib/logger";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
@@ -210,7 +211,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[contact] Error:", err);
+    log.error("contact", "Failed to process submission", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Failed to send message. Please try again." },
       { status: 500 },
