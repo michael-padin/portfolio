@@ -4,13 +4,15 @@ import { presentationTool } from "sanity/presentation";
 import { visionTool } from "@sanity/vision";
 import { profileSchema, projectSchema, postSchema } from "@portfolio/sanity-schemas";
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const dataset =
+  process.env.SANITY_STUDIO_DATASET || process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
+const siteUrl =
+  process.env.SANITY_STUDIO_SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 if (!projectId) {
   throw new Error(
-    "Missing NEXT_PUBLIC_SANITY_PROJECT_ID. Set it in apps/studio/.env or your hosting provider.",
+    "Missing SANITY_STUDIO_PROJECT_ID. Set it in apps/studio/.env or your hosting provider.",
   );
 }
 
