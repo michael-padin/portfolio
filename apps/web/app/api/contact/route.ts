@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
+import { features } from "@/lib/features";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
@@ -76,6 +77,9 @@ Message: ${data.message.slice(0, 300)}`,
 }
 
 export async function POST(req: NextRequest) {
+  if (!features.contact) {
+    return NextResponse.json({ error: "Contact form is disabled" }, { status: 404 });
+  }
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
 
   try {

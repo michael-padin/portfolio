@@ -65,8 +65,6 @@ export default async function ProjectsPage() {
   const projects = await getAllProjects().catch(() => DEMO_PROJECTS);
   const display = projects.length > 0 ? projects : DEMO_PROJECTS;
 
-  const _categories = ["All", ...Array.from(new Set(display.map((p) => p.category)))];
-
   return (
     <div className="min-h-screen pt-24 pb-16">
       <div className="container-custom">

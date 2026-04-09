@@ -5,6 +5,7 @@ import { AboutSection } from "@/components/sections/AboutSection";
 import { BlogPreviewSection } from "@/components/sections/BlogPreviewSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { getFeaturedProjects, getFeaturedPosts, getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
@@ -28,7 +29,7 @@ export default async function HomePage() {
       <HeroSection profile={p} />
       <ProjectsSection projects={projects} />
       <AboutSection profile={p} />
-      <BlogPreviewSection posts={posts} />
+      {features.blog && <BlogPreviewSection posts={posts} />}
       <CTASection profile={p} />
     </>
   );

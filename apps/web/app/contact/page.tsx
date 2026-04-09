@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getProfile } from "@/lib/sanity";
+import { features } from "@/lib/features";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
@@ -9,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
+  if (!features.contact) notFound();
   const profile = await getProfile().catch(() => null);
 
   const email = profile?.email ?? "hello@michaelpadin.com";

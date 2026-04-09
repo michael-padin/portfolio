@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getAllPosts, urlFor } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -30,6 +31,7 @@ function formatDate(iso?: string) {
 }
 
 export default async function BlogPostPage({ params }: Props) {
+  if (!features.blog) notFound();
   const { slug } = await params;
   const post = await getPostBySlug(slug).catch(() => null);
   if (!post) notFound();

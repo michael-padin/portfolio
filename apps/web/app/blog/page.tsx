@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import { getAllPosts, urlFor, type Post } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -19,6 +21,7 @@ function formatDate(iso?: string) {
 }
 
 export default async function BlogPage() {
+  if (!features.blog) notFound();
   const posts = await getAllPosts().catch(() => [] as Post[]);
 
   return (

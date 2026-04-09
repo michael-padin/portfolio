@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getProfile, profileToPromptContext } from "@/lib/sanity";
+import { features } from "@/lib/features";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -45,6 +46,9 @@ RULES:
 }
 
 export async function POST(req: NextRequest) {
+  if (!features.chatbot) {
+    return NextResponse.json({ error: "Chat is disabled" }, { status: 404 });
+  }
   try {
     // ── Rate limiting ───────────────────────────────────────────
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";

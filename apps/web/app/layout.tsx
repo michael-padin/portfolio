@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ChatBot } from "@/components/features/ChatBot";
 import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
+import { features } from "@/lib/features";
 import Script from "next/script";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -108,7 +109,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Navbar />
         <main>{children}</main>
         <Footer />
-        <ChatBot />
+        {features.chatbot && <ChatBot />}
       </body>
     </html>
   );

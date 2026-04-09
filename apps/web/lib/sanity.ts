@@ -2,19 +2,23 @@ import "server-only";
 import { createClient } from "next-sanity";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "";
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+export const isSanityConfigured = projectId.length > 0;
 
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: "2024-01-01",
-  useCdn: process.env.NODE_ENV === "production",
-  token: process.env.SANITY_API_READ_TOKEN,
-});
+export const client = isSanityConfigured
+  ? createClient({
+      projectId,
+      dataset,
+      apiVersion: "2024-01-01",
+      useCdn: process.env.NODE_ENV === "production",
+      token: process.env.SANITY_API_READ_TOKEN,
+    })
+  : null;
 
-const builder = createImageUrlBuilder(client);
+const builder = client ? createImageUrlBuilder(client) : null;
 export function urlFor(source: SanityImageSource) {
+  if (!builder) throw new Error("Sanity is not configured — cannot generate image URL");
   return builder.image(source);
 }
 
@@ -49,6 +53,7 @@ export type Post = {
 };
 
 export async function getFeaturedProjects(): Promise<Project[]> {
+  if (!client) return [];
   return client.fetch(
     `*[_type == "project" && featured == true] | order(order asc) [0...6] {
       _id, title, slug, tagline, coverImage, techStack, category,
@@ -58,6 +63,7 @@ export async function getFeaturedProjects(): Promise<Project[]> {
 }
 
 export async function getAllProjects(): Promise<Project[]> {
+  if (!client) return [];
   return client.fetch(
     `*[_type == "project"] | order(order asc) {
       _id, title, slug, tagline, coverImage, techStack, category,
@@ -67,6 +73,7 @@ export async function getAllProjects(): Promise<Project[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
+  if (!client) return null;
   return client.fetch(
     `*[_type == "project" && slug.current == $slug][0] {
       _id, title, slug, tagline, coverImage, techStack, category,
@@ -77,6 +84,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
 }
 
 export async function getFeaturedPosts(): Promise<Post[]> {
+  if (!client) return [];
   return client.fetch(
     `*[_type == "post" && featured == true] | order(publishedAt desc) [0...3] {
       _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
@@ -85,6 +93,7 @@ export async function getFeaturedPosts(): Promise<Post[]> {
 }
 
 export async function getAllPosts(): Promise<Post[]> {
+  if (!client) return [];
   return client.fetch(
     `*[_type == "post"] | order(publishedAt desc) {
       _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
@@ -93,6 +102,7 @@ export async function getAllPosts(): Promise<Post[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  if (!client) return null;
   return client.fetch(
     `*[_type == "post" && slug.current == $slug][0] {
       _id, title, slug, excerpt, coverImage, content, tags, readTime, publishedAt
@@ -268,6 +278,7 @@ export interface Profile {
 }
 
 export async function getProfile(): Promise<Profile | null> {
+  if (!client) return null;
   return client.fetch<Profile | null>(
     `*[_id == "singleton-profile"][0]`,
     {},

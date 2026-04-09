@@ -1,20 +1,20 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { features } from "@/lib/features";
 
-const navLinks = [
+const allNavLinks = [
   { href: "/#projects", label: "Projects" },
   { href: "/#about", label: "About" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/blog", label: "Blog", feature: "blog" as const },
+  { href: "/contact", label: "Contact", feature: "contact" as const },
 ];
+
+const navLinks = allNavLinks.filter((link) => !link.feature || features[link.feature]);
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const _pathname = usePathname();
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -54,18 +54,20 @@ export function Navbar() {
 
         {/* CTA + mobile toggle */}
         <div className="flex items-center gap-3">
-          <Link href="/contact" className="hidden md:inline-flex btn-primary text-sm px-4 py-2">
-            Hire Me
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M1 7h12M8 2l5 5-5 5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+          {features.contact && (
+            <Link href="/contact" className="hidden md:inline-flex btn-primary text-sm px-4 py-2">
+              Hire Me
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M1 7h12M8 2l5 5-5 5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          )}
 
           <button
             className="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors"
@@ -101,13 +103,15 @@ export function Navbar() {
                 {label}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              className="btn-primary text-sm justify-center"
-              onClick={() => setMobileOpen(false)}
-            >
-              Hire Me
-            </Link>
+            {features.contact && (
+              <Link
+                href="/contact"
+                className="btn-primary text-sm justify-center"
+                onClick={() => setMobileOpen(false)}
+              >
+                Hire Me
+              </Link>
+            )}
           </div>
         </div>
       )}
