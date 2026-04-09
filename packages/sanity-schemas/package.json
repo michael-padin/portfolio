@@ -6,7 +6,10 @@
   "types": "./src/index.ts",
   "devDependencies": {
     "@portfolio/config-typescript": "workspace:*",
-    "@sanity/types": "^5.20.0",
+    "sanity": "^5.20.0",
     "typescript": "^6.0.2"
+  },
+  "peerDependencies": {
+    "sanity": "^5.0.0"
   }
 }

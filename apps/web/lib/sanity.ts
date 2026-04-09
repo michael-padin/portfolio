@@ -36,6 +36,7 @@ export type Project = {
   order?: number;
   overview?: string;
   problem?: string;
+  solution?: unknown[];
   results?: { metric: string; value: string }[];
   publishedAt?: string;
 };
@@ -46,6 +47,7 @@ export type Post = {
   slug: { current: string };
   excerpt: string;
   coverImage?: SanityImageSource;
+  content?: unknown[];
   tags?: string[];
   readTime?: number;
   publishedAt?: string;
@@ -272,6 +274,9 @@ export interface Profile {
   skillGroups: SkillGroup[];
   experience: Experience[];
   education: Education[];
+  // Resume
+  resume?: { asset: { _ref: string; url?: string } };
+  resumeLastUpdated?: string;
   // SEO
   ogImage?: SanityImageSource;
   seoDescription: string;
@@ -280,10 +285,17 @@ export interface Profile {
 export async function getProfile(): Promise<Profile | null> {
   if (!client) return null;
   return client.fetch<Profile | null>(
-    `*[_id == "singleton-profile"][0]`,
+    `*[_id == "singleton-profile"][0] {
+      ...,
+      "resume": resume { "asset": asset-> { _ref, url } }
+    }`,
     {},
     { next: { revalidate: 300 } }, // 5-min cache — fast to update
   );
+}
+
+export function getResumeUrl(profile: Profile): string | null {
+  return profile.resume?.asset?.url ?? null;
 }
 
 // Fallback profile when Sanity isn't set up yet

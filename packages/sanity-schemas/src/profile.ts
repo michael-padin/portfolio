@@ -4,8 +4,6 @@ export const profileSchema = defineType({
   name: "profile",
   title: "Profile",
   type: "document",
-  // Only one profile document should ever exist
-  __experimental_actions: ["update", "publish"],
   fields: [
     // ── Identity ─────────────────────────────────────────────
     defineField({
@@ -13,14 +11,14 @@ export const profileSchema = defineType({
       title: "Full Name",
       type: "string",
       initialValue: "Michael Padin",
-      validation: (R) => R.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "title",
       title: "Professional Title",
       type: "string",
       initialValue: "Full-Stack Developer",
-      validation: (R) => R.required(),
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "location",
@@ -61,7 +59,7 @@ export const profileSchema = defineType({
       description: "Short note shown in footer and hero. e.g. 'Available for new projects'",
       type: "string",
       initialValue: "Available for new projects",
-      validation: (R) => R.max(80),
+      validation: (rule) => rule.max(80),
     }),
 
     // ── Contact & Social ─────────────────────────────────────
@@ -70,7 +68,7 @@ export const profileSchema = defineType({
       title: "Contact Email",
       type: "string",
       initialValue: "hello@michaelpadin.com",
-      validation: (R) => R.required().email(),
+      validation: (rule) => rule.required().email(),
     }),
     defineField({
       name: "githubUrl",
@@ -103,7 +101,7 @@ export const profileSchema = defineType({
       description: "Main headline shown to potential clients (short, punchy)",
       type: "string",
       initialValue: "I build products that ship and actually work.",
-      validation: (R) => R.required().max(80),
+      validation: (rule) => rule.required().max(80),
     }),
     defineField({
       name: "heroSubClient",
@@ -119,7 +117,7 @@ export const profileSchema = defineType({
       description: "Main headline shown to recruiters/hiring managers",
       type: "string",
       initialValue: "Senior full-stack developer ready to join your team.",
-      validation: (R) => R.required().max(80),
+      validation: (rule) => rule.required().max(80),
     }),
     defineField({
       name: "heroSubEmployer",
@@ -153,7 +151,7 @@ export const profileSchema = defineType({
         { value: "10+", label: "Projects shipped" },
         { value: "UTC+8", label: "Flexible overlap" },
       ],
-      validation: (R) => R.max(4),
+      validation: (rule) => rule.max(4),
     }),
     defineField({
       name: "terminalSkills",
@@ -186,7 +184,7 @@ export const profileSchema = defineType({
       rows: 2,
       initialValue:
         "Full-stack developer from Cebu, Philippines. I build scalable React and Node.js apps for clients worldwide.",
-      validation: (R) => R.required().max(300),
+      validation: (rule) => rule.required().max(300),
     }),
     defineField({
       name: "bio",
@@ -200,15 +198,38 @@ export const profileSchema = defineType({
       title: "SEO Meta Description",
       description: "Used in <meta name='description'> — keep under 160 chars",
       type: "string",
-      validation: (R) => R.max(160),
+      validation: (rule) => rule.max(160),
       initialValue:
         "Full-stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
+    }),
+    defineField({
+      name: "ogImage",
+      title: "OG Image",
+      description: "Social share image (1200x630 recommended)",
+      type: "image",
+    }),
+
+    // ── Resume ───────────────────────────────────────────────
+    defineField({
+      name: "resume",
+      title: "Resume / CV",
+      description: "Upload your latest resume (PDF). Visitors can download it from the site.",
+      type: "file",
+      options: {
+        accept: ".pdf",
+      },
+    }),
+    defineField({
+      name: "resumeLastUpdated",
+      title: "Resume Last Updated",
+      description: "When was the resume last updated?",
+      type: "date",
     }),
 
     // ── Values / How I Work ───────────────────────────────────
     defineField({
       name: "values",
-      title: 'Values — "How I Work" cards',
+      title: '"How I Work" cards',
       type: "array",
       of: [
         {
