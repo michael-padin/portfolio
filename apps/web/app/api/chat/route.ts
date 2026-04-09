@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     // ── Rate limiting ───────────────────────────────────────────
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const ip = req.headers.get("x-real-ip") ?? "unknown";
     const now = Date.now();
     const session = sessions.get(ip) ?? { count: 0, cost: 0, reset: now + RESET_INTERVAL };
 

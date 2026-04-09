@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   if (!features.contact) {
     return NextResponse.json({ error: "Contact form is disabled" }, { status: 404 });
   }
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+  const ip = req.headers.get("x-real-ip") ?? "unknown";
 
   try {
     // Per-IP rate limiting
