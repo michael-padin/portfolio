@@ -4,6 +4,7 @@ import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
+import { contactNotification, contactAutoReply } from "@/lib/email-templates";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -163,52 +164,27 @@ export async function POST(req: NextRequest) {
       to: process.env.CONTACT_EMAIL ?? "hello@michaelpadin.com",
       replyTo: email,
       subject: `[Portfolio] ${subject} — from ${name}`,
-      html: `
-        <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <div style="background:#080c14;border:1px solid #1e3044;border-radius:12px;padding:24px;margin-bottom:16px">
-            <h2 style="color:#00d4ff;margin:0 0 16px;font-size:18px">New contact from ${name}</h2>
-            <table style="width:100%;border-collapse:collapse">
-              <tr><td style="color:#8fa3be;padding:4px 0;width:100px">Name</td><td style="color:#e8f0fe">${name}</td></tr>
-              <tr><td style="color:#8fa3be;padding:4px 0">Email</td><td style="color:#e8f0fe"><a href="mailto:${email}" style="color:#00d4ff">${email}</a></td></tr>
-              <tr><td style="color:#8fa3be;padding:4px 0">Type</td><td style="color:#e8f0fe">${type ?? "Not specified"}</td></tr>
-              ${budget ? `<tr><td style="color:#8fa3be;padding:4px 0">Budget</td><td style="color:#e8f0fe">${budget}</td></tr>` : ""}
-              <tr><td style="color:#8fa3be;padding:4px 0">Subject</td><td style="color:#e8f0fe">${subject}</td></tr>
-            </table>
-          </div>
-          <div style="background:#0d1420;border:1px solid #1e3044;border-radius:12px;padding:20px;margin-bottom:16px">
-            <p style="color:#8fa3be;margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em">Message</p>
-            <p style="color:#e8f0fe;margin:0;line-height:1.7">${safeMessage}</p>
-          </div>
-          ${
-            aiAssessment
-              ? `
-          <div style="background:#0d2020;border:1px solid #00d4ff33;border-radius:12px;padding:16px">
-            <p style="color:#00d4ff;margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em">🤖 AI Lead Assessment</p>
-            <p style="color:#8fa3be;margin:0;font-size:13px;line-height:1.6">${aiAssessment}</p>
-          </div>`
-              : ""
-          }
-          <p style="color:#4a6080;font-size:11px;margin-top:16px">Sent from michaelpadin.com · IP: ${ip}</p>
-        </div>
-      `,
+      html: contactNotification({
+        name,
+        email,
+        subject,
+        message: safeMessage,
+        type,
+        budget,
+        aiAssessment: aiAssessment || undefined,
+        ip,
+      }),
     });
 
     // Auto-reply to sender
     await getResend().emails.send({
       from: "Michael Padin <hello@michaelpadin.com>",
       to: email,
-      subject: `Got your message, ${name.split(" ")[0]}!`,
-      html: `
-        <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <h2 style="color:#00d4ff;margin:0 0 16px">Thanks for reaching out!</h2>
-          <p style="color:#8fa3be;line-height:1.7">Hi ${name.split(" ")[0]},</p>
-          <p style="color:#8fa3be;line-height:1.7">I received your message about "<strong style="color:#e8f0fe">${subject}</strong>" and I'll get back to you within 24 hours.</p>
-          <p style="color:#8fa3be;line-height:1.7">If you need something urgent, feel free to connect on <a href="https://linkedin.com/in/michael-padin" style="color:#00d4ff">LinkedIn</a>.</p>
-          <p style="color:#8fa3be;line-height:1.7">— Michael</p>
-          <hr style="border:none;border-top:1px solid #1e3044;margin:24px 0"/>
-          <p style="color:#4a6080;font-size:12px">michaelpadin.com · Cebu, Philippines (UTC+8)</p>
-        </div>
-      `,
+      subject: `Got your message, ${name.split(" ")[0] ?? name}!`,
+      html: contactAutoReply({
+        firstName: name.split(" ")[0] ?? name,
+        subject,
+      }),
     });
 
     // Log successful submission
