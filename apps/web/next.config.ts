@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.umami.is https://www.googletagmanager.com https://www.google-analytics.com https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cloud.umami.is https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob: https://cdn.sanity.io",
-  "connect-src 'self' https://cloud.umami.is https://www.google-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  "connect-src 'self' https://*.api.sanity.io https://cloud.umami.is https://api-gateway.umami.dev https://challenges.cloudflare.com https://www.google-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
   "frame-src 'self' https://challenges.cloudflare.com",
 ].join("; ");
 
