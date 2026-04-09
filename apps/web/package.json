@@ -26,13 +26,13 @@
   },
   "devDependencies": {
     "@portfolio/config-typescript": "workspace:*",
-    "@types/node": "^22.10.7",
+    "@types/node": "^25.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.3",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.7.2"
+    "typescript": "^6.0.2"
   }
 }

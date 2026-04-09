@@ -7,6 +7,6 @@
   "devDependencies": {
     "@portfolio/config-typescript": "workspace:*",
     "@sanity/types": "^5.20.0",
-    "typescript": "^5.7.2"
+    "typescript": "^6.0.2"
   }
 }
