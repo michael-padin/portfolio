@@ -14,6 +14,7 @@
     "@portabletext/react": "^6.0.3",
     "@portfolio/sanity-schemas": "workspace:*",
     "@sanity/image-url": "^2.1.1",
+    "@sanity/preview-url-secret": "^4.0.5",
     "@tailwindcss/postcss": "^4.2.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

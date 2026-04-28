@@ -75,6 +75,9 @@ importers:
       '@sanity/image-url':
         specifier: ^2.1.1
         version: 2.1.1
+      '@sanity/preview-url-secret':
+        specifier: ^4.0.5
+        version: 4.0.5(@sanity/client@7.22.0)
       '@tailwindcss/postcss':
         specifier: ^4.2.2
         version: 4.2.4
