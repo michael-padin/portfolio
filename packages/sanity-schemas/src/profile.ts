@@ -38,6 +38,15 @@ export const profileSchema = defineType({
       title: "Profile Photo",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          description: "Describe the photo for accessibility and SEO",
+          type: "string",
+          validation: (rule) => rule.max(200),
+        },
+      ],
     }),
 
     // ── Availability ─────────────────────────────────────────
@@ -207,6 +216,14 @@ export const profileSchema = defineType({
       title: "OG Image",
       description: "Social share image (1200x630 recommended)",
       type: "image",
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          type: "string",
+          validation: (rule) => rule.max(200),
+        },
+      ],
     }),
 
     // ── Resume ───────────────────────────────────────────────

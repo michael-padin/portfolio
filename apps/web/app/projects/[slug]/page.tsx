@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { getProjectBySlug, getAllProjects, imageUrl } from "@/lib/sanity";
+import { pageMetadata, siteUrl } from "@/lib/seo";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -12,11 +13,23 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const project = await getProjectBySlug(slug).catch(() => null);
-  if (!project) return { title: "Project Not Found" };
-  return {
-    title: project.title,
-    description: project.tagline,
-  };
+  if (!project) {
+    return { title: "Project Not Found", robots: { index: false, follow: false } };
+  }
+  const ogImg =
+    (project.ogImage && imageUrl(project.ogImage, 1200, 630)) ??
+    imageUrl(project.coverImage, 1200, 630);
+  return pageMetadata({
+    title: project.seoTitle ?? project.title,
+    description: project.seoDescription ?? project.tagline,
+    path: `/projects/${project.slug.current}`,
+    image: ogImg,
+    imageAlt: project.coverImage?.alt ?? project.title,
+    type: "article",
+    publishedTime: project.publishedAt,
+    modifiedTime: project._updatedAt,
+    tags: project.techStack,
+  });
 }
 
 export async function generateStaticParams() {
@@ -30,14 +43,53 @@ export default async function ProjectPage({ params }: Props) {
   if (!project) notFound();
 
   const coverUrl = imageUrl(project.coverImage, 1200, 630);
+  const projectUrl = `${siteUrl}/projects/${project.slug.current}`;
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Projects", item: `${siteUrl}/projects` },
+      { "@type": "ListItem", position: 3, name: project.title, item: projectUrl },
+    ],
+  };
+
+  const creativeWorkLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    headline: project.title,
+    description: project.tagline,
+    url: projectUrl,
+    ...(coverUrl && { image: coverUrl }),
+    ...(project.publishedAt && { datePublished: project.publishedAt }),
+    ...(project._updatedAt && { dateModified: project._updatedAt }),
+    author: { "@type": "Person", name: "Michael Padin", url: siteUrl },
+    creator: { "@type": "Person", name: "Michael Padin", url: siteUrl },
+    ...(project.techStack &&
+      project.techStack.length > 0 && {
+        keywords: project.techStack.join(", "),
+      }),
+    ...(project.category && { genre: project.category }),
+    ...(project.liveUrl && { sameAs: project.liveUrl }),
+  };
 
   return (
     <div className="min-h-screen pt-28 pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkLd) }}
+      />
       <div className="container-main">
         {/* Back */}
         <Link
           href="/projects"
-          className="inline-flex items-center gap-2 text-text-muted hover:text-accent text-sm mb-10 transition-colors group"
+          className="text-text-muted hover:text-accent group mb-10 inline-flex items-center gap-2 text-sm transition-colors"
         >
           <svg
             width="14"
@@ -63,11 +115,11 @@ export default async function ProjectPage({ params }: Props) {
             <span className="label-tag mb-4 inline-flex">{project.category}</span>
           )}
           <h1 className="text-display-xl text-text-primary mb-4">{project.title}</h1>
-          <p className="text-text-secondary text-xl leading-relaxed max-w-2xl">{project.tagline}</p>
+          <p className="text-text-secondary max-w-2xl text-xl leading-relaxed">{project.tagline}</p>
         </div>
 
         {/* Links */}
-        <div className="flex flex-wrap gap-3 mb-10">
+        <div className="mb-10 flex flex-wrap gap-3">
           {project.liveUrl && (
             <a
               href={project.liveUrl}
@@ -104,22 +156,28 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Cover image */}
         {coverUrl && (
-          <div className="relative h-64 sm:h-96 rounded-xl overflow-hidden mb-12 border border-surface-border">
-            <Image src={coverUrl} alt={project.title} fill className="object-cover" priority />
+          <div className="border-surface-border relative mb-12 h-64 overflow-hidden rounded-xl border sm:h-96">
+            <Image
+              src={coverUrl}
+              alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         )}
 
         {/* Tech stack */}
         {project.techStack?.length > 0 && (
-          <div className="card p-6 mb-8">
-            <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-4">
+          <div className="card mb-8 p-6">
+            <h2 className="text-text-muted mb-4 font-mono text-xs tracking-widest uppercase">
               Tech Stack
             </h2>
             <div className="flex flex-wrap gap-2">
               {project.techStack.map((tech) => (
                 <span
                   key={tech}
-                  className="px-3 py-1.5 rounded-lg bg-accent-subtle text-accent text-sm border border-accent/20 font-mono"
+                  className="bg-accent-subtle text-accent border-accent/20 rounded-lg border px-3 py-1.5 font-mono text-sm"
                 >
                   {tech}
                 </span>
@@ -129,10 +187,10 @@ export default async function ProjectPage({ params }: Props) {
         )}
 
         {/* Case study content */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="mb-8 grid gap-6 md:grid-cols-2">
           {project.overview && (
             <div className="card p-6">
-              <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-3">
+              <h2 className="text-text-muted mb-3 font-mono text-xs tracking-widest uppercase">
                 Overview
               </h2>
               <p className="text-text-secondary leading-relaxed">{project.overview}</p>
@@ -140,7 +198,7 @@ export default async function ProjectPage({ params }: Props) {
           )}
           {project.problem && (
             <div className="card p-6">
-              <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-3">
+              <h2 className="text-text-muted mb-3 font-mono text-xs tracking-widest uppercase">
                 The Problem
               </h2>
               <p className="text-text-secondary leading-relaxed">{project.problem}</p>
@@ -150,8 +208,8 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Solution */}
         {project.solution && project.solution.length > 0 && (
-          <div className="card p-6 mb-8">
-            <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-4">
+          <div className="card mb-8 p-6">
+            <h2 className="text-text-muted mb-4 font-mono text-xs tracking-widest uppercase">
               The Solution
             </h2>
             <div className="prose-portfolio">
@@ -162,14 +220,14 @@ export default async function ProjectPage({ params }: Props) {
 
         {/* Results */}
         {project.results && project.results.length > 0 && (
-          <div className="card p-6 mb-10">
-            <h2 className="text-xs font-mono text-text-muted uppercase tracking-widest mb-6">
+          <div className="card mb-10 p-6">
+            <h2 className="text-text-muted mb-6 font-mono text-xs tracking-widest uppercase">
               Results & Impact
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
               {project.results.map((r) => (
                 <div key={r.metric}>
-                  <div className="font-display text-3xl text-accent mb-1">{r.value}</div>
+                  <div className="font-display text-accent mb-1 text-3xl">{r.value}</div>
                   <div className="text-text-muted text-sm">{r.metric}</div>
                 </div>
               ))}
@@ -178,9 +236,9 @@ export default async function ProjectPage({ params }: Props) {
         )}
 
         {/* CTA */}
-        <div className="border-t border-surface-border pt-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border-surface-border flex flex-col items-start justify-between gap-4 border-t pt-10 sm:flex-row sm:items-center">
           <div>
-            <p className="text-text-primary font-medium mb-1">Interested in working together?</p>
+            <p className="text-text-primary mb-1 font-medium">Interested in working together?</p>
             <p className="text-text-muted text-sm">
               I build things like this for clients worldwide.
             </p>

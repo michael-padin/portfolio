@@ -78,7 +78,7 @@ export function ChatBot() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-accent text-bg shadow-glow-md hover:shadow-glow-lg hover:bg-accent-dim transition-all duration-200 flex items-center justify-center animate-pulse-glow"
+        className="bg-accent text-bg shadow-glow-md hover:shadow-glow-lg hover:bg-accent-dim animate-pulse-glow fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200"
         aria-label="Open AI chat"
       >
         {open ? (
@@ -110,14 +110,14 @@ export function ChatBot() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] flex flex-col rounded-2xl border border-surface-border bg-bg-secondary shadow-[0_20px_60px_rgba(0,0,0,0.6)] overflow-hidden animate-fade-up">
+        <div className="border-surface-border bg-bg-secondary animate-fade-up fixed right-6 bottom-24 z-50 flex max-h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
           {/* Header */}
-          <div className="flex items-center gap-3 px-4 py-3 bg-surface border-b border-surface-border">
+          <div className="bg-surface border-surface-border flex items-center gap-3 border-b px-4 py-3">
             <div className="relative">
-              <div className="w-8 h-8 rounded-full bg-accent-subtle border border-accent/30 flex items-center justify-center text-accent text-sm font-display">
+              <div className="bg-accent-subtle border-accent/30 text-accent font-display flex h-8 w-8 items-center justify-center rounded-full border text-sm">
                 M
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-success border-2 border-bg-secondary" />
+              <span className="bg-success border-bg-secondary absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2" />
             </div>
             <div>
               <div className="text-text-primary text-sm font-medium">Michael's AI</div>
@@ -125,7 +125,7 @@ export function ChatBot() {
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="ml-auto text-text-muted hover:text-text-primary transition-colors"
+              className="text-text-muted hover:text-text-primary ml-auto transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -139,17 +139,17 @@ export function ChatBot() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto chat-scroll p-4 space-y-3 min-h-0">
+          <div className="chat-scroll min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                     msg.role === "user"
                       ? "bg-accent text-bg rounded-br-sm font-medium"
-                      : "bg-surface text-text-primary rounded-bl-sm border border-surface-border"
+                      : "bg-surface text-text-primary border-surface-border rounded-bl-sm border"
                   }`}
                 >
                   {msg.content}
@@ -159,17 +159,17 @@ export function ChatBot() {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-surface text-text-muted px-4 py-3 rounded-2xl rounded-bl-sm border border-surface-border text-sm flex gap-1">
+                <div className="bg-surface text-text-muted border-surface-border flex gap-1 rounded-2xl rounded-bl-sm border px-4 py-3 text-sm">
                   <span
-                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
                     style={{ animationDelay: "150ms" }}
                   />
                   <span
-                    className="w-1.5 h-1.5 rounded-full bg-text-muted animate-bounce"
+                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
@@ -177,7 +177,7 @@ export function ChatBot() {
             )}
 
             {error && (
-              <div className="text-error text-xs bg-error/10 border border-error/20 rounded-lg px-3 py-2">
+              <div className="text-error bg-error/10 border-error/20 rounded-lg border px-3 py-2 text-xs">
                 {error}
               </div>
             )}
@@ -187,12 +187,12 @@ export function ChatBot() {
 
           {/* Suggestions (only before first user message) */}
           {messages.length === 1 && (
-            <div className="px-4 pb-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 px-4 pb-2">
               {SUGGESTED.map((s) => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="text-xs px-2.5 py-1.5 rounded-lg border border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent transition-colors"
+                  className="border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent rounded-lg border px-2.5 py-1.5 text-xs transition-colors"
                 >
                   {s}
                 </button>
@@ -201,7 +201,7 @@ export function ChatBot() {
           )}
 
           {/* Input */}
-          <div className="p-3 border-t border-surface-border">
+          <div className="border-surface-border border-t p-3">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -216,12 +216,12 @@ export function ChatBot() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about Michael..."
                 maxLength={500}
-                className="flex-1 bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all"
+                className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 flex-1 rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="w-10 h-10 rounded-xl bg-accent text-bg flex items-center justify-center hover:bg-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                className="bg-accent text-bg hover:bg-accent-dim flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path

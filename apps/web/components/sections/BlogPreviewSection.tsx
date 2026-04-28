@@ -49,17 +49,17 @@ export function BlogPreviewSection({ posts }: Props) {
       <div className="container-custom">
         <div className="mb-12">
           <div className="label-tag mb-4">Writing</div>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <h2 className="font-display text-display-lg text-text-primary max-w-lg">
-              Thoughts on <span className="italic text-accent">shipping</span> software
+              Thoughts on <span className="text-accent italic">shipping</span> software
             </h2>
-            <Link href="/blog" className="btn-ghost text-sm shrink-0 self-start sm:self-auto">
+            <Link href="/blog" className="btn-ghost shrink-0 self-start text-sm sm:self-auto">
               All posts →
             </Link>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-3">
           {displayPosts.slice(0, 3).map((post) => (
             <PostCard key={post._id} post={post} />
           ))}
@@ -82,7 +82,7 @@ function PostCard({ post }: { post: SanityPost }) {
   return (
     <Link
       href={`/blog/${slug}`}
-      className="card group p-6 flex flex-col gap-4 hover:border-accent/30"
+      className="card group hover:border-accent/30 flex flex-col gap-4 p-6"
     >
       {/* Tags */}
       <div className="flex flex-wrap gap-1.5">
@@ -94,15 +94,15 @@ function PostCard({ post }: { post: SanityPost }) {
       </div>
 
       {/* Title */}
-      <h3 className="font-display text-lg text-text-primary leading-tight group-hover:text-accent transition-colors">
+      <h3 className="font-display text-text-primary group-hover:text-accent text-lg leading-tight transition-colors">
         {post.title}
       </h3>
 
       {/* Excerpt */}
-      <p className="text-text-secondary text-sm leading-relaxed flex-1">{post.excerpt}</p>
+      <p className="text-text-secondary flex-1 text-sm leading-relaxed">{post.excerpt}</p>
 
       {/* Meta */}
-      <div className="flex items-center justify-between text-text-muted text-xs font-mono">
+      <div className="text-text-muted flex items-center justify-between font-mono text-xs">
         {date && <span>{date}</span>}
         {post.readTime && <span>{post.readTime} min read</span>}
       </div>

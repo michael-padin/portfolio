@@ -4,12 +4,14 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAllPosts, imageUrl, type Post } from "@/lib/sanity";
 import { features } from "@/lib/features";
+import { pageMetadata, siteUrl } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Blog",
   description:
-    "Technical writing on React, Next.js, Node.js, system design, and full-stack development from Michael Padin.",
-};
+    "Technical writing on React, Next.js, Node.js, monorepo architecture, and full-stack engineering — by Michael Padin.",
+  path: "/blog",
+});
 
 function formatDate(iso?: string) {
   if (!iso) return "";
@@ -24,17 +26,41 @@ export default async function BlogPage() {
   if (!features.blog) notFound();
   const posts = await getAllPosts().catch(() => [] as Post[]);
 
+  const blogLd = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "Michael Padin — Blog",
+    url: `${siteUrl}/blog`,
+    description:
+      "Technical writing on React, Next.js, Node.js, monorepo architecture, and full-stack engineering.",
+    author: { "@type": "Person", name: "Michael Padin", url: siteUrl },
+    blogPost: posts.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.title,
+      url: `${siteUrl}/blog/${p.slug.current}`,
+      datePublished: p.publishedAt,
+      ...(p._updatedAt && { dateModified: p._updatedAt }),
+      author: { "@type": "Person", name: "Michael Padin", url: siteUrl },
+    })),
+  };
+
   return (
     <div className="min-h-screen pt-28 pb-20">
+      {posts.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+        />
+      )}
       <div className="container-custom mb-16">
         <div className="label-tag mb-5">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+          <span className="bg-accent h-1.5 w-1.5 rounded-full" />
           Writing
         </div>
         <h1 className="text-display-xl text-text-primary mb-4">
           Thoughts & <span className="text-gradient italic">Deep Dives</span>
         </h1>
-        <p className="text-text-secondary text-lg max-w-xl">
+        <p className="text-text-secondary max-w-xl text-lg">
           Architecture decisions, problem-solving walkthroughs, and tool comparisons — the kind of
           posts I wish existed when I was debugging at 2am.
         </p>
@@ -44,7 +70,7 @@ export default async function BlogPage() {
         {posts.length === 0 ? (
           <BlogPlaceholder />
         ) : (
-          <div className="grid gap-6 max-w-3xl">
+          <div className="grid max-w-3xl gap-6">
             {posts.map((post, i) => (
               <PostRow key={post._id} post={post} index={i} />
             ))}
@@ -61,25 +87,25 @@ function PostRow({ post, index }: { post: Post; index: number }) {
   return (
     <Link
       href={`/blog/${post.slug.current}`}
-      className="card card-hover group flex gap-6 p-6 animate-fade-up animate-hidden"
+      className="card card-hover group animate-fade-up animate-hidden flex gap-6 p-6"
       style={{ animationDelay: `${index * 0.07}s` }}
     >
       {coverUrl && (
-        <div className="relative w-32 h-20 rounded-lg overflow-hidden shrink-0 hidden sm:block">
+        <div className="relative hidden h-20 w-32 shrink-0 overflow-hidden rounded-lg sm:block">
           <Image
             src={coverUrl}
-            alt={post.title}
+            alt={post.coverImage?.alt ?? post.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
       )}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 mb-2 flex-wrap">
+      <div className="min-w-0 flex-1">
+        <div className="mb-2 flex flex-wrap items-center gap-3">
           {post.tags?.slice(0, 2).map((tag) => (
             <span
               key={tag}
-              className="text-2xs px-2 py-0.5 rounded bg-accent-subtle text-accent border border-accent/20"
+              className="text-2xs bg-accent-subtle text-accent border-accent/20 rounded border px-2 py-0.5"
             >
               {tag}
             </span>
@@ -88,11 +114,11 @@ function PostRow({ post, index }: { post: Post; index: number }) {
             <span className="text-2xs text-text-muted font-mono">{post.readTime} min read</span>
           )}
         </div>
-        <h2 className="font-display text-xl text-text-primary mb-2 group-hover:text-accent transition-colors line-clamp-2">
+        <h2 className="font-display text-text-primary group-hover:text-accent mb-2 line-clamp-2 text-xl transition-colors">
           {post.title}
         </h2>
-        <p className="text-text-muted text-sm leading-relaxed line-clamp-2 mb-3">{post.excerpt}</p>
-        <span className="text-xs text-text-muted font-mono">{formatDate(post.publishedAt)}</span>
+        <p className="text-text-muted mb-3 line-clamp-2 text-sm leading-relaxed">{post.excerpt}</p>
+        <span className="text-text-muted font-mono text-xs">{formatDate(post.publishedAt)}</span>
       </div>
     </Link>
   );
@@ -131,27 +157,27 @@ function BlogPlaceholder() {
   ];
 
   return (
-    <div className="grid gap-6 max-w-3xl">
+    <div className="grid max-w-3xl gap-6">
       {placeholders.map((p, i) => (
         <div
           key={p.title}
-          className="card p-6 animate-fade-up animate-hidden"
+          className="card animate-fade-up animate-hidden p-6"
           style={{ animationDelay: `${i * 0.07}s` }}
         >
-          <div className="flex items-center gap-3 mb-2">
+          <div className="mb-2 flex items-center gap-3">
             {p.tags.map((t) => (
               <span
                 key={t}
-                className="text-2xs px-2 py-0.5 rounded bg-accent-subtle text-accent border border-accent/20"
+                className="text-2xs bg-accent-subtle text-accent border-accent/20 rounded border px-2 py-0.5"
               >
                 {t}
               </span>
             ))}
             <span className="text-2xs text-text-muted font-mono">{p.mins} min read</span>
           </div>
-          <h2 className="font-display text-xl text-text-primary mb-2">{p.title}</h2>
-          <p className="text-text-muted text-sm leading-relaxed mb-3">{p.excerpt}</p>
-          <span className="text-xs text-text-muted italic">Coming soon — add in Sanity Studio</span>
+          <h2 className="font-display text-text-primary mb-2 text-xl">{p.title}</h2>
+          <p className="text-text-muted mb-3 text-sm leading-relaxed">{p.excerpt}</p>
+          <span className="text-text-muted text-xs italic">Coming soon — add in Sanity Studio</span>
         </div>
       ))}
     </div>

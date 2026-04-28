@@ -7,10 +7,10 @@ export function ProjectCard({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.slug.current}`}
-      className="card card-accent flex flex-col overflow-hidden group"
+      className="card card-accent group flex flex-col overflow-hidden"
     >
       {/* Thumbnail */}
-      <div className="relative h-44 bg-[var(--surface-2)] overflow-hidden">
+      <div className="relative h-44 overflow-hidden bg-[var(--surface-2)]">
         {imageUrl(project.coverImage, 600, 350) ? (
           <Image
             src={imageUrl(project.coverImage, 600, 350)!}
@@ -19,27 +19,27 @@ export function ProjectCard({ project }: { project: Project }) {
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center dot-grid">
+          <div className="dot-grid absolute inset-0 flex items-center justify-center">
             <span className="font-mono text-xs text-[var(--text-muted)]">[ preview ]</span>
           </div>
         )}
         <div className="absolute top-3 left-3">
-          <span className="text-xs font-mono bg-[var(--background)] border border-[var(--border)] px-2 py-1 rounded text-[var(--accent)]">
+          <span className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 font-mono text-xs text-[var(--accent)]">
             {project.category}
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1 gap-3">
+      <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
-          <h3 className="font-display text-lg text-[var(--text-primary)] group-hover:text-[var(--accent)] transition-colors">
+          <h3 className="font-display text-lg text-[var(--text-primary)] transition-colors group-hover:text-[var(--accent)]">
             {project.title}
           </h3>
-          <p className="text-sm text-[var(--text-muted)] mt-1 leading-relaxed">{project.tagline}</p>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--text-muted)]">{project.tagline}</p>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mt-auto">
+        <div className="mt-auto flex flex-wrap gap-1.5">
           {project.techStack?.slice(0, 5).map((t) => (
             <span key={t} className="tech-badge">
               {t}
@@ -50,14 +50,14 @@ export function ProjectCard({ project }: { project: Project }) {
           )}
         </div>
 
-        <div className="flex items-center gap-3 pt-2 border-t border-[var(--border)]">
+        <div className="flex items-center gap-3 border-t border-[var(--border)] pt-2">
           {project.liveUrl && (
-            <span className="text-xs text-[var(--accent)] font-mono">↗ Live</span>
+            <span className="font-mono text-xs text-[var(--accent)]">↗ Live</span>
           )}
           {project.githubUrl && (
-            <span className="text-xs text-[var(--text-muted)] font-mono">⌥ Code</span>
+            <span className="font-mono text-xs text-[var(--text-muted)]">⌥ Code</span>
           )}
-          <span className="ml-auto text-xs text-[var(--accent)] font-mono group-hover:translate-x-1 transition-transform">
+          <span className="ml-auto font-mono text-xs text-[var(--accent)] transition-transform group-hover:translate-x-1">
             Case study →
           </span>
         </div>

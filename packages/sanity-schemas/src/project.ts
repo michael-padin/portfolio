@@ -30,6 +30,16 @@ export const projectSchema = defineType({
       title: "Cover Image",
       type: "image",
       options: { hotspot: true },
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          description: "Describe the image for accessibility and SEO",
+          type: "string",
+          validation: (rule) => rule.max(200),
+        },
+        { name: "caption", title: "Caption", type: "string" },
+      ],
     }),
     defineField({
       name: "techStack",
@@ -105,7 +115,41 @@ export const projectSchema = defineType({
       title: "Published At",
       type: "datetime",
     }),
+
+    // ── SEO ──────────────────────────────────────────────────
+    defineField({
+      name: "seoTitle",
+      title: "SEO Title (optional)",
+      description: "Overrides the meta title. Falls back to the project title.",
+      type: "string",
+      validation: (rule) => rule.max(70),
+      group: "seo",
+    }),
+    defineField({
+      name: "seoDescription",
+      title: "SEO Description (optional)",
+      description: "Overrides meta description. Falls back to tagline. Keep under 160 chars.",
+      type: "string",
+      validation: (rule) => rule.max(160),
+      group: "seo",
+    }),
+    defineField({
+      name: "ogImage",
+      title: "OG / Social Share Image (optional)",
+      description: "1200x630 — overrides the cover image when shared on social.",
+      type: "image",
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          type: "string",
+          validation: (rule) => rule.max(200),
+        },
+      ],
+      group: "seo",
+    }),
   ],
+  groups: [{ name: "seo", title: "SEO" }],
   preview: {
     select: { title: "title", subtitle: "tagline", media: "coverImage" },
   },

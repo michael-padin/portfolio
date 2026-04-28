@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "sanity dev",
     "build": "sanity build",
+    "dev": "sanity dev",
+    "schema:deploy": "sanity schema deploy",
+    "schema:extract": "sanity schema extract --enforce-required-fields",
     "start": "sanity start",
     "type-check": "tsc --noEmit"
   },

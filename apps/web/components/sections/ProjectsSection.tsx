@@ -18,18 +18,18 @@ export function ProjectsSection({ projects }: Props) {
         {/* Header */}
         <div className="mb-16">
           <div className="label-tag mb-4">Selected work</div>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <h2 className="font-display text-display-lg text-text-primary max-w-lg">
-              Projects that <span className="italic text-accent">shipped</span>
+              Projects that <span className="text-accent italic">shipped</span>
             </h2>
-            <Link href="/projects" className="btn-ghost text-sm shrink-0 self-start sm:self-auto">
+            <Link href="/projects" className="btn-ghost shrink-0 self-start text-sm sm:self-auto">
               View all work →
             </Link>
           </div>
         </div>
 
         {/* Projects grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
           {displayProjects.map((project, i) => (
             <ProjectCard key={project._id} project={project} featured={i === 0} />
           ))}
@@ -49,8 +49,7 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
     >
       {/* Image */}
       <div
-        className="relative overflow-hidden bg-surface"
-        style={{ aspectRatio: featured ? "2/1" : "16/9" }}
+        className={`bg-surface relative overflow-hidden ${featured ? "aspect-[2/1]" : "aspect-video"}`}
       >
         {imageUrl(project.coverImage, featured ? 1200 : 800, featured ? 600 : 450) ? (
           <Image
@@ -66,7 +65,7 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
           <PlaceholderImage title={project.title} />
         )}
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent opacity-60" />
+        <div className="from-bg-card absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-60" />
         {/* Category badge */}
         <div className="absolute top-4 left-4">
           <span className="label-tag text-2xs">{project.category}</span>
@@ -75,13 +74,13 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
 
       {/* Content */}
       <div className="p-6">
-        <h3 className="font-display text-xl text-text-primary mb-2 group-hover:text-accent transition-colors">
+        <h3 className="font-display text-text-primary group-hover:text-accent mb-2 text-xl transition-colors">
           {project.title}
         </h3>
-        <p className="text-text-secondary text-sm leading-relaxed mb-4">{project.tagline}</p>
+        <p className="text-text-secondary mb-4 text-sm leading-relaxed">{project.tagline}</p>
 
         {/* Tech stack */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="mb-4 flex flex-wrap gap-2">
           {(project.techStack ?? []).slice(0, 5).map((tech) => (
             <span key={tech} className="tech-badge">
               {tech}
@@ -102,12 +101,12 @@ function ProjectCard({ project, featured }: { project: SanityProject; featured: 
 
 function PlaceholderImage({ title }: { title: string }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-surface to-bg-secondary">
+    <div className="from-surface to-bg-secondary absolute inset-0 flex items-center justify-center bg-gradient-to-br">
       <div className="text-center">
-        <div className="text-4xl font-display text-accent/30 font-bold">
+        <div className="font-display text-accent/30 text-4xl font-bold">
           {title.charAt(0).toUpperCase()}
         </div>
-        <div className="text-text-muted text-xs mt-2 font-mono">{title}</div>
+        <div className="text-text-muted mt-2 font-mono text-xs">{title}</div>
       </div>
     </div>
   );

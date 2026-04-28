@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getAllProjects, imageUrl, type SanityProject } from "@/lib/sanity";
+import { pageMetadata, siteUrl } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
-    "Full-stack web development projects by Michael Padin — React, Next.js, Node.js, and more.",
-};
+    "Selected full-stack web work by Michael Padin — production React, Next.js, Node.js, and Cloudflare apps shipped for clients in Australia, the US, and beyond.",
+  path: "/projects",
+});
 
 const DEMO_PROJECTS: SanityProject[] = [
   {
@@ -65,41 +67,77 @@ export default async function ProjectsPage() {
   const projects = await getAllProjects().catch(() => DEMO_PROJECTS);
   const display = projects.length > 0 ? projects : DEMO_PROJECTS;
 
+  const itemListLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Projects — Michael Padin",
+    url: `${siteUrl}/projects`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: display.map((p, i) => {
+        const slug = typeof p.slug === "string" ? p.slug : p.slug?.current;
+        return {
+          "@type": "ListItem",
+          position: i + 1,
+          url: `${siteUrl}/projects/${slug}`,
+          name: p.title,
+        };
+      }),
+    },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Projects", item: `${siteUrl}/projects` },
+    ],
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <div className="container-custom">
         {/* Header */}
         <div className="mb-16">
           <div className="label-tag mb-4">Portfolio</div>
           <h1 className="font-display text-display-lg text-text-primary mb-4">All projects</h1>
-          <p className="text-text-secondary text-lg max-w-2xl">
+          <p className="text-text-secondary max-w-2xl text-lg">
             A collection of freelance work, full-time projects, and side experiments. Each one
             shipped to production.
           </p>
         </div>
 
         {/* Projects grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6 md:grid-cols-2">
           {display.map((project) => {
             const slug = typeof project.slug === "string" ? project.slug : project.slug?.current;
             return (
               <Link
                 key={project._id}
                 href={`/projects/${slug}`}
-                className="card group overflow-hidden block"
+                className="card group block overflow-hidden"
               >
                 {/* Image placeholder */}
-                <div className="h-48 bg-gradient-to-br from-surface to-bg-secondary relative overflow-hidden">
+                <div className="from-surface to-bg-secondary relative h-48 overflow-hidden bg-gradient-to-br">
                   {imageUrl(project.coverImage, 600, 300) ? (
                     <Image
                       src={imageUrl(project.coverImage, 600, 300)!}
-                      alt={project.title}
+                      alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="font-display text-6xl text-accent/20 font-bold">
+                      <span className="font-display text-accent/20 text-6xl font-bold">
                         {project.title.charAt(0)}
                       </span>
                     </div>
@@ -109,7 +147,7 @@ export default async function ProjectsPage() {
                   </div>
                   {project.featured && (
                     <div className="absolute top-4 right-4">
-                      <span className="px-2 py-0.5 rounded-full bg-accent text-bg text-2xs font-mono font-semibold">
+                      <span className="bg-accent text-bg text-2xs rounded-full px-2 py-0.5 font-mono font-semibold">
                         Featured
                       </span>
                     </div>
@@ -117,10 +155,10 @@ export default async function ProjectsPage() {
                 </div>
 
                 <div className="p-6">
-                  <h2 className="font-display text-xl text-text-primary mb-2 group-hover:text-accent transition-colors">
+                  <h2 className="font-display text-text-primary group-hover:text-accent mb-2 text-xl transition-colors">
                     {project.title}
                   </h2>
-                  <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+                  <p className="text-text-secondary mb-4 text-sm leading-relaxed">
                     {project.tagline}
                   </p>
                   <div className="flex flex-wrap gap-1.5">

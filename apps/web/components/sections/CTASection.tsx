@@ -10,29 +10,25 @@ export function CTASection({ profile }: Props) {
     <section className="py-24">
       <div className="container-custom">
         <div
-          className="relative rounded-3xl border overflow-hidden p-12 md:p-16 text-center"
+          className="border-accent/20 relative overflow-hidden rounded-3xl border p-12 text-center md:p-16"
           style={{
-            borderColor: "rgba(0,212,170,0.2)",
             background:
               "linear-gradient(135deg, rgba(0,212,170,0.05) 0%, var(--color-bg-secondary) 50%, var(--color-bg-secondary) 100%)",
           }}
         >
           {/* Glow */}
-          <div
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-32 blur-3xl pointer-events-none"
-            style={{ background: "rgba(0,212,170,0.08)" }}
-          />
+          <div className="bg-accent-subtle pointer-events-none absolute top-0 left-1/2 h-32 w-96 -translate-x-1/2 blur-3xl" />
 
           <div className="relative z-10">
             <div className="label-tag mx-auto mb-6 w-fit">Let&apos;s work together</div>
 
-            <h2 className="text-display-lg text-text-primary max-w-2xl mx-auto mb-4">
+            <h2 className="text-display-lg text-text-primary mx-auto mb-4 max-w-2xl">
               Got a project in mind?
               <br />
-              <span className="italic text-accent">Let&apos;s talk.</span>
+              <span className="text-accent italic">Let&apos;s talk.</span>
             </h2>
 
-            <p className="text-text-secondary text-lg max-w-xl mx-auto mb-10">
+            <p className="text-text-secondary mx-auto mb-10 max-w-xl text-lg">
               {profile.availableForFreelance && profile.availableForFullTime
                 ? "Available for freelance projects and full-time remote opportunities."
                 : profile.availableForFreelance
@@ -44,8 +40,8 @@ export function CTASection({ profile }: Props) {
               with your team.
             </p>
 
-            <div className="flex flex-wrap gap-4 justify-center mb-10">
-              <Link href="/contact" className="btn-primary text-base px-8 py-4">
+            <div className="mb-10 flex flex-wrap justify-center gap-4">
+              <Link href="/contact" className="btn-primary px-8 py-4 text-base">
                 Start a conversation
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
@@ -57,13 +53,13 @@ export function CTASection({ profile }: Props) {
                   />
                 </svg>
               </Link>
-              <a href={`mailto:${profile.email}`} className="btn-ghost text-base px-8 py-4">
+              <a href={`mailto:${profile.email}`} className="btn-ghost px-8 py-4 text-base">
                 {profile.email}
               </a>
             </div>
 
             {/* Trust signals */}
-            <div className="flex flex-wrap gap-6 justify-center text-text-muted text-sm">
+            <div className="text-text-muted flex flex-wrap justify-center gap-6 text-sm">
               {[
                 "Fast async replies",
                 "No-BS communication",

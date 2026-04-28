@@ -9,16 +9,22 @@ import {
   getFeaturedPosts,
   getProfile,
   getResumeUrl,
+  imageUrl,
   FALLBACK_PROFILE,
 } from "@/lib/sanity";
 import { features } from "@/lib/features";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
-  return {
+  const ogImg = profile.ogImage ? imageUrl(profile.ogImage, 1200, 630) : null;
+  return pageMetadata({
     title: `${profile.name} — ${profile.title}`,
     description: profile.seoDescription,
-  };
+    path: "/",
+    image: ogImg,
+    imageAlt: `${profile.name} — ${profile.title}`,
+  });
 }
 
 export default async function HomePage() {

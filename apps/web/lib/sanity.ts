@@ -36,12 +36,15 @@ async function fetchSanity<T>(query: string, params = {}, tags: string[] = []): 
 }
 
 // ── Types ───────────────────────────────────────────────────────
+export type SanityImage = SanityImageSource & { alt?: string; caption?: string };
+
 export type Project = {
   _id: string;
+  _updatedAt?: string;
   title: string;
   slug: { current: string };
   tagline: string;
-  coverImage?: SanityImageSource;
+  coverImage?: SanityImage;
   techStack: string[];
   category: string;
   liveUrl?: string;
@@ -53,19 +56,26 @@ export type Project = {
   solution?: PortableTextBlock[];
   results?: { metric: string; value: string }[];
   publishedAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  ogImage?: SanityImage;
 };
 
 export type Post = {
   _id: string;
+  _updatedAt?: string;
   title: string;
   slug: { current: string };
   excerpt: string;
-  coverImage?: SanityImageSource;
+  coverImage?: SanityImage;
   content?: PortableTextBlock[];
   tags?: string[];
   readTime?: number;
   publishedAt?: string;
   featured: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  ogImage?: SanityImage;
 };
 
 export type SanityProject = Project;
@@ -74,40 +84,42 @@ export type SanityPost = Post;
 // ── Queries ─────────────────────────────────────────────────────
 const featuredProjectsQuery = defineQuery(
   `*[_type == "project" && featured == true] | order(order asc) [0...6] {
-    _id, title, slug, tagline, coverImage, techStack, category,
+    _id, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
     liveUrl, githubUrl, featured, order, overview
   }`,
 );
 
 const allProjectsQuery = defineQuery(
   `*[_type == "project"] | order(order asc) {
-    _id, title, slug, tagline, coverImage, techStack, category,
+    _id, _updatedAt, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
     liveUrl, githubUrl, featured, order
   }`,
 );
 
 const projectBySlugQuery = defineQuery(
   `*[_type == "project" && slug.current == $slug][0] {
-    _id, title, slug, tagline, coverImage, techStack, category,
-    liveUrl, githubUrl, overview, problem, solution, results, publishedAt
+    _id, _updatedAt, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
+    liveUrl, githubUrl, overview, problem, solution, results, publishedAt,
+    seoTitle, seoDescription, ogImage{..., alt}
   }`,
 );
 
 const featuredPostsQuery = defineQuery(
-  `*[_type == "post" && featured == true] | order(publishedAt desc) [0...3] {
-    _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
+  `*[_type == "post" && featured == true && defined(publishedAt)] | order(publishedAt desc) [0...3] {
+    _id, title, slug, excerpt, coverImage{..., alt, caption}, tags, readTime, publishedAt, featured
   }`,
 );
 
 const allPostsQuery = defineQuery(
-  `*[_type == "post"] | order(publishedAt desc) {
-    _id, title, slug, excerpt, coverImage, tags, readTime, publishedAt, featured
+  `*[_type == "post" && defined(publishedAt)] | order(publishedAt desc) {
+    _id, _updatedAt, title, slug, excerpt, coverImage{..., alt, caption}, tags, readTime, publishedAt, featured
   }`,
 );
 
 const postBySlugQuery = defineQuery(
-  `*[_type == "post" && slug.current == $slug][0] {
-    _id, title, slug, excerpt, coverImage, content, tags, readTime, publishedAt
+  `*[_type == "post" && slug.current == $slug && defined(publishedAt)][0] {
+    _id, _updatedAt, title, slug, excerpt, coverImage{..., alt, caption}, content, tags, readTime, publishedAt,
+    seoTitle, seoDescription, ogImage{..., alt}
   }`,
 );
 
@@ -237,7 +249,7 @@ export interface Profile {
   title: string;
   location: string;
   timezone: string;
-  photo?: SanityImageSource;
+  photo?: SanityImage;
   availableForFreelance: boolean;
   availableForFullTime: boolean;
   availabilityNote: string;
@@ -260,7 +272,7 @@ export interface Profile {
   education: Education[];
   resume?: { asset: { _ref: string; url?: string } };
   resumeLastUpdated?: string;
-  ogImage?: SanityImageSource;
+  ogImage?: SanityImage;
   seoDescription: string;
 }
 

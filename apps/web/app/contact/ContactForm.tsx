@@ -58,18 +58,18 @@ export function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mx-auto mb-4 text-3xl">
+      <div className="py-12 text-center">
+        <div className="bg-success/10 border-success/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border text-3xl">
           ✓
         </div>
-        <h3 className="font-display text-2xl text-text-primary mb-2">Message sent!</h3>
+        <h3 className="font-display text-text-primary mb-2 text-2xl">Message sent!</h3>
         <p className="text-text-secondary">I'll get back to you within 24 hours.</p>
         <button
           onClick={() => {
             setStatus("idle");
             loadTimeRef.current = Date.now();
           }}
-          className="mt-6 btn-ghost text-sm"
+          className="btn-ghost mt-6 text-sm"
         >
           Send another
         </button>
@@ -81,14 +81,14 @@ export function ContactForm() {
     <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
       {/* Visitor type */}
       <div>
-        <label className="block text-text-secondary text-sm mb-2">I'm reaching out as a…</label>
+        <label className="text-text-secondary mb-2 block text-sm">I'm reaching out as a…</label>
         <div className="flex gap-2">
           {(["client", "employer", "other"] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setVisitorType(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
                 visitorType === t
                   ? "border-accent bg-accent-subtle text-accent"
                   : "border-surface-border text-text-muted hover:border-accent/30 hover:text-text-primary"
@@ -105,9 +105,9 @@ export function ContactForm() {
       </div>
 
       {/* Name + Email */}
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="name">
+          <label className="text-text-secondary mb-1.5 block text-sm" htmlFor="name">
             Name *
           </label>
           <input
@@ -118,11 +118,11 @@ export function ContactForm() {
             minLength={2}
             maxLength={100}
             placeholder="Your name"
-            className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all"
+            className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 w-full rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
           />
         </div>
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="email">
+          <label className="text-text-secondary mb-1.5 block text-sm" htmlFor="email">
             Email *
           </label>
           <input
@@ -132,14 +132,14 @@ export function ContactForm() {
             required
             maxLength={254}
             placeholder="you@company.com"
-            className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all"
+            className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 w-full rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
           />
         </div>
       </div>
 
       {/* Subject */}
       <div>
-        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="subject">
+        <label className="text-text-secondary mb-1.5 block text-sm" htmlFor="subject">
           Subject *
         </label>
         <input
@@ -153,20 +153,20 @@ export function ContactForm() {
               ? "Senior React Developer — Remote Role"
               : "Project idea or question"
           }
-          className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all"
+          className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 w-full rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
         />
       </div>
 
       {/* Budget (client only) */}
       {visitorType === "client" && (
         <div>
-          <label className="block text-text-secondary text-sm mb-1.5" htmlFor="budget">
+          <label className="text-text-secondary mb-1.5 block text-sm" htmlFor="budget">
             Approximate budget
           </label>
           <select
             id="budget"
             name="budget"
-            className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-secondary text-sm focus:outline-none focus:border-accent/40 transition-all"
+            className="bg-surface border-surface-border text-text-secondary focus:border-accent/40 w-full rounded-xl border px-4 py-2.5 text-sm transition-all focus:outline-none"
           >
             <option value="">Select a range</option>
             <option value="under-1k">Under $1,000</option>
@@ -180,7 +180,7 @@ export function ContactForm() {
 
       {/* Message */}
       <div>
-        <label className="block text-text-secondary text-sm mb-1.5" htmlFor="message">
+        <label className="text-text-secondary mb-1.5 block text-sm" htmlFor="message">
           Message *
         </label>
         <textarea
@@ -197,7 +197,7 @@ export function ContactForm() {
                 ? "Describe your project, goals, and timeline..."
                 : "What's on your mind?"
           }
-          className="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-text-primary text-sm placeholder-text-muted focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all resize-none"
+          className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 w-full resize-none rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
         />
       </div>
 
@@ -221,7 +221,7 @@ export function ContactForm() {
 
       {/* Error */}
       {status === "error" && (
-        <div className="px-4 py-3 rounded-xl bg-error/10 border border-error/30 text-error text-sm">
+        <div className="bg-error/10 border-error/30 text-error rounded-xl border px-4 py-3 text-sm">
           {errorMsg}
         </div>
       )}
@@ -230,11 +230,11 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="btn-primary w-full justify-center py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-primary w-full justify-center py-3 text-base disabled:cursor-not-allowed disabled:opacity-50"
       >
         {status === "submitting" ? (
           <>
-            <span className="w-4 h-4 border-2 border-bg/30 border-t-bg rounded-full animate-spin" />
+            <span className="border-bg/30 border-t-bg h-4 w-4 animate-spin rounded-full border-2" />
             Sending…
           </>
         ) : (
@@ -253,7 +253,7 @@ export function ContactForm() {
         )}
       </button>
 
-      <p className="text-text-muted text-xs text-center">
+      <p className="text-text-muted text-center text-xs">
         Protected by Cloudflare Turnstile · No spam, I reply personally.
       </p>
     </form>

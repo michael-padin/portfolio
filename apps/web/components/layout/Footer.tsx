@@ -23,54 +23,51 @@ export async function Footer() {
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
-    <footer
-      className="border-t"
-      style={{ borderColor: "var(--color-surface-border)", marginTop: "6rem" }}
-    >
+    <footer className="border-surface-border mt-24 border-t">
       <div className="container-custom py-12">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-10">
+        <div className="mb-10 flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           {/* Brand */}
           <div>
             <Link
               href="/"
-              className="font-display text-2xl text-text-primary hover:text-accent transition-colors"
+              className="font-display text-text-primary hover:text-accent text-2xl transition-colors"
             >
               {profile.name.split(" ")[0]}
               <span className="text-accent">.</span>
             </Link>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-text-muted mt-1 text-sm">
               {profile.title} — {profile.location}
             </p>
-            <div className="flex items-center gap-2 mt-3">
+            <div className="mt-3 flex items-center gap-2">
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
+                className={`h-1.5 w-1.5 rounded-full ${
                   profile.availableForFreelance || profile.availableForFullTime
                     ? "bg-success animate-pulse"
                     : "bg-error"
                 }`}
               />
-              <span className="text-xs text-text-muted font-mono">{profile.availabilityNote}</span>
+              <span className="text-text-muted font-mono text-xs">{profile.availabilityNote}</span>
             </div>
           </div>
 
           {/* Links */}
-          <nav className="flex flex-col sm:flex-row gap-10">
+          <nav className="flex flex-col gap-10 sm:flex-row">
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-mono text-text-muted uppercase tracking-widest mb-1">
+              <span className="text-text-muted mb-1 font-mono text-xs tracking-widest uppercase">
                 Navigate
               </span>
               {navLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="text-sm text-text-secondary hover:text-accent transition-colors"
+                  className="text-text-secondary hover:text-accent text-sm transition-colors"
                 >
                   {l.label}
                 </Link>
               ))}
             </div>
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-mono text-text-muted uppercase tracking-widest mb-1">
+              <span className="text-text-muted mb-1 font-mono text-xs tracking-widest uppercase">
                 Connect
               </span>
               {socialLinks.map((l) => (
@@ -79,7 +76,7 @@ export async function Footer() {
                   href={l.href}
                   target={l.href.startsWith("mailto") ? undefined : "_blank"}
                   rel="noopener noreferrer"
-                  className="text-sm text-text-secondary hover:text-accent transition-colors"
+                  className="text-text-secondary hover:text-accent text-sm transition-colors"
                 >
                   {l.label}
                 </a>
@@ -89,11 +86,8 @@ export async function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div
-          className="border-t pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-          style={{ borderColor: "var(--color-surface-border)" }}
-        >
-          <p className="text-text-muted text-xs font-mono">
+        <div className="border-surface-border flex flex-col items-start justify-between gap-3 border-t pt-6 sm:flex-row sm:items-center">
+          <p className="text-text-muted font-mono text-xs">
             © {year} {profile.name} · Built with Next.js + Sanity + Cloudflare
           </p>
           <div className="flex items-center gap-4">
@@ -102,7 +96,7 @@ export async function Footer() {
                 href={resumeLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-text-muted hover:text-accent transition-colors font-mono"
+                className="text-text-muted hover:text-accent font-mono text-xs transition-colors"
               >
                 Resume
               </a>
@@ -111,12 +105,12 @@ export async function Footer() {
               href={profile.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-text-muted hover:text-accent transition-colors font-mono"
+              className="text-text-muted hover:text-accent font-mono text-xs transition-colors"
             >
               GitHub
             </a>
             {features.contact && (
-              <Link href="/contact" className="text-xs text-accent hover:underline font-mono">
+              <Link href="/contact" className="text-accent font-mono text-xs hover:underline">
                 Hire me →
               </Link>
             )}

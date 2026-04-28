@@ -6,23 +6,23 @@ interface Props {
 
 export function AboutSection({ profile }: Props) {
   return (
-    <section id="about" className="py-24" style={{ background: "rgba(15,15,26,0.4)" }}>
+    <section id="about" className="bg-bg-secondary/40 py-24">
       <div className="container-custom">
         {/* Header */}
         <div className="mb-16">
           <div className="label-tag mb-4">About me</div>
           <h2 className="text-display-lg text-text-primary max-w-2xl">
             Developer from{" "}
-            <span className="italic text-accent">{profile.location.split(",")[0]}</span>
+            <span className="text-accent italic">{profile.location.split(",")[0]}</span>
             ,<br />
             building for the world
           </h2>
         </div>
 
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-16">
+        <div className="grid gap-16 lg:grid-cols-[1.2fr_1fr]">
           {/* Left — bio + skills */}
           <div>
-            <p className="text-text-secondary text-lg leading-relaxed mb-4">
+            <p className="text-text-secondary mb-4 text-lg leading-relaxed">
               I&apos;m <span className="text-text-primary font-medium">{profile.name}</span> — a
               full-stack JavaScript developer with 3+ years building production-grade web apps and
               APIs. Currently working remotely for{" "}
@@ -37,7 +37,7 @@ export function AboutSection({ profile }: Props) {
               , where I architect backend pipelines, lead frontend migrations, and help plan
               technical decisions across a 5-app Turborepo monorepo.
             </p>
-            <p className="text-text-secondary text-lg leading-relaxed mb-8">
+            <p className="text-text-secondary mb-8 text-lg leading-relaxed">
               I specialise in the React and Node.js ecosystem with a strong focus on performance and
               shipping things that actually work. Fluent in English, comfortable with async-first
               workflows, and overlap with US and APAC timezones from {profile.timezone}.
@@ -47,19 +47,14 @@ export function AboutSection({ profile }: Props) {
             <div className="space-y-5">
               {profile.skillGroups.map(({ category, skills }) => (
                 <div key={category}>
-                  <div className="text-text-muted text-xs font-mono mb-2 tracking-wider uppercase">
+                  <div className="text-text-muted mb-2 font-mono text-xs tracking-wider uppercase">
                     {category}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {skills.map((skill) => (
                       <span
                         key={skill}
-                        className="px-2.5 py-1 rounded-lg text-sm border transition-colors hover:border-accent/40 hover:text-accent cursor-default"
-                        style={{
-                          background: "var(--color-surface)",
-                          borderColor: "var(--color-surface-border)",
-                          color: "var(--color-text-secondary)",
-                        }}
+                        className="bg-surface border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent cursor-default rounded-lg border px-2.5 py-1 text-sm transition-colors"
                       >
                         {skill}
                       </span>
@@ -72,57 +67,50 @@ export function AboutSection({ profile }: Props) {
 
           {/* Right — experience + education */}
           <div>
-            <h3 className="font-display text-xl text-text-primary mb-6">Experience</h3>
+            <h3 className="font-display text-text-primary mb-6 text-xl">Experience</h3>
 
             <div className="relative">
               {/* Timeline line */}
-              <div
-                className="absolute left-3 top-0 bottom-0 w-px"
-                style={{ background: "var(--color-surface-border)" }}
-              />
+              <div className="bg-surface-border absolute top-0 bottom-0 left-3 w-px" />
 
               <div className="space-y-6">
                 {profile.experience.map((exp, i) => (
                   <div key={i} className="relative pl-10">
                     {/* Dot */}
                     <div
-                      className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        exp.current ? "border-accent" : "border-surface-border"
+                      className={`absolute top-1.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+                        exp.current
+                          ? "border-accent bg-accent-subtle"
+                          : "border-surface-border bg-bg"
                       }`}
-                      style={{
-                        background: exp.current ? "var(--color-accent-subtle)" : "var(--color-bg)",
-                      }}
                     >
                       <div
-                        className={`w-2 h-2 rounded-full ${
+                        className={`h-2 w-2 rounded-full ${
                           exp.current ? "bg-accent animate-pulse" : "bg-text-muted"
                         }`}
                       />
                     </div>
 
                     <div className="card p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                         <div>
                           {exp.companyUrl ? (
                             <a
                               href={exp.companyUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="font-semibold text-text-primary text-sm hover:text-accent transition-colors"
+                              className="text-text-primary hover:text-accent text-sm font-semibold transition-colors"
                             >
                               {exp.company}
                             </a>
                           ) : (
-                            <div className="font-semibold text-text-primary text-sm">
+                            <div className="text-text-primary text-sm font-semibold">
                               {exp.company}
                             </div>
                           )}
-                          <div className="text-accent text-xs font-mono">{exp.role}</div>
+                          <div className="text-accent font-mono text-xs">{exp.role}</div>
                         </div>
-                        <div
-                          className="text-right"
-                          style={{ color: "var(--color-text-muted)", fontSize: "0.65rem" }}
-                        >
+                        <div className="text-text-muted text-2xs text-right">
                           <div className="font-mono">{exp.period}</div>
                           <div>{exp.location}</div>
                         </div>
@@ -131,7 +119,7 @@ export function AboutSection({ profile }: Props) {
                         {exp.highlights.map((h, j) => (
                           <li
                             key={j}
-                            className="text-text-secondary text-xs leading-relaxed flex gap-2"
+                            className="text-text-secondary flex gap-2 text-xs leading-relaxed"
                           >
                             <span className="text-accent mt-0.5 shrink-0">▸</span>
                             <span>{h}</span>
@@ -146,17 +134,9 @@ export function AboutSection({ profile }: Props) {
 
             {/* Education */}
             {profile.education.map((edu, i) => (
-              <div key={i} className="mt-6 card p-4" style={{ borderColor: "rgba(0,212,170,0.2)" }}>
+              <div key={i} className="card border-accent/20 mt-6 p-4">
                 <div className="flex items-start gap-3">
-                  <div
-                    className="p-2 rounded-lg text-lg"
-                    style={{
-                      background: "var(--color-accent-subtle)",
-                      color: "var(--color-accent)",
-                    }}
-                  >
-                    🎓
-                  </div>
+                  <div className="bg-accent-subtle text-accent rounded-lg p-2 text-lg">🎓</div>
                   <div>
                     <div className="text-text-primary text-sm font-semibold">{edu.institution}</div>
                     <div className="text-text-secondary text-xs">

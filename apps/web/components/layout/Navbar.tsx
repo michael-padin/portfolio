@@ -23,31 +23,31 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-bg/80 backdrop-blur-xl border-b border-surface-border shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
+          ? "bg-bg/80 border-surface-border border-b shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-xl"
           : "bg-transparent"
       }`}
     >
-      <nav className="container-custom flex items-center justify-between h-16">
+      <nav className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
         <Link
           href="/"
-          className="font-display text-xl text-text-primary hover:text-accent transition-colors duration-200"
+          className="font-display text-text-primary hover:text-accent text-xl transition-colors duration-200"
         >
           <span className="text-accent">M</span>ichael<span className="text-text-muted">.</span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden items-center gap-8 md:flex">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200 relative group"
+              className="text-text-secondary hover:text-text-primary group relative text-sm transition-colors duration-200"
             >
               {label}
-              <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-accent transition-all duration-200 group-hover:w-full" />
+              <span className="bg-accent absolute -bottom-0.5 left-0 h-px w-0 transition-all duration-200 group-hover:w-full" />
             </Link>
           ))}
         </div>
@@ -55,7 +55,7 @@ export function Navbar() {
         {/* CTA + mobile toggle */}
         <div className="flex items-center gap-3">
           {features.contact && (
-            <Link href="/contact" className="hidden md:inline-flex btn-primary text-sm px-4 py-2">
+            <Link href="/contact" className="btn-primary hidden px-4 py-2 text-sm md:inline-flex">
               Hire Me
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path
@@ -70,19 +70,19 @@ export function Navbar() {
           )}
 
           <button
-            className="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors"
+            className="text-text-secondary hover:text-text-primary p-2 transition-colors md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
-            <div className="w-5 flex flex-col gap-1">
+            <div className="flex w-5 flex-col gap-1">
               <span
-                className={`h-px bg-current transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-[7px]" : ""}`}
+                className={`h-px bg-current transition-all duration-200 ${mobileOpen ? "translate-y-[7px] rotate-45" : ""}`}
               />
               <span
                 className={`h-px bg-current transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`}
               />
               <span
-                className={`h-px bg-current transition-all duration-200 ${mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
+                className={`h-px bg-current transition-all duration-200 ${mobileOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
               />
             </div>
           </button>
@@ -91,13 +91,13 @@ export function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-bg-secondary border-b border-surface-border">
-          <div className="container-custom py-4 flex flex-col gap-4">
+        <div className="bg-bg-secondary border-surface-border border-b md:hidden">
+          <div className="container-custom flex flex-col gap-4 py-4">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className="text-sm text-text-secondary hover:text-accent py-1 transition-colors"
+                className="text-text-secondary hover:text-accent py-1 text-sm transition-colors"
                 onClick={() => setMobileOpen(false)}
               >
                 {label}
@@ -106,7 +106,7 @@ export function Navbar() {
             {features.contact && (
               <Link
                 href="/contact"
-                className="btn-primary text-sm justify-center"
+                className="btn-primary justify-center text-sm"
                 onClick={() => setMobileOpen(false)}
               >
                 Hire Me
