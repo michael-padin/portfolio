@@ -68,7 +68,7 @@ export default async function AboutPage() {
             <h1 className="font-spec text-ink max-w-[22ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
               {profile.name}, {profile.title.toLowerCase()}.
             </h1>
-            <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
+            <p className="font-spec text-ink-2 mt-6 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
               {profile.bioShort}
             </p>
           </div>
@@ -76,19 +76,17 @@ export default async function AboutPage() {
 
         {/* Bio long-form (if present) */}
         {profile.bio && profile.bio.length > 0 && (
-          <section className="mt-[clamp(3rem,5vw,4.5rem)] grid grid-cols-12 gap-x-6">
-            <div className="col-span-12 lg:col-span-9 lg:col-start-2">
-              <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
-                <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-                  Background
-                </h2>
-                <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-                  §01 · Long form
-                </span>
-              </header>
-              <div className="prose-paper">
-                <PortableText value={profile.bio} />
-              </div>
+          <section className="mt-[clamp(3rem,5vw,4.5rem)]">
+            <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+              <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+                Background
+              </h2>
+              <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+                §01 · Long form
+              </span>
+            </header>
+            <div className="prose-paper">
+              <PortableText value={profile.bio} />
             </div>
           </section>
         )}

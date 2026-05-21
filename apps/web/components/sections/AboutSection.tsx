@@ -24,33 +24,31 @@ export function AboutSection({ profile }: Props) {
           </span>
         </header>
 
-        {/* Bio column */}
-        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-12 gap-x-6 gap-y-12">
-          <div className="col-span-12 lg:col-span-8 lg:col-start-2">
-            <p className="font-spec text-ink max-w-[60ch] text-[clamp(1.0625rem,1.2vw,1.1875rem)] leading-[1.55]">
-              {profile.bioShort}
-              {currentCompany && (
-                <>
-                  {" "}
-                  Currently at{" "}
-                  {currentCompany.companyUrl ? (
-                    <a
-                      href={currentCompany.companyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
-                    >
-                      {currentCompany.company}
-                    </a>
-                  ) : (
-                    <span className="font-medium">{currentCompany.company}</span>
-                  )}{" "}
-                  ({currentCompany.role}). Based in {profile.location} ({profile.timezone}); fluent
-                  English, async-first, overlaps with US and APAC working hours.
-                </>
-              )}
-            </p>
-          </div>
+        {/* Bio */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)]">
+          <p className="font-spec text-ink text-[clamp(1.0625rem,1.2vw,1.1875rem)] leading-[1.55]">
+            {profile.bioShort}
+            {currentCompany && (
+              <>
+                {" "}
+                Currently at{" "}
+                {currentCompany.companyUrl ? (
+                  <a
+                    href={currentCompany.companyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
+                  >
+                    {currentCompany.company}
+                  </a>
+                ) : (
+                  <span className="font-medium">{currentCompany.company}</span>
+                )}{" "}
+                ({currentCompany.role}). Based in {profile.location} ({profile.timezone}); fluent
+                English, async-first, overlaps with US and APAC working hours.
+              </>
+            )}
+          </p>
         </div>
 
         {/* Experience table */}

@@ -122,22 +122,20 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
 
         {/* Title block */}
-        <div className="mt-[clamp(2rem,4vw,3.5rem)] grid grid-cols-12 gap-x-6">
-          <div className="col-span-12 lg:col-span-9 lg:col-start-2">
-            {post.tags && post.tags.length > 0 && (
-              <div className="font-spec-mono text-ink-3 mb-4 flex flex-wrap gap-x-3 text-[11px] tracking-[0.04em] uppercase">
-                {post.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
-              </div>
-            )}
-            <h1 className="font-spec text-ink max-w-[24ch] text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.05] font-medium tracking-[-0.03em]">
-              {post.title}
-            </h1>
-            <p className="font-spec text-ink-2 mt-6 max-w-[60ch] text-[clamp(1.0625rem,1.3vw,1.1875rem)] leading-[1.55]">
-              {post.excerpt}
-            </p>
-          </div>
+        <div className="mt-[clamp(2rem,4vw,3.5rem)]">
+          {post.tags && post.tags.length > 0 && (
+            <div className="font-spec-mono text-ink-3 mb-4 flex flex-wrap gap-x-3 text-[11px] tracking-[0.04em] uppercase">
+              {post.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+          )}
+          <h1 className="font-spec text-ink max-w-[24ch] text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.05] font-medium tracking-[-0.03em]">
+            {post.title}
+          </h1>
+          <p className="font-spec text-ink-2 mt-6 text-[clamp(1.0625rem,1.3vw,1.1875rem)] leading-[1.55]">
+            {post.excerpt}
+          </p>
         </div>
 
         {/* Cover image */}
@@ -155,15 +153,13 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* Content */}
-        <article className="mt-[clamp(3rem,5vw,5rem)] grid grid-cols-12 gap-x-6">
-          <div className="col-span-12 lg:col-span-9 lg:col-start-2">
-            <div className="prose-paper">
-              {post.content && post.content.length > 0 ? (
-                <PortableText value={post.content} />
-              ) : (
-                <p className="text-ink-3">{post.excerpt}</p>
-              )}
-            </div>
+        <article className="mt-[clamp(3rem,5vw,5rem)]">
+          <div className="prose-paper">
+            {post.content && post.content.length > 0 ? (
+              <PortableText value={post.content} />
+            ) : (
+              <p className="text-ink-3">{post.excerpt}</p>
+            )}
           </div>
         </article>
 

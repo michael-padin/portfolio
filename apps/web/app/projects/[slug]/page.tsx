@@ -82,7 +82,7 @@ export default async function ProjectPage({ params }: Props) {
       num: "§01",
       title: "Overview",
       body: (
-        <p className="font-spec text-ink-2 max-w-[65ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
+        <p className="font-spec text-ink-2 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
           {project.overview}
         </p>
       ),
@@ -92,7 +92,7 @@ export default async function ProjectPage({ params }: Props) {
       num: "§02",
       title: "Problem",
       body: (
-        <p className="font-spec text-ink-2 max-w-[65ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
+        <p className="font-spec text-ink-2 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
           {project.problem}
         </p>
       ),
