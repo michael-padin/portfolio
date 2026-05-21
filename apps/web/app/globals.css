@@ -9,6 +9,25 @@
   --font-sans: var(--font-dm-sans);
 }
 
+/* ── Spec-sheet theme (homepage) ────────────────── */
+@theme {
+  /* Paper / ink: a printed datasheet on a desk under daylight */
+  --color-paper: oklch(97% 0.012 70);
+  --color-paper-rule: oklch(88% 0.015 70);
+  --color-paper-tint: oklch(94% 0.013 70);
+  --color-ink: oklch(18% 0.018 270);
+  --color-ink-2: oklch(40% 0.015 270);
+  --color-ink-3: oklch(60% 0.012 270);
+
+  /* Signal: oxide red. Used ONLY for data emphasis (status, year, link). */
+  --color-signal: oklch(53% 0.18 32);
+  --color-signal-tint: oklch(53% 0.18 32 / 0.08);
+
+  /* Typography for the spec sheet. General Sans + Fragment Mono via Fontshare. */
+  --font-spec: "General Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-spec-mono: "Fragment Mono", ui-monospace, "JetBrains Mono", monospace;
+}
+
 @theme {
   /* Backgrounds */
   --color-bg: #0a0a0f;
@@ -195,6 +214,27 @@
     max-width: 100%;
     display: block;
   }
+}
+
+/* ── Spec-sheet page scope ─────────────────────────
+   When the homepage renders a [data-theme="paper"] subtree, flip the body to
+   paper so scroll-bounce and overscroll don't reveal the dark chrome below. */
+html:has([data-theme="paper"]) body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-spec);
+}
+
+[data-theme="paper"] {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-spec);
+  font-feature-settings: "ss01", "cv11";
+}
+
+[data-theme="paper"] ::selection {
+  background: var(--color-signal-tint);
+  color: var(--color-signal);
 }
 
 /* ── Component utilities ───────────────────────── */

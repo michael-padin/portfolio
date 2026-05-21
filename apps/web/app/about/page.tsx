@@ -46,8 +46,7 @@ export default async function AboutPage() {
                 About me
               </div>
               <h1 className="text-display-xl text-text-primary mb-6">
-                Developer, builder,{" "}
-                <span className="text-gradient italic">problem solver.</span>
+                Developer, builder, <span className="text-gradient italic">problem solver.</span>
               </h1>
             </div>
           </div>

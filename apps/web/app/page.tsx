@@ -2,17 +2,8 @@ import type { Metadata } from "next";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ProjectsSection } from "@/components/sections/ProjectsSection";
 import { AboutSection } from "@/components/sections/AboutSection";
-import { BlogPreviewSection } from "@/components/sections/BlogPreviewSection";
 import { CTASection } from "@/components/sections/CTASection";
-import {
-  getFeaturedProjects,
-  getFeaturedPosts,
-  getProfile,
-  getResumeUrl,
-  imageUrl,
-  FALLBACK_PROFILE,
-} from "@/lib/sanity";
-import { features } from "@/lib/features";
+import { getFeaturedProjects, getProfile, imageUrl, FALLBACK_PROFILE } from "@/lib/sanity";
 import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,21 +19,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [projects, posts, profile] = await Promise.all([
+  const [projects, profile] = await Promise.all([
     getFeaturedProjects().catch(() => []),
-    getFeaturedPosts().catch(() => []),
     getProfile().catch(() => null),
   ]);
 
   const p = profile ?? FALLBACK_PROFILE;
 
   return (
-    <>
-      <HeroSection profile={p} resumeUrl={getResumeUrl(p)} />
+    <div data-theme="paper" className="min-h-screen">
+      <HeroSection profile={p} />
       <ProjectsSection projects={projects} />
       <AboutSection profile={p} />
-      {features.blog && <BlogPreviewSection posts={posts} />}
       <CTASection profile={p} />
-    </>
+    </div>
   );
 }

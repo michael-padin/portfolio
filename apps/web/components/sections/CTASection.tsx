@@ -1,4 +1,5 @@
-import Link from "next/link";
+"use client";
+import { useState } from "react";
 import type { Profile } from "@/lib/sanity";
 
 interface Props {
@@ -6,72 +7,139 @@ interface Props {
 }
 
 export function CTASection({ profile }: Props) {
+  const [copied, setCopied] = useState(false);
+  const available = profile.availableForFreelance || profile.availableForFullTime;
+
+  async function copyEmail() {
+    try {
+      await navigator.clipboard.writeText(profile.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      window.location.href = `mailto:${profile.email}`;
+    }
+  }
+
   return (
-    <section className="py-24">
-      <div className="container-custom">
-        <div
-          className="border-accent/20 relative overflow-hidden rounded-3xl border p-12 text-center md:p-16"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(0,212,170,0.05) 0%, var(--color-bg-secondary) 50%, var(--color-bg-secondary) 100%)",
-          }}
-        >
-          {/* Glow */}
-          <div className="bg-accent-subtle pointer-events-none absolute top-0 left-1/2 h-32 w-96 -translate-x-1/2 blur-3xl" />
+    <section className="relative py-[clamp(5rem,8vw,8rem)]">
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Section title */}
+        <header className="border-paper-rule flex items-end justify-between border-b pb-3">
+          <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+            Signature
+          </h2>
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            §04 · Reach out
+          </span>
+        </header>
 
-          <div className="relative z-10">
-            <div className="label-tag mx-auto mb-6 w-fit">Let&apos;s work together</div>
-
-            <h2 className="text-display-lg text-text-primary mx-auto mb-4 max-w-2xl">
-              Got a project in mind?
-              <br />
-              <span className="text-accent italic">Let&apos;s talk.</span>
-            </h2>
-
-            <p className="text-text-secondary mx-auto mb-10 max-w-xl text-lg">
-              {profile.availableForFreelance && profile.availableForFullTime
-                ? "Available for freelance projects and full-time remote opportunities."
-                : profile.availableForFreelance
-                  ? "Taking on freelance projects. Reach out to discuss yours."
-                  : profile.availableForFullTime
-                    ? "Open to full-time remote roles. Let's connect."
-                    : "Not currently available, but feel free to reach out for future work."}{" "}
-              Based in {profile.location} ({profile.timezone}) — I work flexible hours to overlap
-              with your team.
+        <div className="mt-[clamp(3rem,5vw,5rem)] grid grid-cols-12 gap-x-6 gap-y-6">
+          {/* Statement */}
+          <div className="col-span-12 lg:col-span-7">
+            <p className="font-spec text-ink max-w-[24ch] text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] font-medium tracking-[-0.025em]">
+              Have engineering work that needs a steady pair of hands? Write.
             </p>
-
-            <div className="mb-10 flex flex-wrap justify-center gap-4">
-              <Link href="/contact" className="btn-primary px-8 py-4 text-base">
-                Start a conversation
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M1 8h14M9 2l6 6-6 6"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-              <a href={`mailto:${profile.email}`} className="btn-ghost px-8 py-4 text-base">
-                {profile.email}
-              </a>
-            </div>
-
-            {/* Trust signals */}
-            <div className="text-text-muted flex flex-wrap justify-center gap-6 text-sm">
-              {[
-                "Fast async replies",
-                "No-BS communication",
-                "Timezone flexible",
-                "English fluent",
-              ].map((s) => (
-                <span key={s} className="flex items-center gap-2">
-                  <span className="text-success">✓</span> {s}
-                </span>
-              ))}
-            </div>
           </div>
+
+          {/* Signature block */}
+          <div className="col-span-12 lg:col-span-5 lg:pt-3">
+            <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-3 text-[14px]">
+              <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                Email
+              </dt>
+              <dd>
+                <button
+                  type="button"
+                  onClick={copyEmail}
+                  className="font-spec-mono text-ink hover:text-signal border-ink hover:border-signal group inline-flex items-center gap-3 border-b pb-px text-[15px] transition-colors"
+                  aria-label={`Copy email ${profile.email}`}
+                >
+                  <span>{profile.email}</span>
+                  <span
+                    aria-live="polite"
+                    className={`font-spec text-[11px] tracking-[0.04em] uppercase transition-opacity ${
+                      copied
+                        ? "text-signal opacity-100"
+                        : "text-ink-3 opacity-0 group-hover:opacity-100"
+                    }`}
+                  >
+                    {copied ? "copied" : "copy"}
+                  </span>
+                </button>
+              </dd>
+
+              <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                Where
+              </dt>
+              <dd className="font-spec text-ink-2">
+                {profile.location}{" "}
+                <span className="text-ink-3 font-spec-mono ml-1 text-[12px]">
+                  · {profile.timezone}
+                </span>
+              </dd>
+
+              <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                Reply
+              </dt>
+              <dd className="font-spec text-ink-2">
+                Within <span className="font-spec-mono text-ink tabular-nums">~24h</span>{" "}
+                <span className="text-ink-3">on weekdays</span>
+              </dd>
+
+              <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                Status
+              </dt>
+              <dd className="font-spec inline-flex items-center gap-2">
+                <span
+                  aria-hidden
+                  className={`size-1.5 rounded-full ${available ? "bg-signal" : "bg-ink-3"}`}
+                />
+                <span className={available ? "text-signal font-medium" : "text-ink-2"}>
+                  {available ? profile.availabilityNote : "Not currently available"}
+                </span>
+              </dd>
+
+              {(profile.githubUrl || profile.linkedinUrl) && (
+                <>
+                  <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                    Elsewhere
+                  </dt>
+                  <dd className="font-spec text-ink-2 flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
+                    {profile.githubUrl && (
+                      <a
+                        href={profile.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-signal border-ink-3 hover:border-signal border-b pb-px transition-colors"
+                      >
+                        GitHub
+                      </a>
+                    )}
+                    {profile.linkedinUrl && (
+                      <a
+                        href={profile.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-signal border-ink-3 hover:border-signal border-b pb-px transition-colors"
+                      >
+                        LinkedIn
+                      </a>
+                    )}
+                  </dd>
+                </>
+              )}
+            </dl>
+          </div>
+        </div>
+
+        {/* Document footer */}
+        <div className="border-paper-rule mt-[clamp(4rem,6vw,6rem)] flex items-baseline justify-between border-t pt-4">
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            End of document · {profile.name}
+          </span>
+          <span className="font-spec-mono text-ink-3 text-[11px] tabular-nums">
+            REV {new Date().getFullYear()}
+          </span>
         </div>
       </div>
     </section>

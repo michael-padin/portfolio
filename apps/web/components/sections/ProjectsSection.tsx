@@ -2,113 +2,161 @@ import Link from "next/link";
 import Image from "next/image";
 import type { SanityProject } from "@/lib/sanity";
 import { imageUrl } from "@/lib/sanity";
-import { ProjectLink } from "../features/ProjectLink";
 
 interface Props {
   projects: SanityProject[];
 }
 
 export function ProjectsSection({ projects }: Props) {
-  // Fallback demo projects if CMS is empty
-  const displayProjects = projects.length > 0 ? projects : DEMO_PROJECTS;
+  const display = projects.length > 0 ? projects : DEMO_PROJECTS;
+  const [lead, ...rest] = display;
 
   return (
-    <section id="projects" className="py-24">
-      <div className="container-custom">
-        {/* Header */}
-        <div className="mb-16">
-          <div className="label-tag mb-4">Selected work</div>
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <h2 className="font-display text-display-lg text-text-primary max-w-lg">
-              Projects that <span className="text-accent italic">shipped</span>
-            </h2>
-            <Link href="/projects" className="btn-ghost shrink-0 self-start text-sm sm:self-auto">
-              View all work →
-            </Link>
-          </div>
-        </div>
+    <section id="projects" className="relative py-[clamp(5rem,8vw,8rem)]">
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Section title */}
+        <header className="border-paper-rule flex items-end justify-between border-b pb-3">
+          <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+            Selected work
+          </h2>
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            §02 · {display.length} {display.length === 1 ? "entry" : "entries"}
+          </span>
+        </header>
 
-        {/* Projects grid */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {displayProjects.map((project, i) => (
-            <ProjectCard key={project._id} project={project} featured={i === 0} />
-          ))}
+        {/* Lead project */}
+        {lead && <LeadRow project={lead} index={0} />}
+
+        {/* Rest as list rows */}
+        {rest.length > 0 && (
+          <ol className="border-paper-rule mt-2 border-t">
+            {rest.map((p, i) => (
+              <ListRow key={p._id} project={p} index={i + 1} />
+            ))}
+          </ol>
+        )}
+
+        {/* All-work link */}
+        <div className="border-paper-rule mt-12 flex items-center gap-3 border-t pt-4 text-[13px]">
+          <span className="font-spec-mono text-ink-3 tracking-[0.04em] uppercase">More</span>
+          <Link
+            href="/projects"
+            className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-0.5 font-medium transition-colors"
+          >
+            All projects, including non-featured
+          </Link>
         </div>
       </div>
     </section>
   );
 }
 
-function ProjectCard({ project, featured }: { project: SanityProject; featured: boolean }) {
+function LeadRow({ project, index }: { project: SanityProject; index: number }) {
   const slug = typeof project.slug === "string" ? project.slug : project.slug?.current;
+  const cover = imageUrl(project.coverImage, 1600, 900);
 
   return (
     <Link
       href={`/projects/${slug}`}
-      className={`card group block overflow-hidden ${featured ? "md:col-span-2" : ""}`}
+      className="group mt-[clamp(2rem,4vw,3.5rem)] grid grid-cols-12 gap-x-6 gap-y-6"
     >
-      {/* Image */}
-      <div
-        className={`bg-surface relative overflow-hidden ${featured ? "aspect-[2/1]" : "aspect-video"}`}
-      >
-        {imageUrl(project.coverImage, featured ? 1200 : 800, featured ? 600 : 450) ? (
-          <Image
-            src={imageUrl(project.coverImage, featured ? 1200 : 800, featured ? 600 : 450)!}
-            alt={project.title}
-            fill
-            sizes={
-              featured ? "(max-width: 768px) 100vw, 1200px" : "(max-width: 768px) 100vw, 600px"
-            }
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <PlaceholderImage title={project.title} />
-        )}
-        {/* Overlay */}
-        <div className="from-bg-card absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-60" />
-        {/* Category badge */}
-        <div className="absolute top-4 left-4">
-          <span className="label-tag text-2xs">{project.category}</span>
+      {/* Number + meta column */}
+      <div className="col-span-12 md:col-span-3 md:pt-2">
+        <div className="flex items-baseline gap-3">
+          <span className="font-spec-mono text-signal text-[clamp(1.5rem,2vw,2rem)] leading-none tabular-nums">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            Lead
+          </span>
         </div>
+        <dl className="mt-4 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-[12px]">
+          <dt className="font-spec-mono text-ink-3 tracking-[0.04em] uppercase">Category</dt>
+          <dd className="text-ink">{project.category ?? "—"}</dd>
+          <dt className="font-spec-mono text-ink-3 tracking-[0.04em] uppercase">Stack</dt>
+          <dd className="text-ink-2">{(project.techStack ?? []).slice(0, 4).join(", ")}</dd>
+          <dt className="font-spec-mono text-ink-3 tracking-[0.04em] uppercase">Status</dt>
+          <dd className="text-signal font-medium">Shipped</dd>
+        </dl>
       </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <h3 className="font-display text-text-primary group-hover:text-accent mb-2 text-xl transition-colors">
-          {project.title}
-        </h3>
-        <p className="text-text-secondary mb-4 text-sm leading-relaxed">{project.tagline}</p>
-
-        {/* Tech stack */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {(project.techStack ?? []).slice(0, 5).map((tech) => (
-            <span key={tech} className="tech-badge">
-              {tech}
+      {/* Image + title column */}
+      <div className="col-span-12 md:col-span-9">
+        {cover ? (
+          <div className="border-paper-rule bg-paper-tint relative aspect-[16/9] overflow-hidden border">
+            <Image
+              src={cover}
+              alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 75vw"
+              className="object-cover transition-[filter] duration-300 ease-out group-hover:grayscale-0"
+              priority
+            />
+          </div>
+        ) : (
+          <div className="border-paper-rule bg-paper-tint relative flex aspect-[16/9] items-end border p-6">
+            <span className="font-spec text-ink-3 text-[clamp(1rem,1.5vw,1.25rem)]">
+              {project.title}
             </span>
-          ))}
-        </div>
+          </div>
+        )}
 
-        {/* Links */}
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-accent font-medium group-hover:underline">View case study →</span>
-          {project.liveUrl && <ProjectLink liveUrl={project.liveUrl} name="Live site ↗" />}
-          {project.githubUrl && <ProjectLink liveUrl={project.githubUrl} name="GitHub ↗" />}
-        </div>
+        <h3 className="font-spec text-ink mt-5 text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.05] font-medium tracking-[-0.025em]">
+          {project.title}
+          <span className="text-ink-3 group-hover:text-signal ml-3 inline-block align-middle text-[0.6em] font-normal transition-colors">
+            ↗
+          </span>
+        </h3>
+        <p className="font-spec text-ink-2 mt-3 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
+          {project.tagline}
+        </p>
       </div>
     </Link>
   );
 }
 
-function PlaceholderImage({ title }: { title: string }) {
+function ListRow({ project, index }: { project: SanityProject; index: number }) {
+  const slug = typeof project.slug === "string" ? project.slug : project.slug?.current;
+  const stack = (project.techStack ?? []).slice(0, 5).join(" · ");
+
   return (
-    <div className="from-surface to-bg-secondary absolute inset-0 flex items-center justify-center bg-gradient-to-br">
-      <div className="text-center">
-        <div className="font-display text-accent/30 text-4xl font-bold">
-          {title.charAt(0).toUpperCase()}
-        </div>
-        <div className="text-text-muted mt-2 font-mono text-xs">{title}</div>
-      </div>
-    </div>
+    <li className="border-paper-rule border-b">
+      <Link
+        href={`/projects/${slug}`}
+        className="group hover:bg-paper-tint grid grid-cols-12 items-baseline gap-x-4 py-5 transition-colors"
+      >
+        {/* Number */}
+        <span className="text-ink-3 group-hover:text-signal font-spec-mono col-span-2 pl-2 text-[13px] tabular-nums transition-colors sm:col-span-1">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+
+        {/* Title */}
+        <span className="font-spec text-ink group-hover:text-signal col-span-10 text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
+          {project.title}
+        </span>
+
+        {/* Category */}
+        <span className="text-ink-2 font-spec col-span-6 mt-1 text-[13px] sm:col-span-2 sm:mt-0">
+          {project.category ?? "—"}
+        </span>
+
+        {/* Stack */}
+        <span className="text-ink-3 font-spec col-span-6 mt-1 truncate text-[13px] sm:col-span-4 sm:mt-0">
+          {stack}
+        </span>
+
+        {/* Status + arrow */}
+        <span className="text-signal font-spec-mono col-span-12 mt-2 flex items-center justify-end gap-2 pr-2 text-[12px] sm:col-span-1 sm:mt-0">
+          <span className="font-medium">shipped</span>
+          <span
+            aria-hidden
+            className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+          >
+            ↗
+          </span>
+        </span>
+      </Link>
+    </li>
   );
 }
 
@@ -116,10 +164,22 @@ function PlaceholderImage({ title }: { title: string }) {
 const DEMO_PROJECTS: SanityProject[] = [
   {
     _id: "1",
+    title: "Image Edits Platform",
+    slug: { current: "image-edits" },
+    tagline:
+      "Scalable bulk image processing pipeline. Express + TypeScript backend, AWS S3, dynamic watermarking, BullMQ job queues, Socket.io progress.",
+    techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma"],
+    category: "Full-Stack App",
+    featured: true,
+    overview:
+      "Architected and delivered a scalable Express.js + TypeScript backend for a real estate photo editing SaaS.",
+  },
+  {
+    _id: "2",
     title: "JimDaisy.com",
     slug: { current: "jimdaisy" },
     tagline:
-      "Student housing website combining 2 California properties — drove first online inquiries within 2 weeks of launch",
+      "Student housing site combining two California properties. Drove first online inquiries within two weeks of launch.",
     techStack: ["Next.js", "Cloudflare Workers", "Porkbun", "Zoho Mail", "SEO"],
     category: "Freelance",
     featured: true,
@@ -128,23 +188,11 @@ const DEMO_PROJECTS: SanityProject[] = [
       "Built a combined property listing site for a California-based landlord targeting student housing.",
   },
   {
-    _id: "2",
-    title: "Image Edits Platform",
-    slug: { current: "image-edits" },
-    tagline:
-      "Scalable bulk image processing pipeline with AWS S3, dynamic watermarking, and BullMQ job queues",
-    techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma"],
-    category: "Full-Stack App",
-    featured: false,
-    overview:
-      "Architected and delivered a scalable Express.js + TypeScript backend for a real estate photo editing SaaS.",
-  },
-  {
     _id: "3",
     title: "Booking Platform (Aryeo-style)",
     slug: { current: "booking-platform" },
     tagline:
-      "Photographer booking and delivery platform with branded storefronts, TanStack Query migration",
+      "Photographer booking and delivery platform with branded storefronts and a TanStack Query migration.",
     techStack: ["Next.js", "TanStack", "Socket.io", "PostgreSQL", "Stripe"],
     category: "Full-Stack App",
     featured: false,
@@ -156,7 +204,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     title: "AI Image Editor (Fotello-style)",
     slug: { current: "ai-image-editor" },
     tagline:
-      "Credit-based AI image editing platform for real estate photographers with real-time previews",
+      "Credit-based AI image editing platform for real estate photographers with real-time previews.",
     techStack: ["Next.js", "Cloudflare Workers", "Hono", "Socket.io", "Stripe"],
     category: "Full-Stack App",
     featured: false,

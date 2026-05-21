@@ -5,151 +5,130 @@ interface Props {
 }
 
 export function AboutSection({ profile }: Props) {
+  const currentCompany = profile.experience.find((e) => e.current);
+  const yearsExperience = profile.experience.length;
+  const educationLine = profile.education
+    .map((e) => `${e.institution}, ${e.degree} (${e.period})`)
+    .join("; ");
+
   return (
-    <section id="about" className="bg-bg-secondary/40 py-24">
-      <div className="container-custom">
-        {/* Header */}
-        <div className="mb-16">
-          <div className="label-tag mb-4">About me</div>
-          <h2 className="text-display-lg text-text-primary max-w-2xl">
-            Developer from{" "}
-            <span className="text-accent italic">{profile.location.split(",")[0]}</span>
-            ,<br />
-            building for the world
+    <section id="about" className="relative py-[clamp(5rem,8vw,8rem)]">
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Section title */}
+        <header className="border-paper-rule flex items-end justify-between border-b pb-3">
+          <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+            About
           </h2>
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            §03 · Engineer profile
+          </span>
+        </header>
+
+        {/* Bio column */}
+        <div className="mt-[clamp(2.5rem,5vw,4rem)] grid grid-cols-12 gap-x-6 gap-y-12">
+          <div className="col-span-12 lg:col-span-8 lg:col-start-2">
+            <p className="font-spec text-ink max-w-[60ch] text-[clamp(1.0625rem,1.2vw,1.1875rem)] leading-[1.55]">
+              {profile.bioShort}
+              {currentCompany && (
+                <>
+                  {" "}
+                  Currently at{" "}
+                  {currentCompany.companyUrl ? (
+                    <a
+                      href={currentCompany.companyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
+                    >
+                      {currentCompany.company}
+                    </a>
+                  ) : (
+                    <span className="font-medium">{currentCompany.company}</span>
+                  )}{" "}
+                  ({currentCompany.role}). Based in {profile.location} ({profile.timezone}); fluent
+                  English, async-first, overlaps with US and APAC working hours.
+                </>
+              )}
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-16 lg:grid-cols-[1.2fr_1fr]">
-          {/* Left — bio + skills */}
-          <div>
-            <p className="text-text-secondary mb-4 text-lg leading-relaxed">
-              I&apos;m <span className="text-text-primary font-medium">{profile.name}</span> — a
-              full-stack JavaScript developer with 3+ years building production-grade web apps and
-              APIs. Currently working remotely for{" "}
-              <a
-                href={profile.experience[0]?.companyUrl ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline"
-              >
-                {profile.experience[0]?.company ?? "Image Edits"}
-              </a>
-              , where I architect backend pipelines, lead frontend migrations, and help plan
-              technical decisions across a 5-app Turborepo monorepo.
-            </p>
-            <p className="text-text-secondary mb-8 text-lg leading-relaxed">
-              I specialise in the React and Node.js ecosystem with a strong focus on performance and
-              shipping things that actually work. Fluent in English, comfortable with async-first
-              workflows, and overlap with US and APAC timezones from {profile.timezone}.
-            </p>
-
-            {/* Skills */}
-            <div className="space-y-5">
-              {profile.skillGroups.map(({ category, skills }) => (
-                <div key={category}>
-                  <div className="text-text-muted mb-2 font-mono text-xs tracking-wider uppercase">
-                    {category}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="bg-surface border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent cursor-default rounded-lg border px-2.5 py-1 text-sm transition-colors"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right — experience + education */}
-          <div>
-            <h3 className="font-display text-text-primary mb-6 text-xl">Experience</h3>
-
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="bg-surface-border absolute top-0 bottom-0 left-3 w-px" />
-
-              <div className="space-y-6">
-                {profile.experience.map((exp, i) => (
-                  <div key={i} className="relative pl-10">
-                    {/* Dot */}
-                    <div
-                      className={`absolute top-1.5 left-0 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-                        exp.current
-                          ? "border-accent bg-accent-subtle"
-                          : "border-surface-border bg-bg"
-                      }`}
-                    >
-                      <div
-                        className={`h-2 w-2 rounded-full ${
-                          exp.current ? "bg-accent animate-pulse" : "bg-text-muted"
-                        }`}
-                      />
-                    </div>
-
-                    <div className="card p-4">
-                      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-                        <div>
-                          {exp.companyUrl ? (
-                            <a
-                              href={exp.companyUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-text-primary hover:text-accent text-sm font-semibold transition-colors"
-                            >
-                              {exp.company}
-                            </a>
-                          ) : (
-                            <div className="text-text-primary text-sm font-semibold">
-                              {exp.company}
-                            </div>
-                          )}
-                          <div className="text-accent font-mono text-xs">{exp.role}</div>
-                        </div>
-                        <div className="text-text-muted text-2xs text-right">
-                          <div className="font-mono">{exp.period}</div>
-                          <div>{exp.location}</div>
-                        </div>
-                      </div>
-                      <ul className="space-y-1.5">
-                        {exp.highlights.map((h, j) => (
-                          <li
-                            key={j}
-                            className="text-text-secondary flex gap-2 text-xs leading-relaxed"
-                          >
-                            <span className="text-accent mt-0.5 shrink-0">▸</span>
-                            <span>{h}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Education */}
-            {profile.education.map((edu, i) => (
-              <div key={i} className="card border-accent/20 mt-6 p-4">
-                <div className="flex items-start gap-3">
-                  <div className="bg-accent-subtle text-accent rounded-lg p-2 text-lg">🎓</div>
-                  <div>
-                    <div className="text-text-primary text-sm font-semibold">{edu.institution}</div>
-                    <div className="text-text-secondary text-xs">
-                      {edu.degree} · {edu.period}
-                    </div>
-                    <div className="text-text-muted text-xs">{edu.location}</div>
-                  </div>
-                </div>
-              </div>
+        {/* Experience table */}
+        <div className="mt-[clamp(4rem,6vw,6rem)]">
+          <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
+            §03·1 Experience ({yearsExperience} engagements)
+          </h3>
+          <div className="border-paper-rule border-t">
+            {profile.experience.map((exp, i) => (
+              <ExperienceRow key={`${exp.company}-${i}`} exp={exp} />
             ))}
+          </div>
+        </div>
+
+        {/* Education + signals */}
+        <div className="border-paper-rule mt-[clamp(3rem,4vw,4rem)] grid grid-cols-12 gap-x-6 gap-y-6 border-t pt-6">
+          <div className="col-span-12 md:col-span-6">
+            <h3 className="font-spec-mono text-ink-3 mb-2 text-[11px] tracking-[0.04em] uppercase">
+              §03·2 Education
+            </h3>
+            <p className="font-spec text-ink-2 text-[14px] leading-[1.5]">{educationLine || "—"}</p>
+          </div>
+          <div className="col-span-12 md:col-span-6">
+            <h3 className="font-spec-mono text-ink-3 mb-2 text-[11px] tracking-[0.04em] uppercase">
+              §03·3 Stack
+            </h3>
+            <p className="font-spec text-ink-2 text-[14px] leading-[1.5]">
+              {profile.skillGroups
+                .flatMap((g) => g.skills)
+                .slice(0, 16)
+                .join(" · ")}
+            </p>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function ExperienceRow({ exp }: { exp: Profile["experience"][number] }) {
+  const outcome = exp.highlights?.[0] ?? "";
+  return (
+    <article className="border-paper-rule grid grid-cols-12 gap-x-4 gap-y-1 border-b py-5">
+      {/* Period */}
+      <div className="font-spec-mono text-ink-3 col-span-12 text-[12px] tabular-nums md:col-span-2">
+        {exp.period}
+        {exp.current && (
+          <span className="text-signal ml-2 inline-flex items-center gap-1 font-medium">
+            <span aria-hidden className="bg-signal size-1.5 rounded-full" />
+            now
+          </span>
+        )}
+      </div>
+
+      {/* Company + role */}
+      <div className="col-span-12 md:col-span-3">
+        {exp.companyUrl ? (
+          <a
+            href={exp.companyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-spec text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[15px] font-medium transition-colors"
+          >
+            {exp.company}
+          </a>
+        ) : (
+          <span className="font-spec text-ink text-[15px] font-medium">{exp.company}</span>
+        )}
+        <div className="font-spec text-ink-2 text-[13px]">{exp.role}</div>
+        <div className="font-spec-mono text-ink-3 mt-0.5 text-[11px] tracking-[0.02em] uppercase">
+          {exp.location}
+        </div>
+      </div>
+
+      {/* Outcome */}
+      <p className="font-spec text-ink-2 col-span-12 max-w-[60ch] text-[14px] leading-[1.5] md:col-span-7">
+        {outcome}
+      </p>
+    </article>
   );
 }
