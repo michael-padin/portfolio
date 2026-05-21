@@ -67,6 +67,19 @@ export function HeroSection({ profile }: Props) {
           >
             Write
           </a>
+          {profile.bookingUrl && (
+            <>
+              <span className="text-ink-3">·</span>
+              <a
+                href={profile.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink-2 hover:text-signal hover:border-signal border-b border-transparent pb-[2px] transition-colors"
+              >
+                Book a call ↗
+              </a>
+            </>
+          )}
         </div>
       </div>
     </section>

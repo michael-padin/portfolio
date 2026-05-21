@@ -102,6 +102,13 @@ export const profileSchema = defineType({
       type: "url",
       initialValue: "https://michaelpadin.com",
     }),
+    defineField({
+      name: "bookingUrl",
+      title: "Booking URL (Cal.com, Calendly, etc.)",
+      description:
+        "Optional. When set, a 'Book' link appears on the hero, contact page, signature block, and footer. Leave empty to hide.",
+      type: "url",
+    }),
 
     // ── Hero section ─────────────────────────────────────────
     defineField({

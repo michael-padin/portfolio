@@ -17,6 +17,7 @@ export async function Footer() {
   const available = profile.availableForFreelance || profile.availableForFullTime;
 
   const elsewhere = [
+    profile.bookingUrl && { href: profile.bookingUrl, label: "Book a call" },
     profile.githubUrl && { href: profile.githubUrl, label: "GitHub" },
     profile.linkedinUrl && { href: profile.linkedinUrl, label: "LinkedIn" },
     profile.twitterUrl && { href: profile.twitterUrl, label: "Twitter" },

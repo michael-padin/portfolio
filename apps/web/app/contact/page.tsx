@@ -20,6 +20,7 @@ export default async function ContactPage() {
   const email = profile?.email ?? "hello@michaelpadin.com";
   const linkedin = profile?.linkedinUrl ?? "https://linkedin.com/in/michael-padin";
   const github = profile?.githubUrl ?? "https://github.com/michael-padin";
+  const bookingUrl = profile?.bookingUrl;
   const location = profile?.location ?? "Cebu, Philippines";
   const timezone = profile?.timezone ?? "UTC+8";
   const available = profile?.availableForFreelance || profile?.availableForFullTime;
@@ -81,6 +82,25 @@ export default async function ContactPage() {
                 {email}
               </a>
             </dd>
+
+            {bookingUrl && (
+              <>
+                <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                  Book
+                </dt>
+                <dd>
+                  <a
+                    href={bookingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-spec text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[15px] font-medium transition-colors"
+                  >
+                    {bookingUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")} ↗
+                  </a>
+                  <span className="text-ink-3 font-spec ml-2 text-[13px]">30-min intro chat</span>
+                </dd>
+              </>
+            )}
 
             <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
               LinkedIn

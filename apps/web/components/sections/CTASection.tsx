@@ -99,6 +99,24 @@ export function CTASection({ profile }: Props) {
                 </span>
               </dd>
 
+              {profile.bookingUrl && (
+                <>
+                  <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+                    Book
+                  </dt>
+                  <dd>
+                    <a
+                      href={profile.bookingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-spec text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
+                    >
+                      30-min intro chat ↗
+                    </a>
+                  </dd>
+                </>
+              )}
+
               {(profile.githubUrl || profile.linkedinUrl) && (
                 <>
                   <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">

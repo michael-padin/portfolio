@@ -258,6 +258,7 @@ export interface Profile {
   linkedinUrl: string;
   twitterUrl?: string;
   websiteUrl: string;
+  bookingUrl?: string;
   heroTaglineClient: string;
   heroSubClient: string;
   heroTaglineEmployer: string;
