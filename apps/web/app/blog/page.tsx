@@ -8,7 +8,7 @@ import { pageMetadata, siteUrl } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Writing",
   description:
-    "Technical writing on React, Next.js, Node.js, monorepo architecture, and full-stack engineering — by Michael Padin.",
+    "Technical writing on React, Next.js, Node.js, monorepo architecture, and full stack development by Michael Padin.",
   path: "/blog",
 });
 
@@ -31,7 +31,7 @@ export default async function BlogPage() {
     name: "Michael Padin — Writing",
     url: `${siteUrl}/blog`,
     description:
-      "Technical writing on React, Next.js, Node.js, monorepo architecture, and full-stack engineering.",
+      "Technical writing on React, Next.js, Node.js, monorepo architecture, and full stack development.",
     author: { "@type": "Person", name: "Michael Padin", url: siteUrl },
     blogPost: posts.map((p) => ({
       "@type": "BlogPosting",
@@ -60,7 +60,7 @@ export default async function BlogPage() {
             <Field label="Entries">
               <span className="tabular-nums">{posts.length || "—"}</span>
             </Field>
-            <Field label="Subject">Engineering notes</Field>
+            <Field label="Subject">Developer notes</Field>
           </dl>
         </div>
 

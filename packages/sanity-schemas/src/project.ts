@@ -52,7 +52,7 @@ export const projectSchema = defineType({
       title: "Category",
       type: "string",
       options: {
-        list: ["Full-Stack App", "Frontend", "Backend", "DevOps", "Freelance"],
+        list: ["Full Stack App", "Frontend", "Backend", "DevOps", "Freelance"],
       },
     }),
     defineField({

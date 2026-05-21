@@ -20,7 +20,7 @@ export function AboutSection({ profile }: Props) {
             About
           </h2>
           <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-            §03 · Engineer profile
+            §03 · Developer profile
           </span>
         </header>
 

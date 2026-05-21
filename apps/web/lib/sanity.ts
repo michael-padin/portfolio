@@ -279,7 +279,7 @@ export interface Profile {
 // ── Fallback profile (when Sanity isn't configured) ─────────────
 export const FALLBACK_PROFILE: Profile = {
   name: "Michael Padin",
-  title: "Full-Stack Developer",
+  title: "Full Stack Developer",
   location: "Cebu, Philippines",
   timezone: "UTC+8",
   availableForFreelance: true,
@@ -292,7 +292,7 @@ export const FALLBACK_PROFILE: Profile = {
   heroTaglineClient: "I build products that ship and actually work.",
   heroSubClient:
     "Need a scalable web app, a fast marketing site, or a Node.js backend? I've shipped production systems for companies in Australia, California, and beyond — all from Cebu, Philippines.",
-  heroTaglineEmployer: "Senior full-stack developer ready to join your team.",
+  heroTaglineEmployer: "Senior full stack developer ready to join your team.",
   heroSubEmployer:
     "Experienced in Turborepo monorepos, Next.js App Router, Express microservices, and AWS/Cloudflare infrastructure. I collaborate async-first and thrive in distributed teams.",
   heroStats: [
@@ -316,7 +316,7 @@ export const FALLBACK_PROFILE: Profile = {
     "Docker",
   ],
   bioShort:
-    "Full-stack developer from Cebu, Philippines specialising in React, Next.js, and Node.js.",
+    "Full stack developer from Cebu, Philippines specialising in React, Next.js, and Node.js.",
   values: [
     {
       emoji: "🚢",
@@ -326,7 +326,7 @@ export const FALLBACK_PROFILE: Profile = {
     {
       emoji: "📖",
       title: "Write to think",
-      body: "I document decisions, write clear PR descriptions, and believe good writing is a core engineering skill.",
+      body: "I document decisions, write clear PR descriptions, and believe good writing is a core development skill.",
     },
     {
       emoji: "🌐",
@@ -381,7 +381,7 @@ export const FALLBACK_PROFILE: Profile = {
   experience: [
     {
       company: "Image Edits",
-      role: "Full-Stack Developer",
+      role: "Full Stack Developer",
       period: "Aug 2023 – Present",
       location: "Brisbane, Australia (Remote)",
       current: true,
@@ -395,7 +395,7 @@ export const FALLBACK_PROFILE: Profile = {
     },
     {
       company: "ReallyBrief",
-      role: "Full-Stack Developer",
+      role: "Full Stack Developer",
       period: "Mar 2023 – Aug 2023",
       location: "Remote",
       current: false,
@@ -436,5 +436,5 @@ export const FALLBACK_PROFILE: Profile = {
     },
   ],
   seoDescription:
-    "Full-stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
+    "Full stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
 };

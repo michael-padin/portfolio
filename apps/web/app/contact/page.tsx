@@ -51,7 +51,7 @@ export default async function ContactPage() {
         {/* Title */}
         <div className="mt-[clamp(3rem,6vw,5rem)]">
           <h1 className="font-spec text-ink max-w-[22ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
-            Have engineering work? Write.
+            Have a project to build? Write.
           </h1>
           <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
             Send me a project brief, a job spec, or a technical question. I read everything and

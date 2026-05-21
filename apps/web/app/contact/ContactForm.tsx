@@ -11,6 +11,7 @@ export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileFailed, setTurnstileFailed] = useState(false);
   const [visitorType, setVisitorType] = useState<"client" | "employer" | "other">("client");
   const formRef = useRef<HTMLFormElement>(null);
   const loadTimeRef = useRef(Date.now());
@@ -20,7 +21,7 @@ export function ContactForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === "submitting") return;
-    if (!turnstileToken && siteKey) {
+    if (!turnstileToken && siteKey && !turnstileFailed) {
       setErrorMsg("Please complete the verification widget.");
       return;
     }
@@ -194,16 +195,30 @@ export function ContactForm() {
         <input id="website_url" name="website_url" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      {/* Turnstile */}
-      {siteKey && (
+      {/* Turnstile — hides itself if the widget can't connect or the domain
+         isn't allowed. Honeypot + timing-check still protect the endpoint. */}
+      {siteKey && !turnstileFailed && (
         <div>
           <Turnstile
             sitekey={siteKey}
             onVerify={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileFailed(true)}
             theme="light"
             size="normal"
           />
         </div>
+      )}
+      {turnstileFailed && (
+        <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+          Verification widget unavailable. If submission fails, write to{" "}
+          <a
+            href="mailto:hello@michaelpadin.com"
+            className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px transition-colors"
+          >
+            hello@michaelpadin.com
+          </a>{" "}
+          directly.
+        </p>
       )}
 
       {/* Error */}

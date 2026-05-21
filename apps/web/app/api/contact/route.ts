@@ -66,7 +66,7 @@ async function scoreLeadWithAI(data: {
       messages: [
         {
           role: "user",
-          content: `Analyze this contact form submission for a freelance full-stack developer and give a brief assessment (2-3 sentences max). Rate lead quality (High/Medium/Low) and suggest the best reply angle.
+          content: `Analyze this contact form submission for a freelance full stack developer and give a brief assessment (2-3 sentences max). Rate lead quality (High/Medium/Low) and suggest the best reply angle.
 
 Name: ${data.name}
 Email domain: ${data.email.split("@")[1]}

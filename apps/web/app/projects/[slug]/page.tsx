@@ -259,7 +259,7 @@ export default async function ProjectPage({ params }: Props) {
               Building something similar?
             </p>
             <p className="font-spec text-ink-2 mt-1 text-[14px]">
-              I take on full-stack engineering work from Cebu, Philippines.
+              I take on full stack development work from Cebu, Philippines.
             </p>
           </div>
           {features.contact ? (

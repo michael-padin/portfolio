@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Michael Padin, Full-Stack Developer";
+export const alt = "Michael Padin, Full Stack Developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -29,11 +29,11 @@ export default function OGImage() {
         color: ink,
       }}
     >
-      {/* Document metadata strip */}
+      {/* Metadata strip */}
       <div
         style={{
           display: "flex",
-          gap: 32,
+          gap: 40,
           paddingBottom: 12,
           borderBottom: `1px solid ${paperRule}`,
           fontFamily: mono,
@@ -57,30 +57,26 @@ export default function OGImage() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span>Status</span>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, color: signal }}>
-            <span
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: signal }}>
+            <div
               style={{
-                display: "inline-block",
+                display: "flex",
                 width: 8,
                 height: 8,
                 borderRadius: 999,
                 background: signal,
               }}
             />
-            Available
-          </span>
+            <span>Available</span>
+          </div>
         </div>
       </div>
 
+      {/* Spacer to push declaration toward center */}
+      <div style={{ display: "flex", flex: 1 }} />
+
       {/* Declaration */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          marginTop: 80,
-          marginBottom: "auto",
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column" }}>
         <div
           style={{
             display: "flex",
@@ -89,10 +85,10 @@ export default function OGImage() {
             color: ink,
             letterSpacing: "-0.035em",
             lineHeight: 1,
-            maxWidth: 920,
+            maxWidth: 980,
           }}
         >
-          I build products that ship and actually work.
+          <span>I build products that ship and actually work.</span>
         </div>
         <div
           style={{
@@ -101,19 +97,22 @@ export default function OGImage() {
             fontSize: 24,
             color: ink2,
             maxWidth: 880,
-            lineHeight: 1.5,
+            lineHeight: 1.4,
           }}
         >
-          Full-stack engineer specialising in React, Next.js, and Node.js.
+          <span>Full stack developer specialising in React, Next.js, and Node.js.</span>
         </div>
       </div>
 
-      {/* Spec strip footer */}
+      {/* Spacer */}
+      <div style={{ display: "flex", flex: 1 }} />
+
+      {/* Footer strip */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "baseline",
+          alignItems: "center",
           paddingTop: 24,
           borderTop: `1px solid ${paperRule}`,
           fontFamily: mono,
@@ -125,7 +124,7 @@ export default function OGImage() {
       >
         <div style={{ display: "flex", gap: 32 }}>
           <span style={{ color: ink, textTransform: "none" }}>michaelpadin.com</span>
-          <span>Full-stack engineer</span>
+          <span>Full stack developer</span>
         </div>
         <span>REV 2026</span>
       </div>

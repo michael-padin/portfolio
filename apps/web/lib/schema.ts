@@ -3,7 +3,7 @@ export function personSchema() {
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Michael Padin",
-    jobTitle: "Full-Stack Developer",
+    jobTitle: "Full Stack Developer",
     url: "https://michaelpadin.com",
     email: "hello@michaelpadin.com",
     image: "https://michaelpadin.com/og-image.jpg",
@@ -21,7 +21,7 @@ export function personSchema() {
       "PostgreSQL",
       "MongoDB",
       "Sanity CMS",
-      "Full-Stack Development",
+      "Full Stack Development",
     ],
     address: {
       "@type": "PostalAddress",
@@ -29,7 +29,7 @@ export function personSchema() {
       addressCountry: "PH",
     },
     description:
-      "Full-stack web developer specializing in JavaScript/TypeScript, React, Next.js and Node.js. Based in the Philippines, available for international remote work.",
+      "Full stack web developer specializing in JavaScript/TypeScript, React, Next.js and Node.js. Based in the Philippines, available for international remote work.",
   };
 }
 
@@ -37,10 +37,10 @@ export function websiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Michael Padin — Full-Stack Developer",
+    name: "Michael Padin, Full Stack Developer",
     url: "https://michaelpadin.com",
     description:
-      "Portfolio of Michael Padin, a full-stack developer from the Philippines specializing in React, Next.js, and Node.js.",
+      "Portfolio of Michael Padin, a full stack developer from the Philippines specializing in React, Next.js, and Node.js.",
     author: { "@type": "Person", name: "Michael Padin" },
   };
 }

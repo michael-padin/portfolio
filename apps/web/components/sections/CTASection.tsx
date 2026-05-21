@@ -37,7 +37,7 @@ export function CTASection({ profile }: Props) {
           {/* Statement */}
           <div className="col-span-12 lg:col-span-7">
             <p className="font-spec text-ink max-w-[24ch] text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] font-medium tracking-[-0.025em]">
-              Have engineering work that needs a steady pair of hands? Write.
+              Have a project that needs a steady pair of hands? Write.
             </p>
           </div>
 

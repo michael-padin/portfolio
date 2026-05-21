@@ -123,38 +123,37 @@ function ListRow({ project, index }: { project: SanityProject; index: number }) 
     <li className="border-paper-rule border-b">
       <Link
         href={`/projects/${slug}`}
-        className="group hover:bg-paper-tint grid grid-cols-12 items-baseline gap-x-4 py-5 transition-colors"
+        className="group hover:bg-paper-tint flex gap-3 px-2 py-5 transition-colors sm:grid sm:grid-cols-12 sm:items-baseline sm:gap-x-4 sm:px-0"
       >
-        {/* Number */}
-        <span className="text-ink-3 group-hover:text-signal font-spec-mono col-span-2 pl-2 text-[13px] tabular-nums transition-colors sm:col-span-1">
+        {/* Number — fixed-width on mobile, col-1 on sm+ */}
+        <span className="text-ink-3 group-hover:text-signal font-spec-mono w-6 shrink-0 pt-[0.35rem] text-[13px] tabular-nums transition-colors sm:col-span-1 sm:w-auto sm:pt-0 sm:pl-2">
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        {/* Title */}
-        <span className="font-spec text-ink group-hover:text-signal col-span-10 text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
-          {project.title}
-        </span>
-
-        {/* Category */}
-        <span className="text-ink-2 font-spec col-span-6 mt-1 text-[13px] sm:col-span-2 sm:mt-0">
-          {project.category ?? "—"}
-        </span>
-
-        {/* Stack */}
-        <span className="text-ink-3 font-spec col-span-6 mt-1 truncate text-[13px] sm:col-span-4 sm:mt-0">
-          {stack}
-        </span>
-
-        {/* Status + arrow */}
-        <span className="text-signal font-spec-mono col-span-12 mt-2 flex items-center justify-end gap-2 pr-2 text-[12px] sm:col-span-1 sm:mt-0">
-          <span className="font-medium">shipped</span>
-          <span
-            aria-hidden
-            className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
-          >
-            ↗
+        {/* Content: stacks on mobile, flows into the parent grid on sm+ */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1 sm:contents">
+          <span className="font-spec text-ink group-hover:text-signal text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
+            {project.title}
           </span>
-        </span>
+
+          <span className="text-ink-2 font-spec text-[13px] sm:col-span-2">
+            {project.category ?? "—"}
+          </span>
+
+          <span className="text-ink-3 font-spec text-[13px] leading-snug sm:col-span-4">
+            {stack}
+          </span>
+
+          <span className="text-signal font-spec-mono mt-1 inline-flex items-center gap-2 text-[12px] sm:col-span-1 sm:mt-0 sm:justify-end sm:pr-2">
+            <span className="font-medium">shipped</span>
+            <span
+              aria-hidden
+              className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+            >
+              ↗
+            </span>
+          </span>
+        </div>
       </Link>
     </li>
   );
@@ -169,7 +168,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Scalable bulk image processing pipeline. Express + TypeScript backend, AWS S3, dynamic watermarking, BullMQ job queues, Socket.io progress.",
     techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: true,
     overview:
       "Architected and delivered a scalable Express.js + TypeScript backend for a real estate photo editing SaaS.",
@@ -194,7 +193,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Photographer booking and delivery platform with branded storefronts and a TanStack Query migration.",
     techStack: ["Next.js", "TanStack", "Socket.io", "PostgreSQL", "Stripe"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: false,
     overview:
       "End-to-end booking app for photographers with branded storefronts, appointment scheduling, and client delivery.",
@@ -206,7 +205,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Credit-based AI image editing platform for real estate photographers with real-time previews.",
     techStack: ["Next.js", "Cloudflare Workers", "Hono", "Socket.io", "Stripe"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: false,
     overview:
       "AI-powered frontend allowing real estate photographers to purchase editing credits and receive processed images.",

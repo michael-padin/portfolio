@@ -6,7 +6,7 @@ import { pageMetadata, siteUrl } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
-    "Selected full-stack web work by Michael Padin — production React, Next.js, Node.js, and Cloudflare apps shipped for clients in Australia, the US, and beyond.",
+    "Selected full stack web work by Michael Padin: production React, Next.js, Node.js, and Cloudflare apps shipped for clients in Australia, the US, and beyond.",
   path: "/projects",
 });
 
@@ -18,7 +18,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Scalable bulk image processing pipeline. AWS S3, BullMQ job queues, dynamic watermarking, Socket.io progress.",
     techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma", "Socket.io"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: true,
     overview:
       "5-app Turborepo monorepo for a Brisbane-based real estate photo editing company. Handles bulk uploads, AI editing, marketplace, and bookings.",
@@ -43,7 +43,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Aryeo-style photographer booking platform with branded storefronts and client delivery.",
     techStack: ["Next.js", "TanStack", "PostgreSQL", "Stripe", "Cloudflare Workers"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: false,
     overview:
       "Photographers get their own branded storefront to list services, take bookings, and deliver assets to clients in one platform.",
@@ -55,7 +55,7 @@ const DEMO_PROJECTS: SanityProject[] = [
     tagline:
       "Credit-based AI editing platform for real estate photographers with real-time preview.",
     techStack: ["Next.js", "Cloudflare Workers", "Hono", "Socket.io", "Stripe", "BullMQ"],
-    category: "Full-Stack App",
+    category: "Full Stack App",
     featured: false,
     overview:
       "Fotello-style platform allowing photographers to purchase editing credits and submit real estate photos for AI-powered editing.",
@@ -184,38 +184,42 @@ function ProjectRow({ project, index }: { project: SanityProject; index: number 
     <li className="border-paper-rule border-b">
       <Link
         href={`/projects/${slug}`}
-        className="group hover:bg-paper-tint grid grid-cols-12 items-baseline gap-x-4 py-5 transition-colors"
+        className="group hover:bg-paper-tint flex gap-3 px-2 py-5 transition-colors sm:grid sm:grid-cols-12 sm:items-baseline sm:gap-x-4 sm:px-0"
       >
-        <span className="text-ink-3 group-hover:text-signal font-spec-mono col-span-2 pl-2 text-[13px] tabular-nums transition-colors sm:col-span-1">
+        {/* Number — fixed-width on mobile, col-1 on sm+ */}
+        <span className="text-ink-3 group-hover:text-signal font-spec-mono w-6 shrink-0 pt-[0.35rem] text-[13px] tabular-nums transition-colors sm:col-span-1 sm:w-auto sm:pt-0 sm:pl-2">
           {String(index + 1).padStart(2, "0")}
         </span>
 
-        <span className="font-spec text-ink group-hover:text-signal col-span-10 text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
-          {project.title}
-          {project.featured && (
-            <span className="text-signal font-spec-mono ml-2 text-[10px] tracking-[0.04em] uppercase">
-              ★ featured
-            </span>
-          )}
-        </span>
-
-        <span className="text-ink-2 font-spec col-span-6 mt-1 text-[13px] sm:col-span-2 sm:mt-0">
-          {project.category ?? "—"}
-        </span>
-
-        <span className="text-ink-3 font-spec col-span-6 mt-1 truncate text-[13px] sm:col-span-4 sm:mt-0">
-          {stack}
-        </span>
-
-        <span className="text-signal font-spec-mono col-span-12 mt-2 flex items-center justify-end gap-2 pr-2 text-[12px] sm:col-span-1 sm:mt-0">
-          <span className="font-medium">shipped</span>
-          <span
-            aria-hidden
-            className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
-          >
-            ↗
+        {/* Content: stacks on mobile, flows into the parent grid on sm+ */}
+        <div className="flex min-w-0 flex-1 flex-col gap-1 sm:contents">
+          <span className="font-spec text-ink group-hover:text-signal text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
+            {project.title}
+            {project.featured && (
+              <span className="text-signal font-spec-mono ml-2 text-[10px] tracking-[0.04em] uppercase">
+                ★ featured
+              </span>
+            )}
           </span>
-        </span>
+
+          <span className="text-ink-2 font-spec text-[13px] sm:col-span-2">
+            {project.category ?? "—"}
+          </span>
+
+          <span className="text-ink-3 font-spec text-[13px] leading-snug sm:col-span-4">
+            {stack}
+          </span>
+
+          <span className="text-signal font-spec-mono mt-1 inline-flex items-center gap-2 text-[12px] sm:col-span-1 sm:mt-0 sm:justify-end sm:pr-2">
+            <span className="font-medium">shipped</span>
+            <span
+              aria-hidden
+              className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+            >
+              ↗
+            </span>
+          </span>
+        </div>
       </Link>
     </li>
   );

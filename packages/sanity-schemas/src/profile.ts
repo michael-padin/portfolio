@@ -17,7 +17,7 @@ export const profileSchema = defineType({
       name: "title",
       title: "Professional Title",
       type: "string",
-      initialValue: "Full-Stack Developer",
+      initialValue: "Full Stack Developer",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -125,7 +125,7 @@ export const profileSchema = defineType({
       title: "Hero — Employer Tagline",
       description: "Main headline shown to recruiters/hiring managers",
       type: "string",
-      initialValue: "Senior full-stack developer ready to join your team.",
+      initialValue: "Senior full stack developer ready to join your team.",
       validation: (rule) => rule.required().max(80),
     }),
     defineField({
@@ -192,7 +192,7 @@ export const profileSchema = defineType({
       type: "text",
       rows: 2,
       initialValue:
-        "Full-stack developer from Cebu, Philippines. I build scalable React and Node.js apps for clients worldwide.",
+        "Full stack developer from Cebu, Philippines. I build scalable React and Node.js apps for clients worldwide.",
       validation: (rule) => rule.required().max(300),
     }),
     defineField({
@@ -209,7 +209,7 @@ export const profileSchema = defineType({
       type: "string",
       validation: (rule) => rule.max(160),
       initialValue:
-        "Full-stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
+        "Full stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
     }),
     defineField({
       name: "ogImage",
@@ -268,7 +268,7 @@ export const profileSchema = defineType({
         {
           emoji: "📖",
           title: "Write to think",
-          body: "I document decisions, write clear PR descriptions, and believe good writing is a core engineering skill.",
+          body: "I document decisions, write clear PR descriptions, and believe good writing is a core development skill.",
         },
         {
           emoji: "🌐",
@@ -381,7 +381,7 @@ export const profileSchema = defineType({
       initialValue: [
         {
           company: "Image Edits",
-          role: "Full-Stack Developer",
+          role: "Full Stack Developer",
           period: "Aug 2023 – Present",
           location: "Brisbane, Australia (Remote)",
           current: true,
@@ -395,7 +395,7 @@ export const profileSchema = defineType({
         },
         {
           company: "ReallyBrief",
-          role: "Full-Stack Developer",
+          role: "Full Stack Developer",
           period: "Mar 2023 – Aug 2023",
           location: "Remote",
           current: false,
