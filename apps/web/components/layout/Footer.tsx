@@ -54,7 +54,7 @@ export async function Footer() {
           </div>
 
           {/* Navigate */}
-          <div className="col-span-6 md:col-span-3">
+          <div className="col-span-12 sm:col-span-6 md:col-span-3">
             <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
               Navigate
             </h3>
@@ -73,7 +73,7 @@ export async function Footer() {
           </div>
 
           {/* Elsewhere */}
-          <div className="col-span-6 md:col-span-4">
+          <div className="col-span-12 sm:col-span-6 md:col-span-4">
             <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
               Elsewhere
             </h3>
@@ -81,7 +81,7 @@ export async function Footer() {
               <li>
                 <a
                   href={`mailto:${profile.email}`}
-                  className="font-spec-mono text-ink hover:text-signal text-[14px] transition-colors"
+                  className="font-spec-mono text-ink hover:text-signal text-[14px] break-all transition-colors"
                 >
                   {profile.email}
                 </a>

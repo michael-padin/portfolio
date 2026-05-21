@@ -93,9 +93,24 @@ export default async function BlogPostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }}
       />
       <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
-        {/* Document metadata strip */}
+        {/* Document metadata strip — mobile collapsed, sm+ full */}
         <div className="border-paper-rule border-b pb-3">
-          <dl className="font-spec-mono text-ink-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
+          <div className="font-spec-mono text-ink-3 flex items-center gap-2 text-[11px] tracking-[0.04em] uppercase sm:hidden">
+            <span>§</span>
+            <span className="text-ink normal-case">Post</span>
+            {post.publishedAt && (
+              <>
+                <span aria-hidden>·</span>
+                <span className="text-ink tabular-nums">{formatDate(post.publishedAt)}</span>
+              </>
+            )}
+            {post.readTime && (
+              <span className="ml-auto">
+                <span className="tabular-nums">{post.readTime}</span> min
+              </span>
+            )}
+          </div>
+          <dl className="font-spec-mono text-ink-3 hidden text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
             <Field label="Document">Post</Field>
             <Field label="Author">Michael Padin</Field>
             {post.publishedAt && (

@@ -119,9 +119,19 @@ export default async function ProjectPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkLd) }}
       />
       <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
-        {/* Document metadata strip */}
+        {/* Document metadata strip — mobile collapsed, sm+ full */}
         <div className="border-paper-rule border-b pb-3">
-          <dl className="font-spec-mono text-ink-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
+          <div className="font-spec-mono text-ink-3 flex items-center gap-2 text-[11px] tracking-[0.04em] uppercase sm:hidden">
+            <span>§</span>
+            <span className="text-ink normal-case">Project</span>
+            <span aria-hidden>·</span>
+            <span className="text-ink normal-case truncate">{project.title}</span>
+            <span
+              aria-hidden
+              className="bg-signal ml-auto inline-block size-1.5 shrink-0 rounded-full"
+            />
+          </div>
+          <dl className="font-spec-mono text-ink-3 hidden text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
             <Field label="Document">Project</Field>
             <Field label="Subject">{project.title}</Field>
             {project.category && <Field label="Category">{project.category}</Field>}
