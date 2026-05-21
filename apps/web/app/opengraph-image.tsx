@@ -1,21 +1,20 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Michael Padin — Full-Stack Developer";
+export const alt = "Michael Padin, Full-Stack Developer";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OGImage() {
-  const accent = "#00d4aa";
-  const accentDim = "rgba(0, 212, 170, 0.18)";
-  const bg = "#0a0a0f";
-  const surface = "#13131c";
-  const border = "rgba(255, 255, 255, 0.06)";
-  const text = "#e8e8f0";
-  const textMuted = "#8888a8";
-  const textDim = "#4a4a6a";
+  const paper = "#f5f1e8";
+  const paperRule = "#dccaa8";
+  const ink = "#1d2025";
+  const ink2 = "#4a4a5a";
+  const ink3 = "#7d7a78";
+  const signal = "#c43a1e";
 
-  const skills = ["TypeScript", "React", "Next.js", "Node.js", "AWS", "Cloudflare"];
+  const sans = "ui-sans-serif, system-ui, sans-serif";
+  const mono = "ui-monospace, SFMono-Regular, monospace";
 
   return new ImageResponse(
     <div
@@ -24,165 +23,111 @@ export default function OGImage() {
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        background: bg,
-        backgroundImage: `radial-gradient(circle at 85% 15%, ${accentDim} 0%, transparent 45%), radial-gradient(circle at 15% 85%, rgba(0, 184, 217, 0.10) 0%, transparent 50%)`,
-        fontFamily: "system-ui",
+        background: paper,
+        fontFamily: sans,
         padding: 64,
-        position: "relative",
+        color: ink,
       }}
     >
-      {/* Top bar */}
+      {/* Document metadata strip */}
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "auto",
+          gap: 32,
+          paddingBottom: 12,
+          borderBottom: `1px solid ${paperRule}`,
+          fontFamily: mono,
+          fontSize: 14,
+          color: ink3,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
         }}
       >
-        {/* Logo / brand mark */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              background: accent,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 24,
-              fontWeight: 800,
-              color: bg,
-            }}
-          >
-            M
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 18, color: text, fontWeight: 600, letterSpacing: -0.2 }}>
-              michaelpadin.com
-            </div>
-            <div style={{ fontSize: 13, color: textDim, fontFamily: "monospace" }}>portfolio</div>
-          </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <span>Document</span>
+          <span style={{ color: ink, textTransform: "none" }}>Portfolio</span>
         </div>
-
-        {/* Availability badge */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "10px 16px",
-            borderRadius: 999,
-            background: surface,
-            border: `1px solid ${border}`,
-          }}
-        >
-          <div
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 999,
-              background: accent,
-              boxShadow: `0 0 12px ${accent}`,
-            }}
-          />
-          <span style={{ fontSize: 14, color: text, fontFamily: "monospace" }}>
-            Available for new projects
+        <div style={{ display: "flex", gap: 8 }}>
+          <span>Subject</span>
+          <span style={{ color: ink, textTransform: "none" }}>Michael Padin</span>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <span>Origin</span>
+          <span style={{ color: ink, textTransform: "none" }}>Cebu, PH · UTC+8</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span>Status</span>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, color: signal }}>
+            <span
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                borderRadius: 999,
+                background: signal,
+              }}
+            />
+            Available
           </span>
         </div>
       </div>
 
-      {/* Main content */}
+      {/* Declaration */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          marginTop: 40,
-          marginBottom: 40,
+          marginTop: 80,
+          marginBottom: "auto",
         }}
       >
-        {/* Name */}
-        <div
-          style={{
-            fontSize: 96,
-            fontWeight: 800,
-            color: text,
-            letterSpacing: -3,
-            lineHeight: 1,
-            marginBottom: 14,
-          }}
-        >
-          Michael Padin
-        </div>
-
-        {/* Title with accent */}
         <div
           style={{
             display: "flex",
-            alignItems: "baseline",
-            gap: 16,
-            marginBottom: 36,
+            fontSize: 108,
+            fontWeight: 500,
+            color: ink,
+            letterSpacing: "-0.035em",
+            lineHeight: 1,
+            maxWidth: 920,
           }}
         >
-          <div style={{ fontSize: 42, color: accent, fontWeight: 600, letterSpacing: -1 }}>
-            Full-Stack Developer
-          </div>
-          <div style={{ fontSize: 22, color: textMuted, fontWeight: 400 }}>
-            Typescript · Next.js · Node.js · PostgreSQL
-          </div>
+          I build products that ship and actually work.
         </div>
-
-        {/* Skill chips */}
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {skills.map((s) => (
-            <div
-              key={s}
-              style={{
-                padding: "8px 16px",
-                borderRadius: 8,
-                background: surface,
-                border: `1px solid ${border}`,
-                fontSize: 18,
-                color: textMuted,
-                fontFamily: "monospace",
-              }}
-            >
-              {s}
-            </div>
-          ))}
+        <div
+          style={{
+            display: "flex",
+            marginTop: 40,
+            fontSize: 24,
+            color: ink2,
+            maxWidth: 880,
+            lineHeight: 1.5,
+          }}
+        >
+          Full-stack engineer specialising in React, Next.js, and Node.js.
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Spec strip footer */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
-          marginTop: "auto",
-          paddingTop: 28,
-          borderTop: `1px solid ${border}`,
+          alignItems: "baseline",
+          paddingTop: 24,
+          borderTop: `1px solid ${paperRule}`,
+          fontFamily: mono,
+          fontSize: 16,
+          color: ink3,
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            fontSize: 18,
-            color: textMuted,
-            fontFamily: "monospace",
-          }}
-        >
-          <span style={{ color: accent }}>▸</span>
-          Cebu, Philippines
-          <span style={{ color: textDim }}>·</span>
-          UTC+8 — flexible overlap with US / EU / APAC
+        <div style={{ display: "flex", gap: 32 }}>
+          <span style={{ color: ink, textTransform: "none" }}>michaelpadin.com</span>
+          <span>Full-stack engineer</span>
         </div>
-        <div style={{ fontSize: 16, color: textDim, fontFamily: "monospace" }}>
-          michaelpadin.com
-        </div>
+        <span>REV 2026</span>
       </div>
     </div>,
     { ...size },

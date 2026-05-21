@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
-import { getAllProjects, imageUrl, type SanityProject } from "@/lib/sanity";
+import { getAllProjects, type SanityProject } from "@/lib/sanity";
 import { pageMetadata, siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -14,10 +13,22 @@ export const metadata: Metadata = pageMetadata({
 const DEMO_PROJECTS: SanityProject[] = [
   {
     _id: "1",
+    title: "Image Edits Platform",
+    slug: { current: "image-edits" },
+    tagline:
+      "Scalable bulk image processing pipeline. AWS S3, BullMQ job queues, dynamic watermarking, Socket.io progress.",
+    techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma", "Socket.io"],
+    category: "Full-Stack App",
+    featured: true,
+    overview:
+      "5-app Turborepo monorepo for a Brisbane-based real estate photo editing company. Handles bulk uploads, AI editing, marketplace, and bookings.",
+  },
+  {
+    _id: "2",
     title: "JimDaisy.com",
     slug: { current: "jimdaisy" },
     tagline:
-      "Student housing platform combining 2 California properties — drove first online inquiries within 2 weeks",
+      "Student housing platform combining two California properties. Drove first online inquiries within two weeks.",
     techStack: ["Next.js", "Cloudflare Workers", "Porkbun", "Zoho Mail", "Google Business Profile"],
     category: "Freelance",
     featured: true,
@@ -26,35 +37,23 @@ const DEMO_PROJECTS: SanityProject[] = [
       "Built for a California-based landlord with no web presence. Full Next.js site, custom domain via Porkbun, deployed on Cloudflare Workers.",
   },
   {
-    _id: "2",
-    title: "Image Edits Platform",
-    slug: { current: "image-edits" },
-    tagline:
-      "Scalable bulk image processing SaaS — AWS S3, BullMQ job queues, dynamic watermarking",
-    techStack: ["Turborepo", "Next.js", "Express", "BullMQ", "AWS S3", "Prisma", "Socket.io"],
-    category: "Full-Stack App",
-    featured: true,
-    overview:
-      "5-app Turborepo monorepo for a Brisbane-based real estate photo editing company. Handles bulk uploads, AI editing, marketplace, and bookings.",
-  },
-  {
     _id: "3",
     title: "Booking Platform",
     slug: { current: "booking-platform" },
     tagline:
-      "Aryeo-style photographer booking platform with branded storefronts and client delivery",
+      "Aryeo-style photographer booking platform with branded storefronts and client delivery.",
     techStack: ["Next.js", "TanStack", "PostgreSQL", "Stripe", "Cloudflare Workers"],
     category: "Full-Stack App",
     featured: false,
     overview:
-      "Photographers get their own branded storefront to list services, take bookings, and deliver assets to clients — all in one platform.",
+      "Photographers get their own branded storefront to list services, take bookings, and deliver assets to clients in one platform.",
   },
   {
     _id: "4",
     title: "AI Image Editor",
     slug: { current: "ai-image-editor" },
     tagline:
-      "Credit-based AI editing platform for real estate photographers with real-time preview",
+      "Credit-based AI editing platform for real estate photographers with real-time preview.",
     techStack: ["Next.js", "Cloudflare Workers", "Hono", "Socket.io", "Stripe", "BullMQ"],
     category: "Full-Stack App",
     featured: false,
@@ -66,6 +65,8 @@ const DEMO_PROJECTS: SanityProject[] = [
 export default async function ProjectsPage() {
   const projects = await getAllProjects().catch(() => DEMO_PROJECTS);
   const display = projects.length > 0 ? projects : DEMO_PROJECTS;
+
+  const featuredCount = display.filter((p) => p.featured).length;
 
   const itemListLd = {
     "@context": "https://schema.org",
@@ -96,7 +97,7 @@ export default async function ProjectsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-16">
+    <main className="pt-[clamp(6rem,10vw,9rem)] pb-[clamp(4rem,8vw,7rem)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
@@ -105,75 +106,126 @@ export default async function ProjectsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <div className="container-custom">
-        {/* Header */}
-        <div className="mb-16">
-          <div className="label-tag mb-4">Portfolio</div>
-          <h1 className="font-display text-display-lg text-text-primary mb-4">All projects</h1>
-          <p className="text-text-secondary max-w-2xl text-lg">
-            A collection of freelance work, full-time projects, and side experiments. Each one
-            shipped to production.
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Document metadata strip */}
+        <div className="border-paper-rule border-b pb-3">
+          <dl className="font-spec-mono text-ink-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
+            <Field label="Document">Projects</Field>
+            <Field label="Total">
+              <span className="tabular-nums">{display.length}</span> entries
+            </Field>
+            <Field label="Featured">
+              <span className="tabular-nums">{featuredCount}</span>
+            </Field>
+            <Field label="Catalog">Reverse chronological</Field>
+          </dl>
+        </div>
+
+        {/* Title */}
+        <div className="mt-[clamp(3rem,6vw,5rem)]">
+          <h1 className="font-spec text-ink max-w-[20ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
+            All projects, shipped to production.
+          </h1>
+          <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
+            Freelance work, full-time engagements, and side experiments. Each entry links to a case
+            study with the problem, the build, and the result.
           </p>
         </div>
 
-        {/* Projects grid */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {display.map((project) => {
-            const slug = typeof project.slug === "string" ? project.slug : project.slug?.current;
-            return (
-              <Link
-                key={project._id}
-                href={`/projects/${slug}`}
-                className="card group block overflow-hidden"
-              >
-                {/* Image placeholder */}
-                <div className="from-surface to-bg-secondary relative h-48 overflow-hidden bg-gradient-to-br">
-                  {imageUrl(project.coverImage, 600, 300) ? (
-                    <Image
-                      src={imageUrl(project.coverImage, 600, 300)!}
-                      alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="font-display text-accent/20 text-6xl font-bold">
-                        {project.title.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <span className="label-tag text-2xs">{project.category}</span>
-                  </div>
-                  {project.featured && (
-                    <div className="absolute top-4 right-4">
-                      <span className="bg-accent text-bg text-2xs rounded-full px-2 py-0.5 font-mono font-semibold">
-                        Featured
-                      </span>
-                    </div>
-                  )}
-                </div>
+        {/* Index header */}
+        <section className="mt-[clamp(4rem,6vw,5rem)]">
+          <header className="border-paper-rule mb-3 flex items-end justify-between border-b pb-3">
+            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+              Index
+            </h2>
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+              §01 · {display.length} entries
+            </span>
+          </header>
 
-                <div className="p-6">
-                  <h2 className="font-display text-text-primary group-hover:text-accent mb-2 text-xl transition-colors">
-                    {project.title}
-                  </h2>
-                  <p className="text-text-secondary mb-4 text-sm leading-relaxed">
-                    {project.tagline}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(project.techStack ?? []).slice(0, 5).map((t) => (
-                      <span key={t} className="tech-badge text-2xs">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {/* Header row labels */}
+          <div className="font-spec-mono text-ink-3 border-paper-rule hidden grid-cols-12 gap-x-4 border-b py-2 text-[11px] tracking-[0.04em] uppercase sm:grid">
+            <span className="col-span-1 pl-2">No.</span>
+            <span className="col-span-4">Project</span>
+            <span className="col-span-2">Category</span>
+            <span className="col-span-4">Stack</span>
+            <span className="col-span-1 pr-2 text-right">Status</span>
+          </div>
+
+          <ol>
+            {display.map((project, i) => (
+              <ProjectRow key={project._id} project={project} index={i} />
+            ))}
+          </ol>
+        </section>
+
+        {/* Document footer */}
+        <div className="border-paper-rule mt-[clamp(4rem,6vw,6rem)] flex items-baseline justify-between border-t pt-4">
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            End of catalog · {display.length} entries
+          </span>
+          <Link
+            href="/"
+            className="font-spec-mono text-ink-3 hover:text-signal text-[11px] tracking-[0.04em] uppercase transition-colors"
+          >
+            ← Back to /
+          </Link>
         </div>
       </div>
+    </main>
+  );
+}
+
+function ProjectRow({ project, index }: { project: SanityProject; index: number }) {
+  const slug = typeof project.slug === "string" ? project.slug : project.slug?.current;
+  const stack = (project.techStack ?? []).slice(0, 5).join(" · ");
+
+  return (
+    <li className="border-paper-rule border-b">
+      <Link
+        href={`/projects/${slug}`}
+        className="group hover:bg-paper-tint grid grid-cols-12 items-baseline gap-x-4 py-5 transition-colors"
+      >
+        <span className="text-ink-3 group-hover:text-signal font-spec-mono col-span-2 pl-2 text-[13px] tabular-nums transition-colors sm:col-span-1">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+
+        <span className="font-spec text-ink group-hover:text-signal col-span-10 text-[clamp(1.125rem,1.5vw,1.375rem)] leading-snug font-medium tracking-[-0.015em] transition-colors sm:col-span-4">
+          {project.title}
+          {project.featured && (
+            <span className="text-signal font-spec-mono ml-2 text-[10px] tracking-[0.04em] uppercase">
+              ★ featured
+            </span>
+          )}
+        </span>
+
+        <span className="text-ink-2 font-spec col-span-6 mt-1 text-[13px] sm:col-span-2 sm:mt-0">
+          {project.category ?? "—"}
+        </span>
+
+        <span className="text-ink-3 font-spec col-span-6 mt-1 truncate text-[13px] sm:col-span-4 sm:mt-0">
+          {stack}
+        </span>
+
+        <span className="text-signal font-spec-mono col-span-12 mt-2 flex items-center justify-end gap-2 pr-2 text-[12px] sm:col-span-1 sm:mt-0">
+          <span className="font-medium">shipped</span>
+          <span
+            aria-hidden
+            className="text-ink-3 group-hover:text-signal -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+          >
+            ↗
+          </span>
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <dt className="text-ink-3 select-none">{label}</dt>
+      <dd className="text-ink font-normal normal-case">{children}</dd>
     </div>
   );
 }

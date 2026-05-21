@@ -52,7 +52,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(slug).catch(() => null);
   if (!post) notFound();
 
-  const coverUrl = imageUrl(post.coverImage, 1200, 630);
+  const coverUrl = imageUrl(post.coverImage, 1600, 900);
   const postUrl = `${siteUrl}/blog/${post.slug.current}`;
 
   const breadcrumbLd = {
@@ -83,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <main className="pt-[clamp(6rem,10vw,9rem)] pb-[clamp(4rem,8vw,7rem)]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -92,62 +92,62 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingLd) }}
       />
-      <div className="container-main">
-        {/* Back */}
-        <Link
-          href="/blog"
-          className="text-text-muted hover:text-accent group mb-10 inline-flex items-center gap-2 text-sm transition-colors"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            className="transition-transform group-hover:-translate-x-1"
-          >
-            <path
-              d="M13 7H1M6 2L1 7l5 5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          All posts
-        </Link>
-
-        {/* Header */}
-        <div className="mb-10">
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            {post.tags?.map((tag) => (
-              <span key={tag} className="label-tag">
-                {tag}
-              </span>
-            ))}
-            {post.readTime && (
-              <span className="text-text-muted font-mono text-sm">{post.readTime} min read</span>
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Document metadata strip */}
+        <div className="border-paper-rule border-b pb-3">
+          <dl className="font-spec-mono text-ink-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
+            <Field label="Document">Post</Field>
+            <Field label="Author">Michael Padin</Field>
+            {post.publishedAt && (
+              <Field label="Published">
+                <span className="tabular-nums">{formatDate(post.publishedAt)}</span>
+              </Field>
             )}
-          </div>
-          <h1 className="text-display-xl text-text-primary mb-4 leading-tight">{post.title}</h1>
-          <p className="text-text-secondary mb-6 text-lg leading-relaxed">{post.excerpt}</p>
-          <div className="flex items-center gap-4">
-            <div className="bg-accent/20 text-accent flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold">
-              M
-            </div>
-            <div>
-              <div className="text-text-primary text-sm font-medium">Michael Padin</div>
-              <div className="text-text-muted text-xs">{formatDate(post.publishedAt)}</div>
-            </div>
+            {post.readTime && (
+              <Field label="Read">
+                <span className="tabular-nums">{post.readTime}</span> min
+              </Field>
+            )}
+          </dl>
+        </div>
+
+        {/* Back link */}
+        <div className="mt-6">
+          <Link
+            href="/blog"
+            className="font-spec-mono text-ink-3 hover:text-signal text-[11px] tracking-[0.04em] uppercase transition-colors"
+          >
+            ← All writing
+          </Link>
+        </div>
+
+        {/* Title block */}
+        <div className="mt-[clamp(2rem,4vw,3.5rem)] grid grid-cols-12 gap-x-6">
+          <div className="col-span-12 lg:col-span-9 lg:col-start-2">
+            {post.tags && post.tags.length > 0 && (
+              <div className="font-spec-mono text-ink-3 mb-4 flex flex-wrap gap-x-3 text-[11px] tracking-[0.04em] uppercase">
+                {post.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+            )}
+            <h1 className="font-spec text-ink max-w-[24ch] text-[clamp(2rem,4.5vw,3.75rem)] leading-[1.05] font-medium tracking-[-0.03em]">
+              {post.title}
+            </h1>
+            <p className="font-spec text-ink-2 mt-6 max-w-[60ch] text-[clamp(1.0625rem,1.3vw,1.1875rem)] leading-[1.55]">
+              {post.excerpt}
+            </p>
           </div>
         </div>
 
-        {/* Cover */}
+        {/* Cover image */}
         {coverUrl && (
-          <div className="border-surface-border relative mb-12 h-64 overflow-hidden rounded-xl border sm:h-80">
+          <div className="border-paper-rule bg-paper-tint relative mt-[clamp(2.5rem,4vw,3.5rem)] aspect-[16/9] overflow-hidden border">
             <Image
               src={coverUrl}
               alt={post.coverImage?.alt ?? post.title}
               fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
               className="object-cover"
               priority
             />
@@ -155,34 +155,71 @@ export default async function BlogPostPage({ params }: Props) {
         )}
 
         {/* Content */}
-        <div className="prose-portfolio">
-          {post.content && post.content.length > 0 ? (
-            <PortableText value={post.content} />
-          ) : (
-            <p className="text-text-muted italic">{post.excerpt}</p>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="border-surface-border mt-16 border-t pt-10">
-          <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-text-primary mb-1 font-medium">Found this useful?</p>
-              <p className="text-text-muted text-sm">
-                Reach out — I'm always happy to discuss further.
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <Link href="/contact" className="btn-primary text-sm">
-                Work with me
-              </Link>
-              <Link href="/blog" className="btn-ghost text-sm">
-                More posts
-              </Link>
+        <article className="mt-[clamp(3rem,5vw,5rem)] grid grid-cols-12 gap-x-6">
+          <div className="col-span-12 lg:col-span-9 lg:col-start-2">
+            <div className="prose-paper">
+              {post.content && post.content.length > 0 ? (
+                <PortableText value={post.content} />
+              ) : (
+                <p className="text-ink-3">{post.excerpt}</p>
+              )}
             </div>
           </div>
+        </article>
+
+        {/* Footer CTA */}
+        <div className="border-paper-rule mt-[clamp(5rem,8vw,7rem)] flex flex-col items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-baseline">
+          <div>
+            <p className="font-spec text-ink text-[clamp(1.125rem,1.5vw,1.375rem)] font-medium tracking-[-0.015em]">
+              Found this useful?
+            </p>
+            <p className="font-spec text-ink-2 mt-1 text-[14px]">
+              Reply, ask a question, or share what you're working on.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[14px]">
+            {features.contact && (
+              <Link
+                href="/contact"
+                className="text-ink hover:text-signal border-ink hover:border-signal font-spec border-b pb-px font-medium transition-colors"
+              >
+                Write
+              </Link>
+            )}
+            <Link
+              href="/blog"
+              className="text-ink-2 hover:text-signal border-ink-3 hover:border-signal font-spec border-b pb-px transition-colors"
+            >
+              More posts
+            </Link>
+          </div>
+        </div>
+
+        {/* Document footer */}
+        <div className="border-paper-rule mt-[clamp(2rem,3vw,3rem)] flex items-baseline justify-between border-t pt-4">
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            End of post · {post.title}
+          </span>
+          {post._updatedAt && (
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase tabular-nums">
+              Updated{" "}
+              {new Date(post._updatedAt).toLocaleDateString("en-US", {
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+          )}
         </div>
       </div>
+    </main>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <dt className="text-ink-3 select-none">{label}</dt>
+      <dd className="text-ink font-normal normal-case">{children}</dd>
     </div>
   );
 }

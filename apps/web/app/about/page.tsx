@@ -21,230 +21,330 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AboutPage() {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
   const resumeLink = getResumeUrl(profile);
-  const photoUrl = imageUrl(profile.photo, 200, 200);
+  const photoUrl = imageUrl(profile.photo, 240, 320);
+  const available = profile.availableForFreelance || profile.availableForFullTime;
+  const [city] = profile.location.split(",").map((s) => s.trim());
 
   return (
-    <div className="min-h-screen pt-28 pb-20">
-      <div className="container-main">
-        {/* Header */}
-        <div className="mb-16">
-          <div className="mb-8 flex items-start gap-8">
-            {photoUrl && (
-              <div className="hidden shrink-0 sm:block">
-                <Image
-                  src={photoUrl}
-                  alt={profile.photo?.alt ?? `${profile.name}, ${profile.title}`}
-                  width={120}
-                  height={120}
-                  className="border-surface-border rounded-2xl border"
+    <main className="pt-[clamp(6rem,10vw,9rem)] pb-[clamp(4rem,8vw,7rem)]">
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
+        {/* Document metadata strip */}
+        <div className="border-paper-rule border-b pb-3">
+          <dl className="font-spec-mono text-ink-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
+            <Field label="Document">About</Field>
+            <Field label="Subject">{profile.name}</Field>
+            <Field label="Role">{profile.title}</Field>
+            <Field label="Origin">
+              {city}, PH · {profile.timezone}
+            </Field>
+            <Field label="Status">
+              <span className={available ? "text-signal" : "text-ink"}>
+                <span
+                  aria-hidden
+                  className={`mr-1.5 inline-block size-[6px] -translate-y-px rounded-full ${
+                    available ? "bg-signal" : "bg-ink"
+                  }`}
                 />
-              </div>
-            )}
-            <div>
-              <div className="label-tag mb-5">
-                <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-                About me
-              </div>
-              <h1 className="text-display-xl text-text-primary mb-6">
-                Developer, builder, <span className="text-gradient italic">problem solver.</span>
-              </h1>
-            </div>
-          </div>
-          {profile.bio && profile.bio.length > 0 ? (
-            <div className="prose-portfolio max-w-2xl">
-              <PortableText value={profile.bio} />
-            </div>
-          ) : (
-            <p className="text-text-secondary max-w-2xl text-lg leading-relaxed">
-              {profile.bioShort}
-            </p>
-          )}
+                {available ? profile.availabilityNote : "Not currently available"}
+              </span>
+            </Field>
+          </dl>
         </div>
 
-        {/* Values */}
-        {profile.values.length > 0 && (
-          <div className="mb-16">
-            <h2 className="font-display text-text-primary mb-8 text-2xl">How I work</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {profile.values.map((v) => (
-                <div key={v.title} className="card hover:border-accent/30 p-6 transition-colors">
-                  <div className="mb-3 text-2xl">{v.emoji}</div>
-                  <h3 className="text-text-primary mb-2 font-semibold">{v.title}</h3>
-                  <p className="text-text-muted text-sm leading-relaxed">{v.body}</p>
-                </div>
-              ))}
+        {/* Header: photo + declaration */}
+        <div className="mt-[clamp(3rem,6vw,5rem)] grid grid-cols-12 gap-x-6 gap-y-8">
+          {photoUrl && (
+            <div className="col-span-12 sm:col-span-3 md:col-span-2">
+              <Image
+                src={photoUrl}
+                alt={profile.photo?.alt ?? `${profile.name}, ${profile.title}`}
+                width={240}
+                height={320}
+                className="border-paper-rule w-full max-w-[180px] border object-cover grayscale"
+              />
             </div>
+          )}
+          <div className={photoUrl ? "col-span-12 sm:col-span-9 md:col-span-10" : "col-span-12"}>
+            <h1 className="font-spec text-ink max-w-[22ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
+              {profile.name}, {profile.title.toLowerCase()}.
+            </h1>
+            <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
+              {profile.bioShort}
+            </p>
           </div>
+        </div>
+
+        {/* Bio long-form (if present) */}
+        {profile.bio && profile.bio.length > 0 && (
+          <section className="mt-[clamp(3rem,5vw,4.5rem)] grid grid-cols-12 gap-x-6">
+            <div className="col-span-12 lg:col-span-9 lg:col-start-2">
+              <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+                <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+                  Background
+                </h2>
+                <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+                  §01 · Long form
+                </span>
+              </header>
+              <div className="prose-paper">
+                <PortableText value={profile.bio} />
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Values / principles */}
+        {profile.values?.length > 0 && (
+          <section className="mt-[clamp(4rem,6vw,6rem)]">
+            <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+              <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+                Principles
+              </h2>
+              <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+                §02 · How I work
+              </span>
+            </header>
+            <ol className="border-paper-rule border-t">
+              {profile.values.map((v, i) => (
+                <li
+                  key={v.title}
+                  className="border-paper-rule grid grid-cols-12 gap-x-4 gap-y-2 border-b py-5"
+                >
+                  <span className="font-spec-mono text-signal col-span-2 text-[15px] tabular-nums sm:col-span-1">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="font-spec text-ink col-span-10 text-[clamp(1rem,1.3vw,1.1875rem)] font-medium sm:col-span-3">
+                    {v.title}
+                  </h3>
+                  <p className="font-spec text-ink-2 col-span-12 max-w-[60ch] text-[14px] leading-[1.55] sm:col-span-8">
+                    {v.body}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </section>
         )}
 
         {/* Skills */}
-        <div className="mb-16">
-          <h2 className="font-display text-text-primary mb-8 text-2xl">Skills &amp; tools</h2>
-          <div className="space-y-6">
+        <section className="mt-[clamp(4rem,6vw,6rem)]">
+          <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+              Stack
+            </h2>
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+              §03 · Tools & technologies
+            </span>
+          </header>
+          <dl className="border-paper-rule border-t">
             {profile.skillGroups.map(({ category, skills }) => (
-              <div key={category}>
-                <div className="text-text-muted mb-3 font-mono text-xs tracking-widest uppercase">
+              <div
+                key={category}
+                className="border-paper-rule grid grid-cols-12 gap-x-4 gap-y-1 border-b py-4"
+              >
+                <dt className="font-spec-mono text-ink-3 col-span-12 text-[11px] tracking-[0.04em] uppercase sm:col-span-3">
                   {category}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="bg-surface border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent cursor-default rounded-lg border px-3 py-1.5 text-sm transition-colors"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                </dt>
+                <dd className="font-spec text-ink-2 col-span-12 text-[14px] leading-[1.6] sm:col-span-9">
+                  {skills.join(" · ")}
+                </dd>
               </div>
             ))}
-          </div>
-        </div>
+          </dl>
+        </section>
 
-        {/* Experience timeline */}
-        <div className="mb-16">
-          <h2 className="font-display text-text-primary mb-8 text-2xl">Work Experience</h2>
-          <div className="space-y-4">
+        {/* Experience */}
+        <section className="mt-[clamp(4rem,6vw,6rem)]">
+          <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+              Experience
+            </h2>
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+              §04 · {profile.experience.length} engagements
+            </span>
+          </header>
+          <div className="border-paper-rule border-t">
             {profile.experience.map((exp, i) => (
-              <div key={i} className="card p-6">
-                <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <div className="mb-1 flex items-center gap-2">
-                      {exp.companyUrl ? (
-                        <a
-                          href={exp.companyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-text-primary hover:text-accent font-semibold transition-colors"
-                        >
-                          {exp.company}
-                        </a>
-                      ) : (
-                        <span className="text-text-primary font-semibold">{exp.company}</span>
-                      )}
-                      {exp.current && (
-                        <span className="text-2xs bg-accent-subtle text-accent border-accent/20 rounded-full border px-2 py-0.5 font-mono">
-                          Current
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-accent font-mono text-sm">{exp.role}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-text-muted font-mono text-xs">{exp.period}</div>
-                    <div className="text-text-muted text-xs">{exp.location}</div>
+              <article
+                key={`${exp.company}-${i}`}
+                className="border-paper-rule grid grid-cols-12 gap-x-4 gap-y-2 border-b py-6"
+              >
+                <div className="font-spec-mono text-ink-3 col-span-12 text-[12px] tabular-nums md:col-span-2">
+                  {exp.period}
+                  {exp.current && (
+                    <span className="text-signal ml-2 inline-flex items-center gap-1 font-medium">
+                      <span aria-hidden className="bg-signal size-1.5 rounded-full" />
+                      now
+                    </span>
+                  )}
+                </div>
+                <div className="col-span-12 md:col-span-3">
+                  {exp.companyUrl ? (
+                    <a
+                      href={exp.companyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-spec text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[15px] font-medium transition-colors"
+                    >
+                      {exp.company}
+                    </a>
+                  ) : (
+                    <span className="font-spec text-ink text-[15px] font-medium">
+                      {exp.company}
+                    </span>
+                  )}
+                  <div className="font-spec text-ink-2 text-[13px]">{exp.role}</div>
+                  <div className="font-spec-mono text-ink-3 mt-0.5 text-[11px] tracking-[0.02em] uppercase">
+                    {exp.location}
                   </div>
                 </div>
-                <ul className="space-y-2">
+                <ul className="col-span-12 max-w-[60ch] space-y-1.5 md:col-span-7">
                   {exp.highlights.map((h, j) => (
-                    <li key={j} className="text-text-secondary flex gap-2 text-sm leading-relaxed">
-                      <span className="text-accent mt-0.5 shrink-0">▸</span>
+                    <li
+                      key={j}
+                      className="font-spec text-ink-2 flex gap-3 text-[14px] leading-[1.55]"
+                    >
+                      <span
+                        aria-hidden
+                        className="text-ink-3 mt-[0.55em] inline-block size-1 shrink-0 rounded-full bg-current"
+                      />
                       <span>{h}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Education */}
-        <div className="mb-16">
-          <h2 className="font-display text-text-primary mb-8 text-2xl">Education</h2>
-          {profile.education.map((edu, i) => (
-            <div key={i} className="card p-6">
-              <div className="flex items-start gap-4">
-                <div className="text-3xl">🎓</div>
-                <div>
-                  <div className="text-text-primary mb-0.5 font-semibold">{edu.institution}</div>
-                  <div className="text-accent font-mono text-sm">{edu.degree}</div>
-                  <div className="text-text-muted mt-1 text-xs">
-                    {edu.period} · {edu.location}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Location & availability */}
-        <div className="card mb-10 p-8">
-          <div className="grid gap-8 sm:grid-cols-3">
-            <div>
-              <div className="text-text-muted mb-2 font-mono text-xs tracking-widest uppercase">
-                Location
-              </div>
-              <div className="text-text-primary font-medium">{profile.location}</div>
-              <div className="text-text-muted text-sm">
-                {profile.timezone} — flexible overlap with US/EU/APAC
-              </div>
-            </div>
-            <div>
-              <div className="text-text-muted mb-2 font-mono text-xs tracking-widest uppercase">
-                Availability
-              </div>
-              {profile.availableForFreelance && (
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-                  <span className="text-success text-sm font-medium">Open to freelance</span>
-                </div>
-              )}
-              {profile.availableForFullTime && (
-                <div className="flex items-center gap-2">
-                  <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
-                  <span className="text-success text-sm font-medium">Open to full-time remote</span>
-                </div>
-              )}
-              {!profile.availableForFreelance && !profile.availableForFullTime && (
-                <div className="flex items-center gap-2">
-                  <span className="bg-error h-2 w-2 rounded-full" />
-                  <span className="text-error text-sm font-medium">Not currently available</span>
-                </div>
-              )}
-            </div>
-            <div>
-              <div className="text-text-muted mb-2 font-mono text-xs tracking-widest uppercase">
-                Languages
-              </div>
-              <div className="text-text-primary font-medium">English (fluent)</div>
-              <div className="text-text-muted text-sm">Filipino (native)</div>
-            </div>
-          </div>
-        </div>
-
-        {/* CTAs */}
-        <div className="flex flex-col gap-4 sm:flex-row">
-          {features.contact && (
-            <Link href="/contact" className="btn-primary">
-              Let&apos;s work together →
-            </Link>
-          )}
-          {resumeLink && (
-            <a href={resumeLink} target="_blank" rel="noopener noreferrer" className="btn-ghost">
-              Download resume
-              {profile.resumeLastUpdated && (
-                <span className="text-text-muted ml-1 text-xs">
-                  (Updated{" "}
-                  {new Date(profile.resumeLastUpdated).toLocaleDateString("en-US", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                  )
+        <section className="mt-[clamp(4rem,6vw,6rem)]">
+          <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+              Education
+            </h2>
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+              §05
+            </span>
+          </header>
+          <ul className="border-paper-rule border-t">
+            {profile.education.map((edu, i) => (
+              <li
+                key={i}
+                className="border-paper-rule grid grid-cols-12 gap-x-4 gap-y-1 border-b py-4"
+              >
+                <span className="font-spec-mono text-ink-3 col-span-12 text-[12px] tabular-nums md:col-span-2">
+                  {edu.period}
                 </span>
+                <span className="font-spec text-ink col-span-12 text-[15px] font-medium md:col-span-6">
+                  {edu.institution}
+                </span>
+                <span className="font-spec text-ink-2 col-span-12 text-[14px] md:col-span-4">
+                  {edu.degree} · {edu.location}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Logistics + signature */}
+        <section className="mt-[clamp(4rem,6vw,6rem)]">
+          <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
+            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
+              Logistics
+            </h2>
+            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+              §06 · Reach + working
+            </span>
+          </header>
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-3 text-[14px]">
+            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+              Location
+            </dt>
+            <dd className="font-spec text-ink-2">
+              {profile.location}{" "}
+              <span className="text-ink-3 font-spec-mono ml-1 text-[12px]">
+                · {profile.timezone}, flexible overlap with US, EU, and APAC
+              </span>
+            </dd>
+
+            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+              Languages
+            </dt>
+            <dd className="font-spec text-ink-2">English (fluent) · Filipino (native)</dd>
+
+            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+              Status
+            </dt>
+            <dd className="font-spec inline-flex items-center gap-2">
+              <span
+                aria-hidden
+                className={`size-1.5 rounded-full ${available ? "bg-signal" : "bg-ink-3"}`}
+              />
+              <span className={available ? "text-signal font-medium" : "text-ink-2"}>
+                {available ? profile.availabilityNote : "Not currently available"}
+              </span>
+            </dd>
+
+            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
+              Reach
+            </dt>
+            <dd className="font-spec text-ink-2 flex flex-wrap gap-x-5 gap-y-1">
+              {features.contact && (
+                <Link
+                  href="/contact"
+                  className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
+                >
+                  Write
+                </Link>
               )}
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M7 1v8M3 6l4 4 4-4M2 13h10"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-          )}
+              <a
+                href={`mailto:${profile.email}`}
+                className="font-spec-mono text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[14px] transition-colors"
+              >
+                {profile.email}
+              </a>
+              {resumeLink && (
+                <a
+                  href={resumeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-signal border-ink-3 hover:border-signal border-b pb-px transition-colors"
+                >
+                  Resume (PDF)
+                  {profile.resumeLastUpdated && (
+                    <span className="text-ink-3 font-spec-mono ml-1 text-[12px]">
+                      · upd{" "}
+                      {new Date(profile.resumeLastUpdated).toLocaleDateString("en-US", {
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  )}
+                </a>
+              )}
+            </dd>
+          </dl>
+        </section>
+
+        {/* Document footer */}
+        <div className="border-paper-rule mt-[clamp(4rem,6vw,6rem)] flex items-baseline justify-between border-t pt-4">
+          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            End of document · {profile.name}
+          </span>
+          <span className="font-spec-mono text-ink-3 text-[11px] tabular-nums">
+            REV {new Date().getFullYear()}
+          </span>
         </div>
       </div>
+    </main>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <dt className="text-ink-3 select-none">{label}</dt>
+      <dd className="text-ink font-normal normal-case">{children}</dd>
     </div>
   );
 }

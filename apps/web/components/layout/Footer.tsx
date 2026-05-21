@@ -4,7 +4,7 @@ import { features } from "@/lib/features";
 
 const allNavLinks = [
   { href: "/projects", label: "Projects" },
-  { href: "/blog", label: "Writing", feature: "blog" as const },
+  { href: "/blog", label: "Blog", feature: "blog" as const },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact", feature: "contact" as const },
 ];
@@ -14,107 +14,101 @@ export async function Footer() {
   const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
   const resumeLink = getResumeUrl(profile);
   const year = new Date().getFullYear();
+  const available = profile.availableForFreelance || profile.availableForFullTime;
 
-  const socialLinks = [
+  const elsewhere = [
     profile.githubUrl && { href: profile.githubUrl, label: "GitHub" },
     profile.linkedinUrl && { href: profile.linkedinUrl, label: "LinkedIn" },
     profile.twitterUrl && { href: profile.twitterUrl, label: "Twitter" },
-    { href: `mailto:${profile.email}`, label: "Email" },
+    resumeLink && { href: resumeLink, label: "Resume (PDF)" },
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
-    <footer className="border-surface-border mt-24 border-t">
-      <div className="container-custom py-12">
-        <div className="mb-10 flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
-          {/* Brand */}
-          <div>
+    <footer className="border-paper-rule mt-[clamp(4rem,8vw,7rem)] border-t">
+      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)] py-[clamp(2.5rem,4vw,4rem)]">
+        <div className="grid grid-cols-12 gap-x-6 gap-y-10">
+          {/* Brand block */}
+          <div className="col-span-12 md:col-span-5">
             <Link
               href="/"
-              className="font-display text-text-primary hover:text-accent text-2xl transition-colors"
+              className="font-spec text-ink hover:text-signal inline-flex items-baseline gap-1 text-xl font-medium transition-colors"
             >
-              {profile.name.split(" ")[0]}
-              <span className="text-accent">.</span>
+              <span className="text-signal">M</span>
+              <span>ichael Padin</span>
             </Link>
-            <p className="text-text-muted mt-1 text-sm">
-              {profile.title} — {profile.location}
+            <p className="font-spec text-ink-2 mt-2 text-[14px]">
+              {profile.title}, {profile.location}
             </p>
-            <div className="mt-3 flex items-center gap-2">
+            <div className="mt-3 inline-flex items-center gap-2">
               <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  profile.availableForFreelance || profile.availableForFullTime
-                    ? "bg-success animate-pulse"
-                    : "bg-error"
-                }`}
+                aria-hidden
+                className={`size-1.5 rounded-full ${available ? "bg-signal" : "bg-ink-3"}`}
               />
-              <span className="text-text-muted font-mono text-xs">{profile.availabilityNote}</span>
+              <span
+                className={`font-spec-mono text-[11px] tracking-[0.04em] uppercase ${available ? "text-signal" : "text-ink-2"}`}
+              >
+                {available ? profile.availabilityNote : "Not currently available"}
+              </span>
             </div>
           </div>
 
-          {/* Links */}
-          <nav className="flex flex-col gap-10 sm:flex-row">
-            <div className="flex flex-col gap-2">
-              <span className="text-text-muted mb-1 font-mono text-xs tracking-widest uppercase">
-                Navigate
-              </span>
+          {/* Navigate */}
+          <div className="col-span-6 md:col-span-3">
+            <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
+              Navigate
+            </h3>
+            <ul className="space-y-1.5">
               {navLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="text-text-secondary hover:text-accent text-sm transition-colors"
-                >
-                  {l.label}
-                </Link>
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="font-spec text-ink-2 hover:text-signal text-[14px] transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
               ))}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-text-muted mb-1 font-mono text-xs tracking-widest uppercase">
-                Connect
-              </span>
-              {socialLinks.map((l) => (
+            </ul>
+          </div>
+
+          {/* Elsewhere */}
+          <div className="col-span-6 md:col-span-4">
+            <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
+              Elsewhere
+            </h3>
+            <ul className="space-y-1.5">
+              <li>
                 <a
-                  key={l.href}
-                  href={l.href}
-                  target={l.href.startsWith("mailto") ? undefined : "_blank"}
-                  rel="noopener noreferrer"
-                  className="text-text-secondary hover:text-accent text-sm transition-colors"
+                  href={`mailto:${profile.email}`}
+                  className="font-spec-mono text-ink hover:text-signal text-[14px] transition-colors"
                 >
-                  {l.label}
+                  {profile.email}
                 </a>
+              </li>
+              {elsewhere.map((l) => (
+                <li key={l.href}>
+                  <a
+                    href={l.href}
+                    target={l.href.startsWith("mailto") ? undefined : "_blank"}
+                    rel="noopener noreferrer"
+                    className="font-spec text-ink-2 hover:text-signal text-[14px] transition-colors"
+                  >
+                    {l.label}
+                  </a>
+                </li>
               ))}
-            </div>
-          </nav>
+            </ul>
+          </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-surface-border flex flex-col items-start justify-between gap-3 border-t pt-6 sm:flex-row sm:items-center">
-          <p className="text-text-muted font-mono text-xs">
-            © {year} {profile.name} · Built with Next.js + Sanity + Cloudflare
+        {/* Colophon */}
+        <div className="border-paper-rule mt-[clamp(2.5rem,4vw,3.5rem)] flex flex-col items-start justify-between gap-3 border-t pt-5 sm:flex-row sm:items-baseline">
+          <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
+            © {year} {profile.name} · Built with Next.js, Sanity, Cloudflare
           </p>
-          <div className="flex items-center gap-4">
-            {resumeLink && (
-              <a
-                href={resumeLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-text-muted hover:text-accent font-mono text-xs transition-colors"
-              >
-                Resume
-              </a>
-            )}
-            <a
-              href={profile.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-muted hover:text-accent font-mono text-xs transition-colors"
-            >
-              GitHub
-            </a>
-            {features.contact && (
-              <Link href="/contact" className="text-accent font-mono text-xs hover:underline">
-                Hire me →
-              </Link>
-            )}
-          </div>
+          <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase tabular-nums">
+            REV {year}
+          </p>
         </div>
       </div>
     </footer>

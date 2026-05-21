@@ -27,11 +27,11 @@ export default async function HomePage() {
   const p = profile ?? FALLBACK_PROFILE;
 
   return (
-    <div data-theme="paper" className="min-h-screen">
+    <>
       <HeroSection profile={p} />
       <ProjectsSection projects={projects} />
       <AboutSection profile={p} />
       <CTASection profile={p} />
-    </div>
+    </>
   );
 }

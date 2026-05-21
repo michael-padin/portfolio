@@ -21,7 +21,7 @@ export function ChatBot() {
       id: "0",
       role: "assistant",
       content:
-        "Hi! I'm Michael's AI assistant. Ask me anything about his skills, experience, availability, or projects.",
+        "I'm Michael's assistant. Ask about his stack, projects, experience, availability, or rates.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -78,78 +78,59 @@ export function ChatBot() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(!open)}
-        className="bg-accent text-bg shadow-glow-md hover:shadow-glow-lg hover:bg-accent-dim animate-pulse-glow fixed right-6 bottom-6 z-50 flex h-14 w-14 items-center justify-center rounded-full transition-all duration-200"
-        aria-label="Open AI chat"
+        className={`font-spec-mono fixed right-5 bottom-5 z-50 inline-flex h-11 items-center gap-2 px-4 text-[12px] tracking-[0.04em] uppercase transition-colors ${
+          open
+            ? "text-paper bg-signal border-signal border"
+            : "text-paper bg-ink hover:bg-signal border-ink hover:border-signal border"
+        }`}
+        aria-label={open ? "Close chat" : "Open chat"}
       >
         {open ? (
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              d="M4 4l12 12M16 4L4 16"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+          <>
+            <span aria-hidden>×</span>
+            Close
+          </>
         ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.5 21.5l4.5-.838A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M8 10h.01M12 10h.01M16 10h.01"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
+          <>
+            <span aria-hidden className="bg-paper inline-block size-1.5 rounded-full" />
+            Ask AI
+          </>
         )}
       </button>
 
       {/* Chat panel */}
       {open && (
-        <div className="border-surface-border bg-bg-secondary animate-fade-up fixed right-6 bottom-24 z-50 flex max-h-[520px] w-[360px] flex-col overflow-hidden rounded-2xl border shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+        <div
+          role="dialog"
+          aria-label="Ask Michael's AI assistant"
+          className="bg-paper border-paper-rule fixed right-5 bottom-20 z-50 flex max-h-[560px] w-[min(380px,calc(100vw-2.5rem))] flex-col border shadow-[0_24px_48px_-12px_oklch(20%_0.02_270/0.18)]"
+        >
           {/* Header */}
-          <div className="bg-surface border-surface-border flex items-center gap-3 border-b px-4 py-3">
-            <div className="relative">
-              <div className="bg-accent-subtle border-accent/30 text-accent font-display flex h-8 w-8 items-center justify-center rounded-full border text-sm">
-                M
-              </div>
-              <span className="bg-success border-bg-secondary absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2" />
+          <div className="border-paper-rule flex items-center justify-between border-b px-4 py-3">
+            <div className="flex items-baseline gap-2">
+              <span className="font-spec text-ink text-[14px] font-medium">Michael&apos;s AI</span>
+              <span className="font-spec-mono text-ink-3 text-[10px] tracking-[0.04em] uppercase">
+                · assistant
+              </span>
             </div>
-            <div>
-              <div className="text-text-primary text-sm font-medium">Michael's AI</div>
-              <div className="text-text-muted text-xs">Ask me anything</div>
-            </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-text-muted hover:text-text-primary ml-auto transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M2 2l12 12M14 2L2 14"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+            <span className="font-spec-mono text-ink-3 inline-flex items-center gap-1.5 text-[10px] tracking-[0.04em] uppercase">
+              <span aria-hidden className="bg-signal size-1.5 animate-pulse rounded-full" />
+              Online
+            </span>
           </div>
 
           {/* Messages */}
-          <div className="chat-scroll min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                  className={`font-spec max-w-[85%] px-3 py-2 text-[13.5px] leading-[1.5] ${
                     msg.role === "user"
-                      ? "bg-accent text-bg rounded-br-sm font-medium"
-                      : "bg-surface text-text-primary border-surface-border rounded-bl-sm border"
+                      ? "text-paper bg-signal border-signal border"
+                      : "text-ink bg-paper-tint border-paper-rule border"
                   }`}
                 >
                   {msg.content}
@@ -159,17 +140,17 @@ export function ChatBot() {
 
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-surface text-text-muted border-surface-border flex gap-1 rounded-2xl rounded-bl-sm border px-4 py-3 text-sm">
+                <div className="bg-paper-tint border-paper-rule text-ink-3 inline-flex items-center gap-1 border px-3 py-2.5">
                   <span
-                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
+                    className="bg-ink-3 size-1 animate-bounce rounded-full"
                     style={{ animationDelay: "0ms" }}
                   />
                   <span
-                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
+                    className="bg-ink-3 size-1 animate-bounce rounded-full"
                     style={{ animationDelay: "150ms" }}
                   />
                   <span
-                    className="bg-text-muted h-1.5 w-1.5 animate-bounce rounded-full"
+                    className="bg-ink-3 size-1 animate-bounce rounded-full"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
@@ -177,7 +158,7 @@ export function ChatBot() {
             )}
 
             {error && (
-              <div className="text-error bg-error/10 border-error/20 rounded-lg border px-3 py-2 text-xs">
+              <div className="border-signal text-signal bg-signal/10 font-spec border px-3 py-2 text-[12px]">
                 {error}
               </div>
             )}
@@ -187,12 +168,12 @@ export function ChatBot() {
 
           {/* Suggestions (only before first user message) */}
           {messages.length === 1 && (
-            <div className="flex flex-wrap gap-2 px-4 pb-2">
+            <div className="border-paper-rule flex flex-wrap gap-1.5 border-t px-4 py-3">
               {SUGGESTED.map((s) => (
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="border-surface-border text-text-secondary hover:border-accent/40 hover:text-accent rounded-lg border px-2.5 py-1.5 text-xs transition-colors"
+                  className="font-spec text-ink-2 hover:text-signal border-paper-rule hover:border-signal bg-paper border px-2 py-1 text-[12px] transition-colors"
                 >
                   {s}
                 </button>
@@ -201,43 +182,33 @@ export function ChatBot() {
           )}
 
           {/* Input */}
-          <div className="border-surface-border border-t p-3">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                sendMessage(input);
-              }}
-              className="flex gap-2"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage(input);
+            }}
+            className="border-paper-rule flex gap-2 border-t p-3"
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about Michael…"
+              maxLength={500}
+              className="font-spec text-ink placeholder:text-ink-3 border-paper-rule focus:border-signal bg-paper flex-1 border px-3 py-2 text-[13.5px] transition-colors focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="font-spec text-paper bg-ink hover:bg-signal flex h-auto shrink-0 items-center px-4 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about Michael..."
-                maxLength={500}
-                className="bg-surface border-surface-border text-text-primary placeholder:text-text-muted focus:border-accent/40 focus:ring-accent/20 flex-1 rounded-xl border px-4 py-2.5 text-sm transition-all focus:ring-1 focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || loading}
-                className="bg-accent text-bg hover:bg-accent-dim flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M1 8h14M9 2l6 6-6 6"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </form>
-            <p className="text-text-muted text-2xs mt-1.5 text-center">
-              AI responses may not be 100% accurate · Max 20 msgs/session
-            </p>
-          </div>
+              Send
+            </button>
+          </form>
+          <p className="font-spec-mono text-ink-3 px-4 pb-3 text-center text-[10px] tracking-[0.04em] uppercase">
+            AI replies may not be 100% accurate · 20 msg session limit
+          </p>
         </div>
       )}
     </>

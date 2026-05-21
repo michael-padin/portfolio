@@ -152,7 +152,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="en"
-      className={`dark ${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      className={`${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
@@ -169,7 +169,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="bg-bg text-fg antialiased">
+      <body className="bg-paper text-ink font-spec antialiased">
         {/* Umami — privacy-first, no cookie banner */}
         {umamiId && (
           <Script
