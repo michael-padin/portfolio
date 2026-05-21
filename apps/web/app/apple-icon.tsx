@@ -9,26 +9,24 @@ export default function AppleIcon() {
   const signal = "#c43a1e";
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: paper,
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: paper,
+          width: 68,
+          height: 68,
+          background: signal,
         }}
-      >
-        <div
-          style={{
-            width: 68,
-            height: 68,
-            background: signal,
-          }}
-        />
-      </div>
-    ),
+      />
+    </div>,
     { ...size },
   );
 }

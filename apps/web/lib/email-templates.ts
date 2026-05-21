@@ -113,6 +113,54 @@ export function contactNotification(data: {
   `);
 }
 
+// ── Chatbot transcript sent to Michael after each AI exchange ─
+export function chatTranscript(data: {
+  messages: Array<{ role: string; text: string }>;
+  ip: string;
+  exchangeCount: number;
+  maxExchanges: number;
+}) {
+  const { messages, ip, exchangeCount, maxExchanges } = data;
+  const firstUserMsg = messages.find((m) => m.role === "user")?.text ?? "(no message)";
+
+  const escape = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+
+  const bubbles = messages
+    .map((m) => {
+      const isUser = m.role === "user";
+      const bg = isUser ? COLORS.signal : COLORS.paperTint;
+      const color = isUser ? COLORS.paper : COLORS.ink;
+      const border = isUser ? COLORS.signal : COLORS.paperRule;
+      const align = isUser ? "right" : "left";
+      const label = isUser ? "Visitor" : "Assistant";
+      return `<div style="text-align:${align};margin-bottom:10px">
+        <div style="font-family:${MONO};font-size:10px;color:${COLORS.ink3};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">${label}</div>
+        <div style="display:inline-block;max-width:85%;background:${bg};color:${color};border:1px solid ${border};padding:8px 12px;font-size:14px;line-height:1.55;text-align:left">${escape(m.text)}</div>
+      </div>`;
+    })
+    .join("");
+
+  return layout(`
+    <div style="margin-top:32px">
+      <div style="font-family:${MONO};font-size:11px;color:${COLORS.signal};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:999px;background:${COLORS.signal};margin-right:6px;vertical-align:middle"></span>
+        Chatbot · Exchange ${exchangeCount} / ${maxExchanges}
+      </div>
+      <div style="font-size:24px;font-weight:500;color:${COLORS.ink};letter-spacing:-0.02em;line-height:1.2;max-width:38ch">
+        ${escape(firstUserMsg.slice(0, 80))}
+      </div>
+    </div>
+
+    ${sectionHeader("§01", "Transcript")}
+    <div>${bubbles}</div>
+
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid ${COLORS.paperRule};font-family:${MONO};font-size:11px;color:${COLORS.ink3};text-transform:uppercase;letter-spacing:0.04em">
+      Sent from michaelpadin.com · IP ${ip} · ${messages.length} messages
+    </div>
+  `);
+}
+
 // ── Auto-reply sent to the person who contacted ───────────────
 export function contactAutoReply(data: { firstName: string; subject: string }) {
   const { firstName, subject } = data;

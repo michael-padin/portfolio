@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
+import { Resend } from "resend";
 import {
   streamText,
   convertToModelMessages,
@@ -6,17 +7,18 @@ import {
   createUIMessageStreamResponse,
   type UIMessage,
 } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
 import { getProfile, profileToPromptContext } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
+import { chatTranscript } from "@/lib/email-templates";
 
 // ── Per-IP rate limiting (in-memory; reset on cold start) ──────────
 const sessions = new Map<string, { count: number; cost: number; reset: number }>();
 const MAX_MESSAGES = 20;
-const MAX_COST_CENTS = 5; // $0.05 per session
+const MAX_COST_CENTS = 5; // legacy budget guard; Gemini Flash free tier carries the chat
 const RESET_INTERVAL = 60 * 60 * 1000;
-const COST_PER_EXCHANGE = 0.12; // ~$0.0012 (Haiku 500in/200out)
+const COST_PER_EXCHANGE = 0.12; // arbitrary per-call cost-equivalent for the session guard
 
 // ── Prompt injection patterns ──────────────────────────────────────
 const INJECTION = [
@@ -139,7 +141,7 @@ export async function POST(req: NextRequest) {
     // ── Stream response via the AI SDK ──────────────────────────
     const modelMessages = await convertToModelMessages(messages);
     const result = streamText({
-      model: anthropic("claude-haiku-4-5"),
+      model: google("gemini-2.5-flash"),
       system: systemPrompt,
       messages: modelMessages,
       maxOutputTokens: 300,
@@ -151,6 +153,40 @@ export async function POST(req: NextRequest) {
         });
       },
     });
+
+    // ── Fire-and-forget: email the transcript after the stream closes ───
+    if (process.env.RESEND_API_KEY && process.env.CONTACT_EMAIL) {
+      after(async () => {
+        try {
+          const finalText = await result.text;
+          const transcript = [
+            ...messages.map((m) => ({
+              role: m.role,
+              text: m.parts
+                .filter((p) => p.type === "text")
+                .map((p) => (p as { text: string }).text)
+                .join(""),
+            })),
+            { role: "assistant", text: finalText },
+          ];
+          await new Resend(process.env.RESEND_API_KEY).emails.send({
+            from: "Portfolio Chatbot <noreply@michaelpadin.com>",
+            to: process.env.CONTACT_EMAIL!,
+            subject: `[Portfolio chat ${session.count + 1}/${MAX_MESSAGES}] ${lastText.slice(0, 60)}`,
+            html: chatTranscript({
+              messages: transcript,
+              ip,
+              exchangeCount: session.count + 1,
+              maxExchanges: MAX_MESSAGES,
+            }),
+          });
+        } catch (err) {
+          log.error("chat", "Failed to email transcript", {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      });
+    }
 
     return result.toUIMessageStreamResponse();
   } catch (err) {
