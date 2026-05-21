@@ -1,11 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+import { useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
 
 const SUGGESTED = [
   "What's your tech stack?",
@@ -14,63 +10,37 @@ const SUGGESTED = [
   "What's your rate?",
 ];
 
+const GREETING =
+  "I'm Michael's assistant. Ask about his stack, projects, experience, availability, or rates.";
+
+function getMessageText(msg: UIMessage): string {
+  let text = "";
+  for (const part of msg.parts) {
+    if (part.type === "text") text += part.text;
+  }
+  return text;
+}
+
 export function ChatBot() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "0",
-      role: "assistant",
-      content:
-        "I'm Michael's assistant. Ask about his stack, projects, experience, availability, or rates.",
-    },
-  ]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { messages, sendMessage, status, error } = useChat();
+  const isBusy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
     if (open) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [messages, open]);
+  }, [messages, open, status]);
 
-  async function sendMessage(text: string) {
-    if (!text.trim() || loading) return;
-    setError(null);
-
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
+  async function send(text: string) {
+    if (!text.trim() || isBusy) return;
     setInput("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? "Something went wrong");
-      }
-
-      const data = await res.json();
-      const assistantMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.reply,
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to send message";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+    await sendMessage({ text });
   }
 
   return (
@@ -121,24 +91,35 @@ export function ChatBot() {
 
           {/* Messages */}
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`font-spec max-w-[85%] px-3 py-2 text-[13.5px] leading-[1.5] ${
-                    msg.role === "user"
-                      ? "text-paper bg-signal border-signal border"
-                      : "text-ink bg-paper-tint border-paper-rule border"
-                  }`}
-                >
-                  {msg.content}
-                </div>
+            {/* Static greeting (not part of useChat state) */}
+            <div className="flex justify-start">
+              <div className="font-spec text-ink bg-paper-tint border-paper-rule max-w-[85%] border px-3 py-2 text-[13.5px] leading-[1.5]">
+                {GREETING}
               </div>
-            ))}
+            </div>
 
-            {loading && (
+            {messages.map((msg) => {
+              const text = getMessageText(msg);
+              if (!text) return null;
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`font-spec max-w-[85%] px-3 py-2 text-[13.5px] leading-[1.5] ${
+                      msg.role === "user"
+                        ? "text-paper bg-signal border-signal border"
+                        : "text-ink bg-paper-tint border-paper-rule border"
+                    }`}
+                  >
+                    {text}
+                  </div>
+                </div>
+              );
+            })}
+
+            {status === "submitted" && (
               <div className="flex justify-start">
                 <div className="bg-paper-tint border-paper-rule text-ink-3 inline-flex items-center gap-1 border px-3 py-2.5">
                   <span
@@ -159,21 +140,22 @@ export function ChatBot() {
 
             {error && (
               <div className="border-signal text-signal bg-signal/10 font-spec border px-3 py-2 text-[12px]">
-                {error}
+                {error.message ?? "Something went wrong"}
               </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggestions (only before first user message) */}
-          {messages.length === 1 && (
+          {/* Suggestions (only before any user message) */}
+          {messages.length === 0 && (
             <div className="border-paper-rule flex flex-wrap gap-1.5 border-t px-4 py-3">
               {SUGGESTED.map((s) => (
                 <button
                   key={s}
-                  onClick={() => sendMessage(s)}
-                  className="font-spec text-ink-2 hover:text-signal border-paper-rule hover:border-signal bg-paper border px-2 py-1 text-[12px] transition-colors"
+                  onClick={() => send(s)}
+                  disabled={isBusy}
+                  className="font-spec text-ink-2 hover:text-signal border-paper-rule hover:border-signal bg-paper border px-2 py-1 text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {s}
                 </button>
@@ -185,7 +167,7 @@ export function ChatBot() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              sendMessage(input);
+              send(input);
             }}
             className="border-paper-rule flex gap-2 border-t p-3"
           >
@@ -200,7 +182,7 @@ export function ChatBot() {
             />
             <button
               type="submit"
-              disabled={!input.trim() || loading}
+              disabled={!input.trim() || isBusy}
               className="font-spec text-paper bg-ink hover:bg-signal flex h-auto shrink-0 items-center px-4 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
             >
               Send

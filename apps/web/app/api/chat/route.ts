@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import {
+  streamText,
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  type UIMessage,
+} from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
 import { getProfile, profileToPromptContext } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
-
-function getClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-}
 
 // ── Per-IP rate limiting (in-memory; reset on cold start) ──────────
 const sessions = new Map<string, { count: number; cost: number; reset: number }>();
@@ -27,6 +30,9 @@ const INJECTION = [
   /override\s+(your|the)\s+/i,
 ];
 
+const DECLINE =
+  "I can only answer questions about Michael's professional background. What would you like to know?";
+
 // ── Fallback system prompt (used when Sanity is unreachable) ───────
 const FALLBACK_SYSTEM = `You are a professional AI assistant for Michael Padin, a full stack developer from Cebu, Philippines.
 He specialises in React, Next.js, Node.js, and TypeScript. He is currently working at Image Edits (Brisbane, AU).
@@ -46,6 +52,34 @@ RULES:
 4. For sensitive or out-of-scope questions, redirect to their email
 5. Be warm, professional, and concise — max 3-4 sentences per response
 6. For serious enquiries, encourage direct contact via email`;
+}
+
+function getLastUserText(messages: UIMessage[]): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m?.role !== "user") continue;
+    return m.parts
+      .filter((p) => p.type === "text")
+      .map((p) => (p as { text: string }).text)
+      .join("");
+  }
+  return "";
+}
+
+function declineStreamResponse(text: string): Response {
+  const stream = createUIMessageStream({
+    execute: ({ writer }) => {
+      const id = `decline-${Date.now()}`;
+      writer.write({ type: "start" });
+      writer.write({ type: "start-step" });
+      writer.write({ type: "text-start", id });
+      writer.write({ type: "text-delta", id, delta: text });
+      writer.write({ type: "text-end", id });
+      writer.write({ type: "finish-step" });
+      writer.write({ type: "finish" });
+    },
+  });
+  return createUIMessageStreamResponse({ stream });
 }
 
 export async function POST(req: NextRequest) {
@@ -74,18 +108,23 @@ export async function POST(req: NextRequest) {
 
     // ── Parse & validate input ──────────────────────────────────
     const body = await req.json().catch(() => ({}));
-    const raw = String(body.message ?? "").trim();
+    const messages = (body.messages ?? []) as UIMessage[];
 
-    if (!raw) return NextResponse.json({ error: "Message is required" }, { status: 400 });
-    if (raw.length > 500)
+    if (messages.length === 0) {
+      return NextResponse.json({ error: "Messages are required" }, { status: 400 });
+    }
+
+    const lastText = getLastUserText(messages).trim();
+    if (!lastText) {
+      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    }
+    if (lastText.length > 500) {
       return NextResponse.json({ error: "Message too long (500 char max)" }, { status: 400 });
+    }
 
     // ── Prompt injection guard ──────────────────────────────────
-    if (INJECTION.some((p) => p.test(raw))) {
-      return NextResponse.json({
-        reply:
-          "I can only answer questions about Michael's professional background. What would you like to know?",
-      });
+    if (INJECTION.some((p) => p.test(lastText))) {
+      return declineStreamResponse(DECLINE);
     }
 
     // ── Build system prompt from live Sanity profile ────────────
@@ -97,27 +136,23 @@ export async function POST(req: NextRequest) {
       systemPrompt = FALLBACK_SYSTEM;
     }
 
-    // ── Call Claude API ─────────────────────────────────────────
-    const response = await getClient().messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 300,
+    // ── Stream response via the AI SDK ──────────────────────────
+    const modelMessages = await convertToModelMessages(messages);
+    const result = streamText({
+      model: anthropic("claude-haiku-4-5"),
       system: systemPrompt,
-      messages: [{ role: "user", content: raw }],
+      messages: modelMessages,
+      maxOutputTokens: 300,
+      onFinish: () => {
+        sessions.set(ip, {
+          count: session.count + 1,
+          cost: session.cost + COST_PER_EXCHANGE,
+          reset: session.reset,
+        });
+      },
     });
 
-    const reply =
-      response.content[0]?.type === "text"
-        ? response.content[0].text
-        : "Sorry, I couldn't generate a response. Please contact Michael directly.";
-
-    // ── Update session ──────────────────────────────────────────
-    sessions.set(ip, {
-      count: session.count + 1,
-      cost: session.cost + COST_PER_EXCHANGE,
-      reset: session.reset,
-    });
-
-    return NextResponse.json({ reply });
+    return result.toUIMessageStreamResponse();
   } catch (err) {
     log.error("chat", "Failed to generate response", {
       error: err instanceof Error ? err.message : String(err),
