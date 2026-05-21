@@ -88,7 +88,7 @@ function LeadRow({ project, index }: { project: SanityProject; index: number }) 
               src={cover}
               alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
               fill
-              sizes="(max-width: 768px) 100vw, 75vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 75vw, 880px"
               className="object-cover transition-[filter] duration-300 ease-out group-hover:grayscale-0"
               priority
             />
