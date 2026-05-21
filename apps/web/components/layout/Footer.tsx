@@ -31,7 +31,7 @@ export async function Footer() {
           <div className="col-span-12 md:col-span-5">
             <Link
               href="/"
-              className="font-spec text-ink hover:text-signal inline-flex items-baseline gap-1 text-xl font-medium transition-colors"
+              className="font-spec text-ink hover:text-signal inline-flex items-baseline text-xl font-medium transition-colors"
             >
               <span className="text-signal">M</span>
               <span>ichael Padin</span>

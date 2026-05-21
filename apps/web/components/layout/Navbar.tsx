@@ -22,11 +22,11 @@ export function Navbar() {
       <nav className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between px-[clamp(1.5rem,4vw,3rem)]">
         <Link
           href="/"
-          className="font-spec text-ink hover:text-signal flex items-baseline gap-1 text-[15px] font-medium transition-colors"
+          className="font-spec text-ink hover:text-signal inline-flex items-baseline text-[15px] font-medium transition-colors"
         >
           <span className="text-signal">M</span>
           <span>ichael Padin</span>
-          <span className="text-ink-3 font-spec-mono ml-1 text-[11px] tracking-[0.04em] uppercase">
+          <span className="text-ink-3 font-spec-mono ml-2 text-[11px] tracking-[0.04em] uppercase">
             / portfolio
           </span>
         </Link>

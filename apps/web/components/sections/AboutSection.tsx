@@ -58,7 +58,7 @@ export function AboutSection({ profile }: Props) {
           <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
             §03·1 Experience ({yearsExperience} engagements)
           </h3>
-          <div className="border-paper-rule border-t">
+          <div>
             {profile.experience.map((exp, i) => (
               <ExperienceRow key={`${exp.company}-${i}`} exp={exp} />
             ))}

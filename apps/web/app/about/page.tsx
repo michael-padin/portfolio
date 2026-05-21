@@ -104,7 +104,7 @@ export default async function AboutPage() {
                 §02 · How I work
               </span>
             </header>
-            <ol className="border-paper-rule border-t">
+            <ol>
               {profile.values.map((v, i) => (
                 <li
                   key={v.title}
@@ -135,7 +135,7 @@ export default async function AboutPage() {
               §03 · Tools & technologies
             </span>
           </header>
-          <dl className="border-paper-rule border-t">
+          <dl>
             {profile.skillGroups.map(({ category, skills }) => (
               <div
                 key={category}
@@ -162,7 +162,7 @@ export default async function AboutPage() {
               §04 · {profile.experience.length} engagements
             </span>
           </header>
-          <div className="border-paper-rule border-t">
+          <div>
             {profile.experience.map((exp, i) => (
               <article
                 key={`${exp.company}-${i}`}
@@ -226,7 +226,7 @@ export default async function AboutPage() {
               §05
             </span>
           </header>
-          <ul className="border-paper-rule border-t">
+          <ul>
             {profile.education.map((edu, i) => (
               <li
                 key={i}
