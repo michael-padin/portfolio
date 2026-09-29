@@ -8,7 +8,8 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.fontshare.com",
   "font-src 'self' https://fonts.gstatic.com https://cdn.fontshare.com",
   "img-src 'self' data: blob: https://cdn.sanity.io",
-  "connect-src 'self' https://*.api.sanity.io https://cloud.umami.is https://api-gateway.umami.dev https://challenges.cloudflare.com https://www.google-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  // gateway.umami.is is where umami's cloud script actually POSTs events
+  "connect-src 'self' https://*.api.sanity.io https://cloud.umami.is https://gateway.umami.is https://api-gateway.umami.dev https://challenges.cloudflare.com https://www.google-analytics.com https://vitals.vercel-insights.com https://va.vercel-scripts.com",
   "frame-src 'self' https://challenges.cloudflare.com",
   `frame-ancestors 'self' ${studioUrl}`,
 ].join("; ");
