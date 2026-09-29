@@ -33,9 +33,12 @@ function isRateLimited(key: string, limit: number): boolean {
 
 // ── Helpers ─────────────────────────────────────────────────────
 function getClientIp(req: NextRequest): string {
-  // Cloudflare sets this header with the real client IP
+  // Vercel overwrites x-forwarded-for with the real peer IP, so it can't be spoofed.
+  // cf-connecting-ip is deliberately ignored: Cloudflare is DNS-only for this domain,
+  // so any client could send that header and dodge the limits below. If the orange
+  // cloud is ever switched on, read cf-connecting-ip first instead — at that point
+  // x-forwarded-for becomes Cloudflare's edge IP, shared by every visitor.
   return (
-    req.headers.get("cf-connecting-ip") ??
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("x-real-ip") ??
     "unknown"
