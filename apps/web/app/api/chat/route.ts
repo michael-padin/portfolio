@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
     // ── Stream response via the AI SDK ──────────────────────────
     const modelMessages = await convertToModelMessages(messages);
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: google("gemini-3.5-flash-lite"),
       system: systemPrompt,
       messages: modelMessages,
       maxOutputTokens: 300,
