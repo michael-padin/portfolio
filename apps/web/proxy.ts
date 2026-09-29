@@ -13,6 +13,7 @@ const RATE_LIMIT_WINDOW = 60_000; // 1 minute
 const RATE_LIMITS: Record<string, number> = {
   "/api/chat": 10, // 10 req/min
   "/api/contact": 5, // 5 req/min
+  "/api/notice": 60, // page views + clicks → Telegram
 };
 
 // In-memory store (per edge instance — Cloudflare handles the real protection)

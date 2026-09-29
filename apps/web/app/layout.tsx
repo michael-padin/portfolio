@@ -9,9 +9,11 @@ import { VisualEditing } from "next-sanity/visual-editing";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ChatBot } from "@/components/features/ChatBot";
+import { VisitTracker } from "@/components/features/VisitTracker";
 import { getProfile, FALLBACK_PROFILE, imageUrl } from "@/lib/sanity";
 import { SanityLive } from "@/lib/sanity.live";
 import { features } from "@/lib/features";
+import { isTelegramEnabled } from "@/lib/telegram";
 import "./globals.css";
 
 const instrumentSerif = Instrument_Serif({
@@ -183,6 +185,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main>{children}</main>
         <Footer />
         {features.chatbot && <ChatBot />}
+        {isTelegramEnabled() && <VisitTracker />}
         {isDraftMode && <VisualEditing />}
         {SanityLive && <SanityLive />}
         {gaId && <GoogleAnalytics gaId={gaId} />}

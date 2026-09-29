@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import Turnstile from "react-turnstile";
+import { currentVisitId } from "@/lib/track";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -40,6 +41,7 @@ export function ContactForm() {
       website_url: fd.get("website_url"),
       "cf-turnstile-response": turnstileToken,
       _loadTime: Date.now() - loadTimeRef.current,
+      _vid: currentVisitId(),
     };
 
     try {

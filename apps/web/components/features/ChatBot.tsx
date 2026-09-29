@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
+import { currentVisitId } from "@/lib/track";
 
 const SUGGESTED = [
   "What's your tech stack?",
@@ -40,7 +41,7 @@ export function ChatBot() {
   async function send(text: string) {
     if (!text.trim() || isBusy) return;
     setInput("");
-    await sendMessage({ text });
+    await sendMessage({ text }, { body: { vid: currentVisitId() } });
   }
 
   return (
@@ -48,6 +49,7 @@ export function ChatBot() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(!open)}
+        data-track={open ? undefined : "open-chat"}
         className={`font-spec-mono fixed right-5 bottom-5 z-50 inline-flex h-11 items-center gap-2 px-4 text-[12px] tracking-[0.04em] uppercase transition-colors ${
           open
             ? "text-paper bg-signal border-signal border"

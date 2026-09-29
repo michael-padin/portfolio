@@ -12,6 +12,16 @@ import { getProfile, profileToPromptContext } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
 import { chatTranscript } from "@/lib/email-templates";
+import {
+  VISIT_ID,
+  clip,
+  esc,
+  isTelegramEnabled,
+  notify,
+  notifyError,
+  visitTag,
+} from "@/lib/telegram";
+import { describePlace } from "@/lib/visitor";
 
 // ── Per-IP rate limiting (in-memory; reset on cold start) ──────────
 const sessions = new Map<string, { count: number; cost: number; reset: number }>();
@@ -111,6 +121,7 @@ export async function POST(req: NextRequest) {
     // ── Parse & validate input ──────────────────────────────────
     const body = await req.json().catch(() => ({}));
     const messages = (body.messages ?? []) as UIMessage[];
+    const vid = typeof body.vid === "string" && VISIT_ID.test(body.vid) ? body.vid : undefined;
 
     if (messages.length === 0) {
       return NextResponse.json({ error: "Messages are required" }, { status: 400 });
@@ -184,6 +195,35 @@ export async function POST(req: NextRequest) {
           log.error("chat", "Failed to email transcript", {
             error: err instanceof Error ? err.message : String(err),
           });
+          await notifyError("Chat transcript email", err);
+        }
+      });
+    }
+
+    // ── Fire-and-forget: mirror the exchange to Telegram ─────────
+    if (isTelegramEnabled()) {
+      const turn = messages.filter((m) => m.role === "user").length;
+      const place = describePlace(req.headers);
+      after(async () => {
+        try {
+          const answer = await result.text;
+          await notify(
+            [
+              ["💬 <b>Chat</b>", `message ${turn}`, esc(place), visitTag(vid)]
+                .filter(Boolean)
+                .join(" · "),
+              `<b>Q:</b> ${esc(lastText)}`,
+              `<blockquote expandable>${esc(clip(answer, 1500))}</blockquote>`,
+            ].join("\n"),
+            // The opening question pings; follow-ups arrive quietly.
+            { topic: "chats", silent: turn > 1 },
+          );
+        } catch (err) {
+          log.error("chat", "Failed to notify Telegram", {
+            error: err instanceof Error ? err.message : String(err),
+          });
+          // The stream itself failing (e.g. the model rejecting the request) lands here too
+          await notifyError("Chat reply", err);
         }
       });
     }
@@ -193,6 +233,7 @@ export async function POST(req: NextRequest) {
     log.error("chat", "Failed to generate response", {
       error: err instanceof Error ? err.message : String(err),
     });
+    after(() => notifyError("Chat", err));
     return NextResponse.json(
       { error: "Something went wrong. Please try again or contact Michael directly." },
       { status: 500 },

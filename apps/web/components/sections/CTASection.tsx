@@ -51,6 +51,7 @@ export function CTASection({ profile }: Props) {
                 <button
                   type="button"
                   onClick={copyEmail}
+                  data-track="copy-email"
                   className="font-spec-mono text-ink hover:text-signal border-ink hover:border-signal group inline-flex items-center gap-3 border-b pb-px text-[15px] transition-colors"
                   aria-label={`Copy email ${profile.email}`}
                 >

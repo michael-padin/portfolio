@@ -1,10 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { Resend } from "resend";
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
 import { features } from "@/lib/features";
 import { log } from "@/lib/logger";
 import { contactNotification, contactAutoReply } from "@/lib/email-templates";
+import {
+  VISIT_ID,
+  clip,
+  esc,
+  isTelegramEnabled,
+  notify,
+  notifyError,
+  visitTag,
+} from "@/lib/telegram";
+import { describePlace } from "@/lib/visitor";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -37,6 +47,8 @@ const contactSchema = z.object({
   "cf-turnstile-response": z.string().min(1, "Please complete the verification"),
   // Timing check (ms since form loaded)
   _loadTime: z.number().min(0).optional(),
+  // Visit id for the Telegram feed — never allowed to fail the form
+  _vid: z.string().regex(VISIT_ID).optional().catch(undefined),
 });
 
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
@@ -158,6 +170,37 @@ export async function POST(req: NextRequest) {
 
     const aiAssessment = await aiAssessmentPromise;
 
+    // Telegram lead alert — queued before the emails so it still lands if Resend fails
+    if (isTelegramEnabled()) {
+      const place = describePlace(req.headers);
+      // Telegram buttons only accept https, so replying goes via Gmail's compose URL
+      const replyUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(`Re: ${subject}`)}`;
+      const linkedinUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name)}`;
+      after(() =>
+        notify(
+          [
+            ["📨 <b>Contact form</b>", type && esc(type), budget && esc(clip(budget, 60))]
+              .filter(Boolean)
+              .join(" · "),
+            `<b>${esc(name)}</b> · ${esc(email)}`,
+            `<b>${esc(subject)}</b>`,
+            `<blockquote expandable>${esc(clip(message, 1500))}</blockquote>`,
+            aiAssessment && `🤖 ${esc(aiAssessment)}`,
+            [esc(place), visitTag(result.data._vid)].filter(Boolean).join(" · "),
+          ]
+            .filter(Boolean)
+            .join("\n"),
+          {
+            topic: "leads",
+            buttons: [
+              { text: "✉️ Reply", url: replyUrl },
+              { text: "🔍 LinkedIn", url: linkedinUrl },
+            ],
+          },
+        ),
+      );
+    }
+
     // Send notification email to Michael
     await getResend().emails.send({
       from: "Portfolio Contact <noreply@michaelpadin.com>",
@@ -195,6 +238,7 @@ export async function POST(req: NextRequest) {
     log.error("contact", "Failed to process submission", {
       error: err instanceof Error ? err.message : String(err),
     });
+    after(() => notifyError("Contact form", err, { ip }));
     return NextResponse.json(
       { error: "Failed to send message. Please try again." },
       { status: 500 },

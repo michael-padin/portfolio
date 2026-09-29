@@ -22,7 +22,9 @@
         "SANITY_STUDIO_PROJECT_ID",
         "SANITY_STUDIO_DATASET",
         "SANITY_STUDIO_SITE_URL",
-        "GOOGLE_GENERATIVE_AI_API_KEY"
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID"
       ]
     },
     "dev": {
