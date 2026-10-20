@@ -1,9 +1,18 @@
-import type { Profile } from "@/lib/sanity";
+import type { Profile, StaticImage } from "@/lib/sanity";
 import { AvailabilityLine, Marked } from "@/components/ui/Marked";
 import { BookButton } from "@/components/ui/BookButton";
 import { SalonDashboard } from "@/components/mocks/SalonDashboard";
+import { HeroCollage, type CollageShot } from "./HeroCollage";
 
-export function Hero({ profile }: { profile: Profile }) {
+export function Hero({
+  profile,
+  shots,
+  phone,
+}: {
+  profile: Profile;
+  shots: CollageShot[];
+  phone?: StaticImage | null;
+}) {
   return (
     <section className="container-page grid items-center gap-7 pt-5 pb-12 md:grid-cols-[1fr_1.05fr] md:gap-12 md:pt-14 md:pb-24">
       <div>
@@ -25,7 +34,8 @@ export function Hero({ profile }: { profile: Profile }) {
         </div>
         <p className="mt-5 text-[14px] text-[oklch(45%_0.02_50)]">{profile.heroAside}</p>
       </div>
-      <SalonDashboard />
+      {/* Until two systems have screenshots, the example dashboard stands in */}
+      {shots.length >= 2 ? <HeroCollage shots={shots} phone={phone} /> : <SalonDashboard />}
     </section>
   );
 }

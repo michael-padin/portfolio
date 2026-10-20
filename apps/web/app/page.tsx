@@ -11,6 +11,8 @@ import {
   getFeaturedProjects,
   getProfile,
   imageUrl,
+  projectCover,
+  projectPhone,
   FALLBACK_PROFILE,
   FALLBACK_PROJECTS,
 } from "@/lib/sanity";
@@ -34,9 +36,19 @@ export default async function HomePage() {
     getProfile().catch(() => FALLBACK_PROFILE),
   ]);
 
+  // The hero collage shows systems, not marketing sites
+  const systems = projects.filter((p) => p.kind !== "website");
+  const shots = systems
+    .map((p) => {
+      const image = projectCover(p, 1440);
+      return image && { href: `/projects/${p.slug.current}`, label: p.title, tone: p.tone, image };
+    })
+    .filter((s) => s !== null);
+  const phone = systems.map(projectPhone).find(Boolean) ?? null;
+
   return (
     <>
-      <Hero profile={profile} />
+      <Hero profile={profile} shots={shots} phone={phone} />
       <StillRunning pains={profile.pains} />
       <Services profile={profile} />
       <SystemsBuilt projects={projects} />
