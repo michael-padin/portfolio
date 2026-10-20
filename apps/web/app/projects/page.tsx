@@ -14,7 +14,7 @@ import { FoundingOffer } from "@/components/sections/FoundingOffer";
 export const metadata: Metadata = pageMetadata({
   title: "Work",
   description:
-    "Booking, POS, inventory and payroll systems built for businesses in Cebu, plus work for clients abroad.",
+    "Booking, inventory, payroll and billing systems built for businesses in Cebu, plus work for clients abroad.",
   path: "/projects",
 });
 

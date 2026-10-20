@@ -77,39 +77,39 @@ export const SEED_PROJECTS: SeedProject[] = [
   {
     slug: "mil",
     title: "MIL",
-    headline: "Point of sale, inventory and payroll for a Cebu shoe brand",
+    headline: "Inventory, consignment and payroll for a Cebu shoe brand",
     tagline:
-      "One system for the store counter, stock across branches, consignment, payroll and BIR records.",
+      "One system for stock across branches, consignment, staff payroll and the monthly numbers.",
     kind: "web-app",
     client: "MIL handcrafted footwear · Cebu City",
     builtAt: "client",
     role: "Design, build and support",
-    typeLabel: "POS, inventory & payroll system",
-    techStack: ["Next.js", "PostgreSQL", "Prisma", "Tauri", "Vercel"],
+    typeLabel: "Inventory & payroll system",
+    techStack: ["Next.js", "PostgreSQL", "Prisma", "Vercel"],
     featured: true,
     order: 2,
     problem:
-      "Daily sales and inventory lived in spreadsheets that someone rebuilt every night. Workshop job orders were on paper, payroll was worked out by hand, and the BIR invoice booklet was the only record of some sales.",
+      "Daily sales and inventory reports lived in spreadsheets that someone rebuilt by hand. Workshop job orders were on paper, and payroll was worked out by hand every pay period.",
     highlights: [
-      {
-        title: "Cashier app",
-        body: "A point-of-sale app for the counter with a PIN for each cashier, refunds, coupons and shift close-outs. It runs on Windows and prints receipts.",
-      },
       {
         title: "Inventory across branches",
         body: "Stock movements, transfers between branches, purchase orders and blind stock counts, so the numbers match the shelves.",
       },
       {
         title: "Consignment",
-        body: "Consignors, remittances and bazaar events tracked in one place instead of a separate notebook.",
+        body: "Consignors, remittances and bazaar events tracked in one place.",
       },
       {
-        title: "Payroll and BIR",
-        body: "Attendance, holiday pay, SSS, PhilHealth and Pag-IBIG contributions and payslips. Plus a monthly income statement and a digital log of the BIR invoice booklet.",
+        title: "Payroll and attendance",
+        body: "Attendance, holiday pay, SSS, PhilHealth and Pag-IBIG contributions, and payslips for every pay period.",
+      },
+      {
+        title: "Monthly numbers",
+        body: "A monthly income statement with revenue, costs and profit, and a drill-down into any single day.",
       },
     ],
     localAngle: {
-      text: "Any shop juggling a counter, a stockroom and a staff payroll has the same headaches. That includes boutiques, hardware stores, pharmacies and bakeries with more than one branch.",
+      text: "Any shop juggling a stockroom, consignors and a staff payroll has the same headaches. That includes boutiques, hardware stores, pharmacies and bakeries with more than one branch.",
       chips: ["Boutiques", "Hardware stores", "Pharmacies", "Bakeries", "Multi-branch retail"],
     },
   },
