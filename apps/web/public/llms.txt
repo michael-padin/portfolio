@@ -1,28 +1,31 @@
-# Michael Padin — Full-Stack Developer
-> Available for freelance projects and full-time remote roles
+# Michael Padin: custom software for Cebu businesses
+> Booking, ordering, inventory and staff systems for local businesses in Cebu, Philippines.
 
-Michael Padin is a full-stack web developer based in Cebu, Philippines (UTC+8),
-specialising in JavaScript/TypeScript, React, Next.js, and Node.js.
+Michael Padin is a software developer in Cebu, Philippines (UTC+8). He builds custom
+systems for local businesses and works with owners directly: a free call, a fixed
+quote within 48 hours paid in milestones, a working preview every week, then launch,
+staff training and ongoing support.
 
-## Skills
-- Frontend: TypeScript, React, Next.js (App Router), TanStack, Tailwind CSS
-- Backend: Node.js, Express.js, Hono, PostgreSQL, MongoDB, Prisma, BullMQ, Socket.io
-- Cloud: AWS S3, Cloudflare Workers/Pages, Docker
-- Tooling: Turborepo, pnpm workspaces, Git
+## What he builds
+- Booking & reservation systems: online booking, calendars, deposits, reminders, owner and staff dashboards
+- Ordering & inventory: orders online or in-store, stock tracking, GCash, Maya or card payments
+- Internal tools & dashboards: records, approvals and reports that replace spreadsheets
+- Messenger & Facebook automation: Page inquiries and orders flow into the system
+- Business websites + Google Maps (add-on)
+- Support & maintenance
 
-## Experience
-- Image Edits (Aug 2023 – Present) — Full-Stack Developer, Brisbane AU (Remote)
-  Built bulk image-processing pipeline (BullMQ, AWS S3), led migration to TanStack in a 5-app Turborepo monorepo
-- ReallyBrief (Mar–Aug 2023) — Full-Stack Developer
-- CloudNext (Sep 2022–Mar 2023) — Node.js Developer
-- Techroad (May–Jun 2022) — DevOps Developer
+## Systems he has built
+- [Hermosa Glow](https://michaelpadin.com/projects/hermosa-glow): online booking and a clinic system (calendar, counter, packages, digital consent) for a skin clinic in Carcar City, Cebu
+- [MIL](https://michaelpadin.com/projects/mil): point of sale, inventory, consignment, payroll and BIR records for a Cebu shoe brand
+- [Kasper Trucking](https://michaelpadin.com/projects/kasper-trucking): trip logging, delivery receipts, weekly crew payroll and client billing for a Cebu hauler
+- [JimDaisy.com](https://michaelpadin.com/projects/jimdaisy): lead-generation website for two student-housing properties in California
 
-## Key Projects
-- [Image Edits Platform](https://imageedits.com) — Monorepo with 5 apps, real-time chat, S3 storage, AI image editing
-- [JimDaisy.com](https://jimdaisy.com) — Student housing website built with Next.js + Cloudflare
+## Background
+- Image Edits (Aug 2023 – Present): full stack developer, Brisbane (remote)
+- ReallyBrief, CloudNext, Techroad (2022–2023): full stack, Node.js and DevOps roles
+- BS Information Technology, Cebu Technological University – Argao
 
 ## Contact
+- Book a free 30-min call: https://cal.com/michael-padin/intro
 - Email: hello@michaelpadin.com
-- LinkedIn: https://linkedin.com/in/michael-padin
-- GitHub: https://github.com/michael-padin
-- Portfolio: https://michaelpadin.com
+- Site: https://michaelpadin.com

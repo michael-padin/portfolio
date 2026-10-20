@@ -2,6 +2,7 @@ import "server-only";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { defineQuery } from "next-sanity";
 import type { PortableTextBlock } from "@portabletext/react";
+import { SEED_PROJECTS, type ProjectKind } from "@portfolio/sanity-schemas/seed";
 import { client, isSanityConfigured } from "./sanity.client";
 import { sanityFetch } from "./sanity.live";
 
@@ -38,22 +39,33 @@ async function fetchSanity<T>(query: string, params = {}, tags: string[] = []): 
 // ── Types ───────────────────────────────────────────────────────
 export type SanityImage = SanityImageSource & { alt?: string; caption?: string };
 
+export type { ProjectKind };
+
 export type Project = {
   _id: string;
   _updatedAt?: string;
   title: string;
   slug: { current: string };
+  headline?: string;
   tagline: string;
+  kind?: ProjectKind;
+  client?: string;
+  builtAt?: "client" | "employer";
+  role?: string;
+  typeLabel?: string;
   coverImage?: SanityImage;
+  coverMock?: "team-calendar" | "salon-dashboard";
   techStack: string[];
-  category: string;
+  category?: string;
   liveUrl?: string;
   githubUrl?: string;
   featured: boolean;
   order?: number;
   overview?: string;
   problem?: string;
+  highlights?: { title: string; body: string }[];
   solution?: PortableTextBlock[];
+  localAngle?: { text?: string; chips?: string[] };
   results?: { metric: string; value: string }[];
   publishedAt?: string;
   seoTitle?: string;
@@ -81,26 +93,36 @@ export type Post = {
 export type SanityProject = Project;
 export type SanityPost = Post;
 
+const KIND_LABEL: Record<ProjectKind, string> = {
+  booking: "Booking system",
+  "web-app": "Web app",
+  website: "Website",
+};
+
+/** Card eyebrow, e.g. "Booking system · Built at Image Edits, Brisbane". */
+export function projectTag(p: Project): string {
+  const kind = p.kind ? KIND_LABEL[p.kind] : p.category;
+  const where = p.client?.replace(" · ", ", ");
+  const who = where && (p.builtAt === "employer" ? `Built at ${where}` : where);
+  return [kind, who].filter(Boolean).join(" · ");
+}
+
 // ── Queries ─────────────────────────────────────────────────────
+const PROJECT_CARD = `_id, _updatedAt, title, slug, headline, tagline, kind, client, builtAt,
+  coverImage{..., alt, caption}, coverMock, techStack, category, liveUrl, githubUrl, featured, order`;
+
 const featuredProjectsQuery = defineQuery(
-  `*[_type == "project" && featured == true] | order(order asc) [0...6] {
-    _id, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
-    liveUrl, githubUrl, featured, order, overview
-  }`,
+  `*[_type == "project" && featured == true] | order(order asc) [0...4] { ${PROJECT_CARD} }`,
 );
 
 const allProjectsQuery = defineQuery(
-  `*[_type == "project"] | order(order asc) {
-    _id, _updatedAt, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
-    liveUrl, githubUrl, featured, order
-  }`,
+  `*[_type == "project"] | order(order asc) { ${PROJECT_CARD} }`,
 );
 
 const projectBySlugQuery = defineQuery(
   `*[_type == "project" && slug.current == $slug][0] {
-    _id, _updatedAt, title, slug, tagline, coverImage{..., alt, caption}, techStack, category,
-    liveUrl, githubUrl, overview, problem, solution, results, publishedAt,
-    seoTitle, seoDescription, ogImage{..., alt}
+    ${PROJECT_CARD}, role, typeLabel, overview, problem, highlights, solution, localAngle,
+    results, publishedAt, seoTitle, seoDescription, ogImage{..., alt}
   }`,
 );
 
@@ -130,20 +152,35 @@ const profileQuery = defineQuery(
   }`,
 );
 
+// ── Fallback projects (no Sanity, or Sanity has none yet) ───────
+export const FALLBACK_PROJECTS: Project[] = SEED_PROJECTS.map(({ slug, ...p }) => ({
+  ...p,
+  _id: `fallback-${slug}`,
+  slug: { current: slug },
+}));
+
 // ── Data fetchers ───────────────────────────────────────────────
 export async function getFeaturedProjects(): Promise<Project[]> {
-  if (!isSanityConfigured) return [];
-  return fetchSanity<Project[]>(featuredProjectsQuery, {}, ["project"]);
+  const fallback = FALLBACK_PROJECTS.filter((p) => p.featured);
+  if (!isSanityConfigured) return fallback;
+  const projects = await fetchSanity<Project[]>(featuredProjectsQuery, {}, ["project"]);
+  return projects.length > 0 ? projects : fallback;
 }
 
 export async function getAllProjects(): Promise<Project[]> {
-  if (!isSanityConfigured) return [];
-  return fetchSanity<Project[]>(allProjectsQuery, {}, ["project"]);
+  if (!isSanityConfigured) return FALLBACK_PROJECTS;
+  const projects = await fetchSanity<Project[]>(allProjectsQuery, {}, ["project"]);
+  return projects.length > 0 ? projects : FALLBACK_PROJECTS;
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
-  if (!isSanityConfigured) return null;
-  return fetchSanity<Project | null>(projectBySlugQuery, { slug }, ["project", `project:${slug}`]);
+  const fallback = FALLBACK_PROJECTS.find((p) => p.slug.current === slug) ?? null;
+  if (!isSanityConfigured) return fallback;
+  const project = await fetchSanity<Project | null>(projectBySlugQuery, { slug }, [
+    "project",
+    `project:${slug}`,
+  ]);
+  return project ?? fallback;
 }
 
 export async function getFeaturedPosts(): Promise<Post[]> {
@@ -161,64 +198,74 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return fetchSanity<Post | null>(postBySlugQuery, { slug }, ["post", `post:${slug}`]);
 }
 
-export async function getProfile(): Promise<Profile | null> {
-  if (!isSanityConfigured) return null;
-  return fetchSanity<Profile | null>(profileQuery, {}, ["profile"]);
+/**
+ * The profile as Sanity has it, with every field Sanity leaves empty filled
+ * from FALLBACK_PROFILE. New fields therefore render the built-in copy until
+ * they're written in the studio.
+ */
+export async function getProfile(): Promise<Profile> {
+  if (!isSanityConfigured) return FALLBACK_PROFILE;
+  const data = await fetchSanity<Partial<Profile> | null>(profileQuery, {}, ["profile"]);
+  if (!data) return FALLBACK_PROFILE;
+  const filled = Object.fromEntries(
+    Object.entries(data).filter(([, v]) => v !== null && !(Array.isArray(v) && v.length === 0)),
+  );
+  return { ...FALLBACK_PROFILE, ...filled };
 }
 
 export function getResumeUrl(profile: Profile): string | null {
   return profile.resume?.asset?.url ?? null;
 }
 
-// ── Profile prompt context (for AI chatbot) ─────────────────────
-export function profileToPromptContext(p: Profile): string {
-  const availability = [
-    p.availableForFreelance ? "Available for freelance projects" : "Not taking freelance right now",
-    p.availableForFullTime
-      ? "Open to full-time remote roles"
-      : "Not looking for full-time right now",
-  ].join(". ");
+/** Strip the inline copy markup (==hl==, **bold**, _em_) for plain-text contexts. */
+export function plainText(s: string): string {
+  return s
+    .replace(/==(.+?)==/g, "$1")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/_(.+?)_/g, "$1");
+}
 
-  const experience = (p.experience ?? [])
+// ── Profile prompt context (for AI chatbot) ─────────────────────
+export function profileToPromptContext(p: Profile, projects: Project[]): string {
+  const services = p.services.map((s) => `- ${s.name} (${s.kind}): ${s.description}`).join("\n");
+  const steps = p.steps
+    .map((s, i) => `${i + 1}. ${s.title}: ${s.body} ${s.joke ?? ""}`.trim())
+    .join("\n");
+  const work = projects
     .map(
-      (e) =>
-        `- ${e.company} (${e.role}, ${e.period}, ${e.location}):\n  ${e.highlights.join("\n  ")}`,
+      (pr) =>
+        `- ${pr.title}${pr.client ? ` (${pr.client}${pr.builtAt === "employer" ? ", built while employed there" : ""})` : ""}: ${pr.headline ?? ""}. ${pr.tagline}`,
     )
     .join("\n");
-
-  const skills = (p.skillGroups ?? [])
-    .map((g) => `${g.category}: ${g.skills.join(", ")}`)
-    .join("\n");
+  const offer = p.foundingOffer?.enabled
+    ? `FOUNDING CLIENT OFFER: ${plainText(p.foundingOffer.body ?? "")}`
+    : "";
 
   return `
 NAME: ${p.name}
-TITLE: ${p.title}
+WHAT HE DOES: Builds custom software for local businesses in Cebu, Philippines: booking, ordering & inventory, internal tools and Messenger automation. Websites are an add-on.
 LOCATION: ${p.location} (${p.timezone})
+AVAILABILITY: ${plainText(p.availabilityLine)}
 EMAIL: ${p.email}
-GITHUB: ${p.githubUrl ?? "N/A"}
-LINKEDIN: ${p.linkedinUrl ?? "N/A"}
-WEBSITE: ${p.websiteUrl ?? "N/A"}
+${p.bookingUrl ? `FREE 30-MIN CALL: ${p.bookingUrl}` : ""}
+${p.facebookUrl ? `FACEBOOK: ${p.facebookUrl}` : ""}
 
-AVAILABILITY:
-${availability}
-Note: ${p.availabilityNote}
+SERVICES:
+${services}
 
-SKILLS:
-${skills}
+HOW IT WORKS:
+${steps}
+${offer}
 
-EXPERIENCE:
-${experience}
+SYSTEMS HE HAS BUILT:
+${work}
 
-EDUCATION:
-${(p.education ?? []).map((e) => `- ${e.institution} · ${e.degree} · ${e.period}`).join("\n")}
+BACKGROUND: ${p.bioShort}
+${(p.experience ?? []).map((e) => `- ${e.company}, ${e.role}, ${e.period}: ${e.outcome ?? e.highlights?.[0] ?? ""}`).join("\n")}
 `.trim();
 }
 
 // ── Profile types ───────────────────────────────────────────────
-export interface SkillGroup {
-  category: string;
-  skills: string[];
-}
 export interface Experience {
   company: string;
   role: string;
@@ -226,7 +273,8 @@ export interface Experience {
   location: string;
   current: boolean;
   companyUrl?: string;
-  highlights: string[];
+  outcome?: string;
+  highlights?: string[];
 }
 export interface Education {
   institution: string;
@@ -234,14 +282,17 @@ export interface Education {
   period: string;
   location: string;
 }
-export interface HeroStat {
-  value: string;
-  label: string;
+export interface Service {
+  kind: string;
+  name: string;
+  description: string;
+  priceRange?: string;
 }
-export interface ProfileValue {
-  emoji: string;
+export interface Step {
   title: string;
   body: string;
+  joke?: string;
+  highlight?: boolean;
 }
 
 export interface Profile {
@@ -250,25 +301,26 @@ export interface Profile {
   location: string;
   timezone: string;
   photo?: SanityImage;
-  availableForFreelance: boolean;
-  availableForFullTime: boolean;
-  availabilityNote: string;
+  availabilityLine: string;
   email: string;
+  bookingUrl?: string;
+  facebookUrl?: string;
+  messengerUrl?: string;
   githubUrl: string;
   linkedinUrl: string;
   twitterUrl?: string;
   websiteUrl: string;
-  bookingUrl?: string;
-  heroTaglineClient: string;
-  heroSubClient: string;
-  heroTaglineEmployer: string;
-  heroSubEmployer: string;
-  heroStats: HeroStat[];
+  heroTagline: string;
+  heroSub: string;
+  heroAside: string;
+  pains: { text: string; joke?: string }[];
+  services: Service[];
+  steps: Step[];
+  foundingOffer: { enabled?: boolean; spots?: number; discount?: string; body?: string };
+  aboutIntro: string[];
+  workPrinciples: { title: string; body: string }[];
   terminalSkills: string[];
-  bio?: PortableTextBlock[];
   bioShort: string;
-  values: ProfileValue[];
-  skillGroups: SkillGroup[];
   experience: Experience[];
   education: Education[];
   resume?: { asset: { _ref: string; url?: string } };
@@ -277,29 +329,119 @@ export interface Profile {
   seoDescription: string;
 }
 
-// ── Fallback profile (when Sanity isn't configured) ─────────────
+// ── Fallback profile (when Sanity isn't configured or a field is empty) ──
 export const FALLBACK_PROFILE: Profile = {
   name: "Michael Padin",
-  title: "Full Stack Developer",
+  title: "Custom software for Cebu businesses",
   location: "Cebu, Philippines",
   timezone: "UTC+8",
-  availableForFreelance: true,
-  availableForFullTime: true,
-  availabilityNote: "Available for new projects",
+  availabilityLine: "**3 spots open** this quarter for Cebu businesses",
   email: "hello@michaelpadin.com",
+  bookingUrl: "https://cal.com/michael-padin/intro",
   githubUrl: "https://github.com/michael-padin",
   linkedinUrl: "https://linkedin.com/in/michael-padin",
   websiteUrl: "https://michaelpadin.com",
-  heroTaglineClient: "I build products that ship and actually work.",
-  heroSubClient:
-    "Need a scalable web app, a fast marketing site, or a Node.js backend? I've shipped production systems for companies in Australia, California, and beyond — all from Cebu, Philippines.",
-  heroTaglineEmployer: "Senior full stack developer ready to join your team.",
-  heroSubEmployer:
-    "Experienced in Turborepo monorepos, Next.js App Router, Express microservices, and AWS/Cloudflare infrastructure. I collaborate async-first and thrive in distributed teams.",
-  heroStats: [
-    { value: "3+", label: "Years experience" },
-    { value: "10+", label: "Projects shipped" },
-    { value: "UTC+8", label: "Flexible overlap" },
+  heroTagline: "Custom systems built around how your business runs.",
+  heroSub:
+    "Booking, ordering, inventory and staff tools for local businesses. Retire the logbook, the 14-tab spreadsheet and ==the group chat called “ORDERS FINAL v2”==. One system that fits how you work.",
+  heroAside:
+    "You work with the developer directly. No agency, no account manager, no “let me check with the team.”",
+  pains: [
+    { text: "A paper logbook", joke: "(with a coffee stain on March)" },
+    { text: "Orders scattered across Messenger, calls and walk-ins" },
+    { text: "Inventory in Excel, always one day behind" },
+    { text: "Reports you rebuild by hand", joke: "every Sunday night" },
+  ],
+  services: [
+    {
+      kind: "System",
+      name: "Booking & reservation systems",
+      description:
+        "Online booking with calendars, slots, deposits and reminders. Includes dashboards for owners and staff.",
+      priceRange: "₱80k–150k",
+    },
+    {
+      kind: "System",
+      name: "Ordering & inventory",
+      description: "Take orders online or in-store, track stock, and accept GCash, Maya or card.",
+      priceRange: "₱100k–200k",
+    },
+    {
+      kind: "System",
+      name: "Internal tools & dashboards",
+      description:
+        "Replace spreadsheets with one system your team uses for records, approvals and reports.",
+      priceRange: "₱120k–250k",
+    },
+    {
+      kind: "Integration",
+      name: "Messenger & Facebook automation",
+      description: "Inquiries and orders from your Page go straight into your system.",
+      priceRange: "₱20k–40k",
+    },
+    {
+      kind: "Add-on",
+      name: "Business website + Google Maps",
+      description: "A fast site and a Maps listing that send customers into your system.",
+      priceRange: "₱25k–45k",
+    },
+    {
+      kind: "Ongoing",
+      name: "Support & maintenance",
+      description: "Hosting, backups, fixes and new features as you grow.",
+      priceRange: "₱5k–10k/mo",
+    },
+  ],
+  steps: [
+    {
+      title: "Free call",
+      body: "We go through how your business runs today and where it loses time or money.",
+      joke: "Coffee optional, but encouraged.",
+    },
+    {
+      title: "Fixed quote in 48 hours",
+      body: "One clear price, paid in milestones. You test a working preview every week.",
+      joke: "No surprise “additional fees” later.",
+    },
+    {
+      title: "Launch & training",
+      body: "I set it up, train your staff and stay on for support.",
+      joke: "Yes, even the tita who loves the notebook.",
+      highlight: true,
+    },
+    {
+      title: "Support & growth",
+      body: "Fixes, updates and new features as your business grows.",
+      joke: "Same developer, same phone number.",
+    },
+  ],
+  foundingOffer: {
+    enabled: true,
+    spots: 3,
+    discount: "20%",
+    body: "The first three local businesses get 20% off their system. In return, I write it up as a case study and you say nice things about me. ==Honest ones.==",
+  },
+  aboutIntro: [
+    "I'm a software developer from Cebu. Since 2022 I've built production systems for companies in Australia and the US: booking engines, image-processing pipelines and dashboards that teams use every day.",
+    "Now I'm bringing that work home. I help local businesses replace logbooks, spreadsheets and group chats with systems built around how they actually work.",
+  ],
+  workPrinciples: [
+    {
+      title: "I ask before I build",
+      body: "I learn how your business really runs before writing any code. Solving the right problem matters more than clever features.",
+    },
+    {
+      title: "You always know where things stand",
+      body: "I give clear weekly updates and a preview link you can click. No disappearing for a month.",
+    },
+    {
+      title: "Working beats perfect",
+      body: "I launch something useful early, then improve it based on how your staff actually use it.",
+    },
+    {
+      title: "I stay after launch",
+      body: "Fixes, updates and new features as you grow. You get the same person who built it.",
+    },
   ],
   terminalSkills: [
     "TypeScript",
@@ -307,92 +449,29 @@ export const FALLBACK_PROFILE: Profile = {
     "Next.js",
     "Node.js",
     "Express",
+    "Hono",
     "PostgreSQL",
     "MongoDB",
+    "Prisma",
+    "BullMQ",
+    "Socket.io",
     "AWS S3",
     "Cloudflare Workers",
-    "Turborepo",
-    "Prisma",
-    "Sanity CMS",
     "Docker",
+    "Sanity CMS",
   ],
   bioShort:
-    "Full stack developer from Cebu, Philippines specialising in React, Next.js, and Node.js.",
-  values: [
-    {
-      emoji: "🚢",
-      title: "Ship it",
-      body: "Perfect is the enemy of done. I prefer iterating on live products over endless planning cycles.",
-    },
-    {
-      emoji: "📖",
-      title: "Write to think",
-      body: "I document decisions, write clear PR descriptions, and believe good writing is a core development skill.",
-    },
-    {
-      emoji: "🌐",
-      title: "Async by default",
-      body: "Working across timezones (PH ↔ AU ↔ US) taught me to over-communicate and never block teammates.",
-    },
-    {
-      emoji: "🔍",
-      title: "Understand the why",
-      body: "I ask questions before writing a line of code. Solving the right problem matters more than elegant solutions to the wrong one.",
-    },
-  ],
-  skillGroups: [
-    {
-      category: "Frontend",
-      skills: [
-        "TypeScript",
-        "React",
-        "Next.js",
-        "TanStack Query",
-        "Tailwind CSS",
-        "Shadcn/ui",
-        "Framer Motion",
-      ],
-    },
-    {
-      category: "Backend",
-      skills: [
-        "Node.js",
-        "Express.js",
-        "Hono",
-        "PostgreSQL",
-        "MongoDB",
-        "Prisma ORM",
-        "BullMQ",
-        "Socket.io",
-      ],
-    },
-    {
-      category: "Cloud & DevOps",
-      skills: ["AWS S3", "Cloudflare Workers", "Cloudflare Pages", "Docker", "GitHub Actions"],
-    },
-    {
-      category: "Tooling",
-      skills: ["Turborepo", "pnpm workspaces", "Git", "Sanity CMS", "Keystatic"],
-    },
-    {
-      category: "Soft Skills",
-      skills: ["Async-first communication", "Technical writing", "Code review", "Mentoring"],
-    },
-  ],
+    "Software developer from Cebu, Philippines. I build booking, ordering, inventory and staff systems for local businesses, after three years building production systems for companies in Australia and the US.",
   experience: [
     {
       company: "Image Edits",
       role: "Full Stack Developer",
       period: "Aug 2023 – Present",
-      location: "Brisbane, Australia (Remote)",
+      location: "Brisbane (remote)",
       current: true,
       companyUrl: "https://imageedits.com",
-      highlights: [
-        "Architected scalable Express.js + TypeScript backend for bulk image processing (AWS S3, BullMQ, dynamic watermarking)",
-        "Led frontend migration from Next.js to TanStack in a Turborepo monorepo with 5 apps",
-        "Planning and building a photographer booking platform (Aryeo/Tonomo-style)",
-        "Improved TypeScript performance and reduced bundle size across multiple internal packages",
-      ],
+      outcome:
+        "Built a full scheduling and booking system from scratch, plus image-processing tools for real estate photographers.",
     },
     {
       company: "ReallyBrief",
@@ -400,10 +479,7 @@ export const FALLBACK_PROFILE: Profile = {
       period: "Mar 2023 – Aug 2023",
       location: "Remote",
       current: false,
-      highlights: [
-        "Shipped numerous fullstack features using Next.js and MongoDB",
-        "Collaborated with UI/UX designers to transform mockups into functional interfaces",
-      ],
+      outcome: "Turned designers' mockups into working features.",
     },
     {
       company: "CloudNext",
@@ -411,10 +487,7 @@ export const FALLBACK_PROFILE: Profile = {
       period: "Sep 2022 – Mar 2023",
       location: "Remote",
       current: false,
-      highlights: [
-        "Optimized Express.js API routes improving response times",
-        "Integrated Firestore real-time database capabilities",
-      ],
+      outcome: "Fixed and improved API endpoints.",
     },
     {
       company: "Techroad",
@@ -422,20 +495,17 @@ export const FALLBACK_PROFILE: Profile = {
       period: "May 2022 – Jun 2022",
       location: "Remote",
       current: false,
-      highlights: [
-        "Researched AWS Amplify Studio for web component generation",
-        "Integrated Slack API for form-to-Slack notifications",
-      ],
+      outcome: "Researched AWS Amplify Studio for generating site components.",
     },
   ],
   education: [
     {
-      institution: "Cebu Technological University – Argao Campus",
+      institution: "Cebu Technological University · Argao",
       degree: "BS Information Technology",
-      period: "Jul 2021 – Jul 2025",
+      period: "2021 – 2025",
       location: "Argao, Cebu",
     },
   ],
   seoDescription:
-    "Full stack developer (React, Next.js, Node.js) based in Cebu, Philippines. Available for freelance projects and full-time remote roles.",
+    "Custom booking, ordering, inventory and staff systems for local businesses in Cebu. Free call, fixed quote in 48 hours, and you work with the developer directly.",
 };

@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import { getProjectBySlug, getAllProjects, imageUrl } from "@/lib/sanity";
-import { features } from "@/lib/features";
+import {
+  getProjectBySlug,
+  getAllProjects,
+  getProfile,
+  imageUrl,
+  FALLBACK_PROFILE,
+} from "@/lib/sanity";
 import { pageMetadata, siteUrl } from "@/lib/seo";
+import { ProjectVisual } from "@/components/projects/ProjectCard";
+import { CtaBand } from "@/components/sections/CtaBand";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -21,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     (project.ogImage && imageUrl(project.ogImage, 1200, 630)) ??
     imageUrl(project.coverImage, 1200, 630);
   return pageMetadata({
-    title: project.seoTitle ?? project.title,
+    title: project.seoTitle ?? project.headline ?? project.title,
     description: project.seoDescription ?? project.tagline,
     path: `/projects/${project.slug.current}`,
     image: ogImg,
@@ -40,18 +46,32 @@ export async function generateStaticParams() {
 
 export default async function ProjectPage({ params }: Props) {
   const { slug } = await params;
-  const project = await getProjectBySlug(slug).catch(() => null);
+  const [project, all, profile] = await Promise.all([
+    getProjectBySlug(slug).catch(() => null),
+    getAllProjects().catch(() => []),
+    getProfile().catch(() => FALLBACK_PROFILE),
+  ]);
   if (!project) notFound();
 
-  const coverUrl = imageUrl(project.coverImage, 1600, 900);
+  const coverUrl = imageUrl(project.coverImage, 2400, 1150);
   const projectUrl = `${siteUrl}/projects/${project.slug.current}`;
+  const heading = project.headline ?? project.title;
+  const index = all.findIndex((p) => p.slug.current === project.slug.current);
+  const next = all.length > 1 ? all[(index + 1) % all.length] : undefined;
+
+  const facts = [
+    project.client && { label: "Client", value: project.client },
+    project.role && { label: "My role", value: project.role },
+    project.typeLabel && { label: "Type", value: project.typeLabel },
+    project.techStack?.length > 0 && { label: "Stack", value: project.techStack.join(" · ") },
+  ].filter(Boolean) as { label: string; value: string }[];
 
   const breadcrumbLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-      { "@type": "ListItem", position: 2, name: "Projects", item: `${siteUrl}/projects` },
+      { "@type": "ListItem", position: 2, name: "Work", item: `${siteUrl}/projects` },
       { "@type": "ListItem", position: 3, name: project.title, item: projectUrl },
     ],
   };
@@ -60,7 +80,7 @@ export default async function ProjectPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
     name: project.title,
-    headline: project.title,
+    headline: heading,
     description: project.tagline,
     url: projectUrl,
     ...(coverUrl && { image: coverUrl }),
@@ -68,48 +88,16 @@ export default async function ProjectPage({ params }: Props) {
     ...(project._updatedAt && { dateModified: project._updatedAt }),
     author: { "@type": "Person", name: "Michael Padin", url: siteUrl },
     creator: { "@type": "Person", name: "Michael Padin", url: siteUrl },
-    ...(project.techStack &&
-      project.techStack.length > 0 && {
-        keywords: project.techStack.join(", "),
-      }),
-    ...(project.category && { genre: project.category }),
+    ...(project.techStack?.length > 0 && { keywords: project.techStack.join(", ") }),
+    ...(project.typeLabel && { genre: project.typeLabel }),
     ...(project.liveUrl && { sameAs: project.liveUrl }),
   };
 
-  const sections: { num: string; title: string; body: React.ReactNode }[] = [];
-  if (project.overview)
-    sections.push({
-      num: "§01",
-      title: "Overview",
-      body: (
-        <p className="font-spec text-ink-2 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
-          {project.overview}
-        </p>
-      ),
-    });
-  if (project.problem)
-    sections.push({
-      num: "§02",
-      title: "Problem",
-      body: (
-        <p className="font-spec text-ink-2 text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.6]">
-          {project.problem}
-        </p>
-      ),
-    });
-  if (project.solution && project.solution.length > 0)
-    sections.push({
-      num: `§0${sections.length + 1}`,
-      title: "Solution",
-      body: (
-        <div className="prose-paper">
-          <PortableText value={project.solution} />
-        </div>
-      ),
-    });
+  const problem = project.problem ?? project.overview;
+  const highlights = project.highlights ?? [];
 
   return (
-    <main className="pt-[clamp(6rem,10vw,9rem)] pb-[clamp(4rem,8vw,7rem)]">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -118,202 +106,171 @@ export default async function ProjectPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkLd) }}
       />
-      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
-        {/* Document metadata strip — mobile collapsed, sm+ full */}
-        <div className="border-paper-rule border-b pb-3">
-          <div className="font-spec-mono text-ink-3 flex items-center gap-2 text-[11px] tracking-[0.04em] uppercase sm:hidden">
-            <span>§</span>
-            <span className="text-ink normal-case">Project</span>
-            <span aria-hidden>·</span>
-            <span className="text-ink normal-case truncate">{project.title}</span>
-            <span
-              aria-hidden
-              className="bg-signal ml-auto inline-block size-1.5 shrink-0 rounded-full"
-            />
-          </div>
-          <dl className="font-spec-mono text-ink-3 hidden text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
-            <Field label="Document">Project</Field>
-            <Field label="Subject">{project.title}</Field>
-            {project.category && <Field label="Category">{project.category}</Field>}
-            <Field label="Status">
-              <span className="text-signal">
-                <span
-                  aria-hidden
-                  className="bg-signal mr-1.5 inline-block size-[6px] -translate-y-px rounded-full"
-                />
-                shipped
-              </span>
-            </Field>
-          </dl>
-        </div>
 
-        {/* Back link */}
-        <div className="mt-6">
-          <Link
-            href="/projects"
-            className="font-spec-mono text-ink-3 hover:text-signal text-[11px] tracking-[0.04em] uppercase transition-colors"
-          >
-            ← All projects
-          </Link>
-        </div>
+      <nav
+        aria-label="Breadcrumb"
+        className="container-page text-muted hidden pt-10 text-[14px] md:block"
+      >
+        <Link href="/projects" className="hover:text-ink transition-colors">
+          Work
+        </Link>{" "}
+        / {project.title}
+      </nav>
 
-        {/* Title block */}
-        <div className="mt-[clamp(2rem,4vw,3.5rem)]">
-          <h1 className="font-spec text-ink max-w-[18ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
-            {project.title}
+      <header className="container-page grid gap-5 pt-5 pb-8 md:grid-cols-[1.4fr_1fr] md:items-end md:gap-14 md:pt-6 md:pb-12">
+        <div>
+          <p className="eyebrow">Case study</p>
+          <h1 className="mt-3 text-[34px] leading-[1.06] tracking-[-0.02em] md:mt-4 md:text-[60px] md:leading-[1.04]">
+            {heading}
           </h1>
-          <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1.0625rem,1.4vw,1.25rem)] leading-[1.55]">
-            {project.tagline}
-          </p>
         </div>
-
-        {/* Spec strip: stack + links */}
-        <div className="border-paper-rule mt-[clamp(2.5rem,4vw,3.5rem)] grid grid-cols-12 gap-x-4 gap-y-2 border-t border-b py-5">
-          {project.techStack?.length > 0 && (
-            <>
-              <dt className="font-spec-mono text-ink-3 col-span-12 text-[11px] tracking-[0.04em] uppercase md:col-span-2">
-                Stack
-              </dt>
-              <dd className="font-spec text-ink-2 col-span-12 text-[14px] leading-[1.55] md:col-span-7">
-                {project.techStack.join(" · ")}
-              </dd>
-            </>
-          )}
-          <dd className="font-spec text-ink-2 col-span-12 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-[14px] md:col-span-3 md:justify-end md:text-right">
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px font-medium transition-colors"
-              >
-                Live site ↗
-              </a>
-            )}
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-signal border-ink-3 hover:border-signal border-b pb-px transition-colors"
-              >
-                Source ↗
-              </a>
-            )}
-          </dd>
-        </div>
-
-        {/* Cover image */}
-        {coverUrl && (
-          <div className="border-paper-rule bg-paper-tint relative mt-[clamp(2rem,4vw,3rem)] aspect-[16/9] overflow-hidden border">
-            <Image
-              src={coverUrl}
-              alt={project.coverImage?.alt ?? `${project.title} — ${project.tagline}`}
-              fill
-              sizes="(max-width: 1280px) 100vw, 1280px"
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
-
-        {/* Case study sections */}
-        {sections.length > 0 && (
-          <div className="mt-[clamp(3rem,5vw,5rem)] grid grid-cols-12 gap-x-6 gap-y-12">
-            {sections.map((s) => (
-              <section key={s.num} className="col-span-12">
-                <header className="border-paper-rule mb-5 flex items-end justify-between border-b pb-3">
-                  <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-                    {s.title}
-                  </h2>
-                  <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-                    {s.num}
-                  </span>
-                </header>
-                {s.body}
-              </section>
+        <div>
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-[14px] md:gap-x-6 md:gap-y-3 md:text-[15px]">
+            {facts.map((f) => (
+              <div key={f.label} className="contents">
+                <dt className="text-muted">{f.label}</dt>
+                <dd className="font-semibold">{f.value}</dd>
+              </div>
             ))}
-          </div>
-        )}
-
-        {/* Results */}
-        {project.results && project.results.length > 0 && (
-          <section className="mt-[clamp(3rem,5vw,5rem)]">
-            <header className="border-paper-rule mb-3 flex items-end justify-between border-b pb-3">
-              <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-                Results
-              </h2>
-              <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-                §0{sections.length + 1} · Measured impact
-              </span>
-            </header>
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
-              {project.results.map((r) => (
-                <div key={r.metric}>
-                  <dt className="font-spec-mono text-ink-3 mb-1 text-[11px] tracking-[0.04em] uppercase">
-                    {r.metric}
-                  </dt>
-                  <dd className="font-spec text-signal text-[clamp(2rem,3.5vw,2.75rem)] leading-[1] font-medium tracking-[-0.025em] tabular-nums">
-                    {r.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        )}
-
-        {/* Footer CTA */}
-        <div className="border-paper-rule mt-[clamp(5rem,8vw,7rem)] flex flex-col items-start justify-between gap-4 border-t pt-6 sm:flex-row sm:items-baseline">
-          <div>
-            <p className="font-spec text-ink text-[clamp(1.125rem,1.5vw,1.375rem)] font-medium tracking-[-0.015em]">
-              Building something similar?
-            </p>
-            <p className="font-spec text-ink-2 mt-1 text-[14px]">
-              I take on full stack development work from Cebu, Philippines.
-            </p>
-          </div>
-          {features.contact ? (
-            <Link
-              href="/contact"
-              className="text-ink hover:text-signal border-ink hover:border-signal font-spec border-b pb-px text-[15px] font-medium transition-colors"
-            >
-              Start a conversation →
-            </Link>
-          ) : (
-            <Link
-              href="/projects"
-              className="font-spec-mono text-ink-3 hover:text-signal text-[11px] tracking-[0.04em] uppercase transition-colors"
-            >
-              ← Back to projects
-            </Link>
+          </dl>
+          {(project.liveUrl || project.githubUrl) && (
+            <div className="mt-5 flex gap-6 text-[15px]">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-mango"
+                >
+                  Visit the live site
+                </a>
+              )}
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-mango"
+                >
+                  Source code
+                </a>
+              )}
+            </div>
           )}
         </div>
+      </header>
 
-        {/* Document footer */}
-        <div className="border-paper-rule mt-[clamp(2rem,3vw,3rem)] flex items-baseline justify-between border-t pt-4">
-          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-            End of document
-          </span>
-          {project._updatedAt && (
-            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase tabular-nums">
-              Updated{" "}
-              {new Date(project._updatedAt).toLocaleDateString("en-US", {
-                month: "short",
-                year: "numeric",
-              })}
-            </span>
-          )}
-        </div>
+      <div className="mx-auto max-w-[1280px] px-3 md:px-14">
+        <ProjectVisual
+          project={project}
+          coverUrl={coverUrl}
+          sizes="(min-width: 1280px) 1168px, 100vw"
+          priority
+          className="h-[300px] rounded-[20px] md:h-[560px]"
+        />
       </div>
-    </main>
-  );
-}
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-baseline gap-2">
-      <dt className="text-ink-3 select-none">{label}</dt>
-      <dd className="text-ink font-normal normal-case">{children}</dd>
-    </div>
+      {problem && (
+        <section className="container-page grid gap-3 pt-10 md:grid-cols-[1fr_2fr] md:gap-14 md:pt-24">
+          <h2 className="text-[26px] leading-[1.1] md:text-[36px]">The problem</h2>
+          <p className="max-w-[58ch] text-[16px] leading-[1.6] text-[oklch(32%_0.02_50)] md:text-[20px]">
+            {problem}
+          </p>
+        </section>
+      )}
+
+      {(highlights.length > 0 || (project.solution?.length ?? 0) > 0) && (
+        <section className="container-page grid gap-3 pt-9 md:grid-cols-[1fr_2fr] md:gap-14 md:pt-24">
+          <h2 className="text-[26px] leading-[1.1] md:text-[36px]">What I built</h2>
+          {highlights.length > 0 ? (
+            <ol className="md:border-ink md:border-t-[1.5px]">
+              {highlights.map((h, i) => (
+                <li
+                  key={h.title}
+                  className="border-rule grid grid-cols-[32px_1fr] gap-3 border-t py-4 md:grid-cols-[48px_1fr] md:gap-5 md:border-t-0 md:border-b md:py-6"
+                >
+                  <span className="font-heading text-mango-deep text-[20px] md:text-[28px]">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="font-sans text-[16px] font-semibold md:text-[20px]">
+                      {h.title}
+                    </h3>
+                    <p className="text-muted mt-1 max-w-[56ch] text-[14px] leading-normal md:mt-1.5 md:text-[16px] md:leading-[1.55]">
+                      {h.body}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="prose-post">
+              <PortableText value={project.solution!} />
+            </div>
+          )}
+        </section>
+      )}
+
+      {project.results && project.results.length > 0 && (
+        <section className="container-page grid gap-3 pt-9 md:grid-cols-[1fr_2fr] md:gap-14 md:pt-24">
+          <h2 className="text-[26px] leading-[1.1] md:text-[36px]">The result</h2>
+          <dl className="grid grid-cols-2 gap-6 md:grid-cols-3">
+            {project.results.map((r) => (
+              <div key={r.metric}>
+                <dd className="font-heading text-mango-deep text-[36px] leading-none tabular-nums md:text-[44px]">
+                  {r.value}
+                </dd>
+                <dt className="text-muted mt-2 text-[14px]">{r.metric}</dt>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
+      {project.localAngle?.text && (
+        <section className="mx-auto mt-10 max-w-[1280px] px-3 md:mt-24 md:px-14">
+          <div className="bg-ink text-paper grid gap-4 rounded-[24px] px-5 py-8 md:grid-cols-[1fr_2fr] md:gap-14 md:px-14 md:py-12">
+            <h2 className="text-[24px] leading-[1.15] md:text-[32px]">
+              What this means for a Cebu business
+            </h2>
+            <div>
+              <p className="max-w-[56ch] text-[16px] leading-[1.6] text-[oklch(88%_0.02_70)] md:text-[18px]">
+                {project.localAngle.text}
+              </p>
+              {(project.localAngle.chips?.length ?? 0) > 0 && (
+                <ul className="mt-5 flex flex-wrap gap-2 md:mt-6">
+                  {project.localAngle.chips!.map((c) => (
+                    <li
+                      key={c}
+                      className="border-dark-rule rounded-full border-[1.5px] px-3.5 py-2 text-[14px] font-semibold"
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {next ? (
+        <div className="container-page">
+          <div className="border-rule mt-10 mb-12 flex items-center justify-between gap-4 border-t pt-7 md:mt-24 md:mb-24">
+            <span className="text-muted text-[14px]">Next case study</span>
+            <Link
+              href={`/projects/${next.slug.current}`}
+              className="font-heading text-right text-[22px] transition-colors duration-200 hover:text-[oklch(55%_0.15_55)] md:text-[28px]"
+            >
+              {next.title}
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="h-12 md:h-24" />
+      )}
+
+      <CtaBand heading="Need something like this for your business?" profile={profile} />
+    </>
   );
 }
