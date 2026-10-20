@@ -1,117 +1,89 @@
 import Link from "next/link";
 import { getProfile, getResumeUrl, FALLBACK_PROFILE } from "@/lib/sanity";
 import { features } from "@/lib/features";
+import { Lockup } from "@/components/brand/Logo";
 
-const allNavLinks = [
-  { href: "/projects", label: "Projects" },
-  { href: "/blog", label: "Blog", feature: "blog" as const },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact", feature: "contact" as const },
-];
-const navLinks = allNavLinks.filter((l) => !l.feature || features[l.feature]);
+type FooterLink = { href: string; label: string; external?: boolean };
 
 export async function Footer() {
-  const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
+  const profile = await getProfile().catch(() => FALLBACK_PROFILE);
   const resumeLink = getResumeUrl(profile);
   const year = new Date().getFullYear();
-  const available = profile.availableForFreelance || profile.availableForFullTime;
+
+  const navigate: FooterLink[] = [
+    { href: "/#services", label: "What I build" },
+    { href: "/projects", label: "Work" },
+    { href: "/about", label: "About" },
+    ...(features.blog ? [{ href: "/blog", label: "Blog" }] : []),
+    ...(features.contact ? [{ href: "/contact", label: "Contact" }] : []),
+  ];
+
+  const contact = [
+    { href: `mailto:${profile.email}`, label: profile.email },
+    profile.bookingUrl && { href: profile.bookingUrl, label: "Book a call", external: true },
+    profile.facebookUrl && { href: profile.facebookUrl, label: "Facebook", external: true },
+    profile.messengerUrl && { href: profile.messengerUrl, label: "Messenger", external: true },
+  ].filter(Boolean) as FooterLink[];
 
   const elsewhere = [
-    profile.bookingUrl && { href: profile.bookingUrl, label: "Book a call" },
-    profile.githubUrl && { href: profile.githubUrl, label: "GitHub" },
-    profile.linkedinUrl && { href: profile.linkedinUrl, label: "LinkedIn" },
-    profile.twitterUrl && { href: profile.twitterUrl, label: "Twitter" },
-    resumeLink && { href: resumeLink, label: "Resume (PDF)" },
-  ].filter(Boolean) as { href: string; label: string }[];
+    profile.githubUrl && { href: profile.githubUrl, label: "GitHub", external: true },
+    profile.linkedinUrl && { href: profile.linkedinUrl, label: "LinkedIn", external: true },
+    resumeLink && { href: resumeLink, label: "Resume (PDF)", external: true },
+  ].filter(Boolean) as FooterLink[];
 
   return (
-    <footer className="border-paper-rule mt-[clamp(4rem,8vw,7rem)] border-t">
-      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)] py-[clamp(2.5rem,4vw,4rem)]">
-        <div className="grid grid-cols-12 gap-x-6 gap-y-10">
-          {/* Brand block */}
-          <div className="col-span-12 md:col-span-5">
-            <Link
-              href="/"
-              className="font-spec text-ink hover:text-signal inline-flex items-baseline text-xl font-medium transition-colors"
-            >
-              <span className="text-signal">M</span>
-              <span>ichael Padin</span>
+    <footer className="mx-auto max-w-[1328px] p-3 md:p-6">
+      <div className="bg-ink text-paper rounded-[24px] px-5 pt-8 pb-6 md:rounded-[28px] md:px-14 md:pt-14 md:pb-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-[2fr_1fr_1fr_1fr] md:gap-10">
+          <div className="col-span-2 flex flex-col gap-4 md:col-span-1">
+            <Link href="/" aria-label="Michael Padin, home" className="self-start">
+              <Lockup tone="dark" />
             </Link>
-            <p className="font-spec text-ink-2 mt-2 text-[14px]">
-              {profile.title}, {profile.location}
+            <p className="text-dark-muted max-w-[32ch] text-[15px] leading-normal">
+              Booking, ordering, inventory and staff systems for local businesses.
             </p>
-            <div className="mt-3 inline-flex items-center gap-2">
-              <span
-                aria-hidden
-                className={`size-1.5 rounded-full ${available ? "bg-signal" : "bg-ink-3"}`}
-              />
-              <span
-                className={`font-spec-mono text-[11px] tracking-[0.04em] uppercase ${available ? "text-signal" : "text-ink-2"}`}
-              >
-                {available ? profile.availabilityNote : "Not currently available"}
-              </span>
-            </div>
+            <span className="text-dark-muted text-[14px]">Replies within a day, Mon–Fri.</span>
           </div>
-
-          {/* Navigate */}
-          <div className="col-span-12 sm:col-span-6 md:col-span-3">
-            <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
-              Navigate
-            </h3>
-            <ul className="space-y-1.5">
-              {navLinks.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="font-spec text-ink-2 hover:text-signal text-[14px] transition-colors"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Elsewhere */}
-          <div className="col-span-12 sm:col-span-6 md:col-span-4">
-            <h3 className="font-spec-mono text-ink-3 mb-3 text-[11px] tracking-[0.04em] uppercase">
-              Elsewhere
-            </h3>
-            <ul className="space-y-1.5">
-              <li>
-                <a
-                  href={`mailto:${profile.email}`}
-                  className="font-spec-mono text-ink hover:text-signal text-[14px] break-all transition-colors"
-                >
-                  {profile.email}
-                </a>
-              </li>
-              {elsewhere.map((l) => (
-                <li key={l.href}>
-                  <a
-                    href={l.href}
-                    target={l.href.startsWith("mailto") ? undefined : "_blank"}
-                    rel="noopener noreferrer"
-                    className="font-spec text-ink-2 hover:text-signal text-[14px] transition-colors"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Column title="Navigate" links={navigate} />
+          <Column title="Contact" links={contact} />
+          <Column title="Elsewhere" links={elsewhere} />
         </div>
-
-        {/* Colophon */}
-        <div className="border-paper-rule mt-[clamp(2.5rem,4vw,3.5rem)] flex flex-col items-start justify-between gap-3 border-t pt-5 sm:flex-row sm:items-baseline">
-          <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-            © {year} {profile.name} · Built with Next.js, Sanity, Cloudflare
-          </p>
-          <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase tabular-nums">
-            REV {year}
-          </p>
+        <div className="mt-10 flex flex-col gap-2 border-t border-[oklch(35%_0.02_50)] pt-5 text-[13px] text-[oklch(70%_0.02_70)] sm:flex-row sm:justify-between md:mt-12">
+          <span>© {year} Michael Padin · Cebu, Philippines</span>
+          <span>Built with Next.js, Sanity and Cloudflare</span>
         </div>
       </div>
     </footer>
+  );
+}
+
+function Column({ title, links }: { title: string; links: FooterLink[] }) {
+  if (links.length === 0) return null;
+  return (
+    <div className="flex min-w-0 flex-col gap-2.5">
+      <span className="font-mono text-[11px] tracking-[0.08em] text-[oklch(70%_0.02_70)] uppercase">
+        {title}
+      </span>
+      {links.map((l) =>
+        l.external || l.href.startsWith("mailto:") ? (
+          <a
+            key={l.href}
+            href={l.href}
+            {...(l.external && { target: "_blank", rel: "noopener noreferrer" })}
+            className="hover:text-mango py-0.5 text-[15px] break-words text-[oklch(92%_0.01_80)] transition-colors duration-200"
+          >
+            {l.label}
+          </a>
+        ) : (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="hover:text-mango py-0.5 text-[15px] text-[oklch(92%_0.01_80)] transition-colors duration-200"
+          >
+            {l.label}
+          </Link>
+        ),
+      )}
+    </div>
   );
 }

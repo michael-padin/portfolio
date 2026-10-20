@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, JetBrains_Mono, DM_Sans } from "next/font/google";
+import { Schibsted_Grotesk, Fragment_Mono } from "next/font/google";
 import Script from "next/script";
 import { draftMode } from "next/headers";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -16,34 +16,26 @@ import { features } from "@/lib/features";
 import { isTelegramEnabled } from "@/lib/telegram";
 import "./globals.css";
 
-const instrumentSerif = Instrument_Serif({
+const schibsted = Schibsted_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-schibsted",
+  display: "swap",
+});
+
+const fragmentMono = Fragment_Mono({
   subsets: ["latin"],
   weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-dm-sans",
+  variable: "--font-fragment",
   display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
+  const profile = await getProfile().catch(() => FALLBACK_PROFILE);
   const siteUrl = profile.websiteUrl ?? "https://michaelpadin.com";
   const ogImageUrl = profile.ogImage ? imageUrl(profile.ogImage, 1200, 630) : null;
   const ogImage = ogImageUrl ?? "/opengraph-image";
-  const ogTitle = `${profile.name} — ${profile.title}`;
+  const ogTitle = `${profile.name}: ${profile.title}`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -85,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     alternates: { canonical: siteUrl },
-    category: "technology",
+    category: "business",
   };
 }
 
@@ -97,7 +89,7 @@ function handleFromUrl(url: string): string | undefined {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const profile = (await getProfile().catch(() => null)) ?? FALLBACK_PROFILE;
+  const profile = await getProfile().catch(() => FALLBACK_PROFILE);
   const siteUrl = profile.websiteUrl ?? "https://michaelpadin.com";
   const isDraftMode = (await draftMode()).isEnabled;
 
@@ -117,9 +109,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     email: `mailto:${profile.email}`,
     ...(photoUrl && { image: photoUrl }),
     knowsAbout: profile.terminalSkills,
-    sameAs: [profile.githubUrl, profile.linkedinUrl, profile.twitterUrl, profile.websiteUrl].filter(
-      Boolean,
-    ),
+    sameAs: [
+      profile.githubUrl,
+      profile.linkedinUrl,
+      profile.facebookUrl,
+      profile.twitterUrl,
+      profile.websiteUrl,
+    ].filter(Boolean),
     address: {
       "@type": "PostalAddress",
       addressLocality: city,
@@ -152,16 +148,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   };
 
   return (
-    <html
-      lang="en"
-      className={`${dmSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="en" className={`${schibsted.variable} ${fragmentMono.variable}`}>
       <head>
-        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=general-sans@300,500,700&f[]=fragment-mono@400&display=swap"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
@@ -171,7 +159,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="bg-paper text-ink font-spec antialiased">
+      <body className="bg-paper text-ink font-sans antialiased">
         {/* Umami — privacy-first, no cookie banner */}
         {umamiId && (
           <Script
@@ -181,10 +169,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             strategy="afterInteractive"
           />
         )}
-        <Navbar />
+        <Navbar bookingUrl={profile.bookingUrl} />
         <main>{children}</main>
         <Footer />
-        {features.chatbot && <ChatBot />}
+        {features.chatbot && <ChatBot bookingUrl={profile.bookingUrl} />}
         {isTelegramEnabled() && <VisitTracker />}
         {isDraftMode && <VisualEditing />}
         {SanityLive && <SanityLive />}
