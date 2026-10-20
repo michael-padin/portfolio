@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import {
   getProjectBySlug,
   getAllProjects,
   getProfile,
   imageUrl,
+  projectCover,
+  projectGallery,
   FALLBACK_PROFILE,
 } from "@/lib/sanity";
 import { pageMetadata, siteUrl } from "@/lib/seo";
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const ogImg =
     (project.ogImage && imageUrl(project.ogImage, 1200, 630)) ??
-    imageUrl(project.coverImage, 1200, 630);
+    projectCover(project, 1200, 630)?.src;
   return pageMetadata({
     title: project.seoTitle ?? project.headline ?? project.title,
     description: project.seoDescription ?? project.tagline,
@@ -53,7 +56,10 @@ export default async function ProjectPage({ params }: Props) {
   ]);
   if (!project) notFound();
 
-  const coverUrl = imageUrl(project.coverImage, 2400, 1150);
+  // Width only: screenshots keep their ratio and the frame crops from the top
+  const cover = projectCover(project, 2400);
+  const coverUrl = cover && new URL(cover.src, siteUrl).toString();
+  const gallery = projectGallery(project);
   const projectUrl = `${siteUrl}/projects/${project.slug.current}`;
   const heading = project.headline ?? project.title;
   const index = all.findIndex((p) => p.slug.current === project.slug.current);
@@ -163,7 +169,7 @@ export default async function ProjectPage({ params }: Props) {
       <div className="mx-auto max-w-[1280px] px-3 md:px-14">
         <ProjectVisual
           project={project}
-          coverUrl={coverUrl}
+          cover={cover}
           sizes="(min-width: 1280px) 1168px, 100vw"
           priority
           className="h-[300px] rounded-[20px] md:h-[560px]"
@@ -208,6 +214,42 @@ export default async function ProjectPage({ params }: Props) {
               <PortableText value={project.solution!} />
             </div>
           )}
+        </section>
+      )}
+
+      {gallery.length > 0 && (
+        <section className="container-page pt-9 md:pt-24">
+          <div className="flex flex-col gap-1 md:flex-row md:items-baseline md:justify-between md:gap-6">
+            <h2 className="text-[26px] leading-[1.1] md:text-[36px]">Inside the system</h2>
+            <p className="text-subtle text-[14px]">
+              Shown with example data, not the client&apos;s real records.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-x-8 gap-y-8 md:mt-8 md:grid-cols-2 md:gap-y-10">
+            {gallery.map((img) => (
+              <figure key={img.src}>
+                <a
+                  href={img.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border-rule bg-tint relative block aspect-[16/10] overflow-hidden rounded-[16px] border"
+                >
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    sizes="(min-width: 768px) 584px, 100vw"
+                    className="object-cover object-top"
+                  />
+                </a>
+                {img.caption && (
+                  <figcaption className="text-muted mt-3 text-[14px] leading-normal md:text-[15px]">
+                    {img.caption}
+                  </figcaption>
+                )}
+              </figure>
+            ))}
+          </div>
         </section>
       )}
 

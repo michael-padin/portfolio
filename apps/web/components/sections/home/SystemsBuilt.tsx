@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { imageUrl, projectTag, type Project } from "@/lib/sanity";
+import { projectCover, projectTag, type Project } from "@/lib/sanity";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 
 export function SystemsBuilt({ projects }: { projects: Project[] }) {
@@ -17,7 +17,7 @@ export function SystemsBuilt({ projects }: { projects: Project[] }) {
           <ProjectCard
             key={p._id}
             project={p}
-            coverUrl={imageUrl(p.coverImage, 1200, 750)}
+            cover={projectCover(p, 1200, 750)}
             tag={projectTag(p)}
           />
         ))}

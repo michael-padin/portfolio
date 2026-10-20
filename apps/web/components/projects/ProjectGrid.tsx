@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import type { Project, ProjectKind } from "@/lib/sanity";
+import type { Project, ProjectKind, StaticImage } from "@/lib/sanity";
 import { ProjectCard } from "./ProjectCard";
 
-export type GridItem = { project: Project; coverUrl: string | null; tag: string };
+export type GridItem = { project: Project; cover: StaticImage | null; tag: string };
 
 const FILTERS: { value: ProjectKind | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -43,7 +43,7 @@ export function ProjectGrid({ items }: { items: GridItem[] }) {
           <ProjectCard
             key={i.project._id}
             project={i.project}
-            coverUrl={i.coverUrl}
+            cover={i.cover}
             tag={i.tag}
             showStack
           />

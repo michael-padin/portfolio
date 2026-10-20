@@ -5,38 +5,77 @@
  *   pnpm --filter @portfolio/studio seed:projects -- --apply # writes
  *
  * Projects are matched by slug. Existing ones get their copy fields replaced;
- * cover images, OG images, rich-text solutions and results are left alone.
+ * OG images, rich-text solutions and results are left alone. Cover and gallery
+ * screenshots (from apps/web/public) are uploaded only when the project has
+ * none in Sanity yet, so images picked in the studio are never replaced.
  * New projects are created as published documents.
  */
+import { createReadStream, existsSync } from "node:fs";
+import path from "node:path";
 import { getCliClient } from "sanity/cli";
-import { SEED_PROJECTS } from "@portfolio/sanity-schemas/seed";
+import { SEED_PROJECTS, type SeedImage } from "@portfolio/sanity-schemas/seed";
 
 const apply = process.argv.includes("--apply");
 const client = getCliClient({ apiVersion: "2025-01-01" });
+// `pnpm --filter @portfolio/studio` runs from apps/studio
+const PUBLIC_DIR = path.resolve(process.cwd(), "../web/public");
 
 const withKeys = <T extends object>(items: T[], prefix: string) =>
   items.map((item, i) => ({ _key: `${prefix}${i}`, ...item }));
 
+async function uploadImage(img: SeedImage) {
+  const file = path.join(PUBLIC_DIR, img.src);
+  if (!existsSync(file)) throw new Error(`Missing image: ${file}`);
+  // Sanity de-duplicates assets by content hash, so re-runs don't pile up copies
+  const asset = await client.assets.upload("image", createReadStream(file), {
+    filename: path.basename(file),
+  });
+  return {
+    _type: "image" as const,
+    asset: { _type: "reference" as const, _ref: asset._id },
+    alt: img.alt,
+    ...(img.caption && { caption: img.caption }),
+  };
+}
+
+type Existing = { _id: string; slug: string; hasCover: boolean; galleryCount: number };
+
 async function main() {
-  const existing = await client.fetch<{ _id: string; slug: string }[]>(
-    `*[_type == "project" && !(_id in path("drafts.**"))]{ _id, "slug": slug.current }`,
+  const existing = await client.fetch<Existing[]>(
+    `*[_type == "project" && !(_id in path("drafts.**"))]{
+      _id, "slug": slug.current, "hasCover": defined(coverImage), "galleryCount": count(gallery)
+    }`,
   );
-  const idBySlug = new Map(existing.map((d) => [d.slug, d._id]));
+  const bySlug = new Map(existing.map((d) => [d.slug, d]));
 
   const tx = client.transaction();
-  for (const { slug, highlights, localAngle, ...fields } of SEED_PROJECTS) {
+  for (const { slug, highlights, localAngle, cover, gallery, ...fields } of SEED_PROJECTS) {
+    const doc = bySlug.get(slug);
+    const needsCover = Boolean(cover) && !doc?.hasCover;
+    const needsGallery = (gallery?.length ?? 0) > 0 && !doc?.galleryCount;
+
+    const images: Record<string, unknown> = {};
+    if (apply && needsCover && cover) images.coverImage = await uploadImage(cover);
+    if (apply && needsGallery && gallery) {
+      images.gallery = withKeys(await Promise.all(gallery.map(uploadImage)), "g");
+    }
+
     const copy = {
       ...fields,
       highlights: withKeys(highlights, "h"),
       ...(localAngle && { localAngle }),
+      ...images,
     };
-    const id = idBySlug.get(slug);
-    if (id) {
-      console.log(`update  ${slug}  (${id})`);
-      tx.patch(id, (p) => p.set(copy));
+    const note = [needsCover && "cover", needsGallery && `${gallery?.length} screenshots`]
+      .filter(Boolean)
+      .join(" + ");
+
+    if (doc) {
+      console.log(`update  ${slug}  (${doc._id})${note ? `  + ${note}` : ""}`);
+      tx.patch(doc._id, (p) => p.set(copy));
     } else {
       const newId = `project-${slug}`;
-      console.log(`create  ${slug}  (${newId})`);
+      console.log(`create  ${slug}  (${newId})${note ? `  + ${note}` : ""}`);
       tx.createIfNotExists({
         _id: newId,
         _type: "project",
@@ -53,7 +92,7 @@ async function main() {
     await tx.commit();
     console.log("Done.");
   } else {
-    console.log("\nDry run. Re-run with --apply to write.");
+    console.log("\nDry run. Re-run with --apply to write (images upload on --apply only).");
   }
 }
 

@@ -13,14 +13,16 @@ export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
+/** Pass a height to crop to that size; leave it out to keep the image's own ratio. */
 export function imageUrl(
   source: SanityImageSource | undefined,
   width: number,
-  height: number,
+  height?: number,
 ): string | null {
   if (!source) return null;
   const img = urlFor(source);
-  return img ? img.width(width).height(height).url() : null;
+  if (!img) return null;
+  return (height ? img.width(width).height(height) : img.width(width)).url();
 }
 
 // ── Fetch helper ────────────────────────────────────────────────
@@ -55,6 +57,10 @@ export type Project = {
   typeLabel?: string;
   coverImage?: SanityImage;
   coverMock?: "team-calendar" | "salon-dashboard";
+  gallery?: SanityImage[];
+  /** Static images from the seed data, used when Sanity has none. */
+  coverStatic?: StaticImage;
+  galleryStatic?: StaticImage[];
   techStack: string[];
   category?: string;
   liveUrl?: string;
@@ -90,6 +96,8 @@ export type Post = {
   ogImage?: SanityImage;
 };
 
+export type StaticImage = { src: string; alt: string; caption?: string };
+
 export type SanityProject = Project;
 export type SanityPost = Post;
 
@@ -107,6 +115,24 @@ export function projectTag(p: Project): string {
   return [kind, who].filter(Boolean).join(" · ");
 }
 
+/** The project's cover: its Sanity image, or the static fallback. */
+export function projectCover(p: Project, width: number, height?: number): StaticImage | null {
+  const src = imageUrl(p.coverImage, width, height);
+  if (src) return { src, alt: p.coverImage?.alt ?? `${p.title}: ${p.headline ?? p.tagline}` };
+  return p.coverStatic ?? null;
+}
+
+/** Screenshots for the case study: Sanity's gallery, or the static fallback. */
+export function projectGallery(p: Project): StaticImage[] {
+  const fromSanity = (p.gallery ?? [])
+    .map((img) => {
+      const src = imageUrl(img, 1600);
+      return src ? { src, alt: img.alt ?? "", caption: img.caption } : null;
+    })
+    .filter((img): img is NonNullable<typeof img> => img !== null);
+  return fromSanity.length > 0 ? fromSanity : (p.galleryStatic ?? []);
+}
+
 // ── Queries ─────────────────────────────────────────────────────
 const PROJECT_CARD = `_id, _updatedAt, title, slug, headline, tagline, kind, client, builtAt,
   coverImage{..., alt, caption}, coverMock, techStack, category, liveUrl, githubUrl, featured, order`;
@@ -122,6 +148,7 @@ const allProjectsQuery = defineQuery(
 const projectBySlugQuery = defineQuery(
   `*[_type == "project" && slug.current == $slug][0] {
     ${PROJECT_CARD}, role, typeLabel, overview, problem, highlights, solution, localAngle,
+    gallery[]{..., alt, caption},
     results, publishedAt, seoTitle, seoDescription, ogImage{..., alt}
   }`,
 );
@@ -153,24 +180,32 @@ const profileQuery = defineQuery(
 );
 
 // ── Fallback projects (no Sanity, or Sanity has none yet) ───────
-export const FALLBACK_PROJECTS: Project[] = SEED_PROJECTS.map(({ slug, ...p }) => ({
+export const FALLBACK_PROJECTS: Project[] = SEED_PROJECTS.map(({ slug, cover, gallery, ...p }) => ({
   ...p,
   _id: `fallback-${slug}`,
   slug: { current: slug },
+  coverStatic: cover,
+  galleryStatic: gallery,
 }));
+
+/** Lets a Sanity project without images fall back to the seed's static ones. */
+function withStaticImages(p: Project): Project {
+  const seed = FALLBACK_PROJECTS.find((f) => f.slug.current === p.slug.current);
+  return seed ? { ...p, coverStatic: seed.coverStatic, galleryStatic: seed.galleryStatic } : p;
+}
 
 // ── Data fetchers ───────────────────────────────────────────────
 export async function getFeaturedProjects(): Promise<Project[]> {
   const fallback = FALLBACK_PROJECTS.filter((p) => p.featured);
   if (!isSanityConfigured) return fallback;
   const projects = await fetchSanity<Project[]>(featuredProjectsQuery, {}, ["project"]);
-  return projects.length > 0 ? projects : fallback;
+  return projects.length > 0 ? projects.map(withStaticImages) : fallback;
 }
 
 export async function getAllProjects(): Promise<Project[]> {
   if (!isSanityConfigured) return FALLBACK_PROJECTS;
   const projects = await fetchSanity<Project[]>(allProjectsQuery, {}, ["project"]);
-  return projects.length > 0 ? projects : FALLBACK_PROJECTS;
+  return projects.length > 0 ? projects.map(withStaticImages) : FALLBACK_PROJECTS;
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
@@ -180,7 +215,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
     "project",
     `project:${slug}`,
   ]);
-  return project ?? fallback;
+  return project ? withStaticImages(project) : fallback;
 }
 
 export async function getFeaturedPosts(): Promise<Post[]> {

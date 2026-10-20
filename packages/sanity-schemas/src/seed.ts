@@ -26,6 +26,15 @@ export interface SeedProject {
   highlights: { title: string; body: string }[];
   localAngle?: { text: string; chips: string[] };
   coverMock?: "team-calendar" | "salon-dashboard";
+  /** Paths under apps/web/public. The seed script uploads them to Sanity. */
+  cover?: SeedImage;
+  gallery?: SeedImage[];
+}
+
+export interface SeedImage {
+  src: string;
+  alt: string;
+  caption?: string;
 }
 
 export const SEED_PROJECTS: SeedProject[] = [
@@ -61,6 +70,27 @@ export const SEED_PROJECTS: SeedProject[] = [
       {
         title: "Digital consent and records",
         body: "Thirteen paper consent forms became digital ones, signed and kept on the client's profile next to their session notes.",
+      },
+    ],
+    cover: {
+      src: "/work/hermosa-glow/calendar.webp",
+      alt: "Hermosa Glow staff calendar: a day of bookings across facial beds, the laser and body machines, with check-ins and a booking waiting for confirmation",
+    },
+    gallery: [
+      {
+        src: "/work/hermosa-glow/booking.webp",
+        alt: "Online booking page with a treatment picked and the free times for the week",
+        caption: "Online booking: pick a treatment, see the free times, done.",
+      },
+      {
+        src: "/work/hermosa-glow/today.webp",
+        alt: "Owner's today screen listing the day's visits and a to-do list",
+        caption: "The owner's morning view: today's visits and what needs doing.",
+      },
+      {
+        src: "/work/hermosa-glow/website.webp",
+        alt: "Hermosa Glow public website homepage",
+        caption: "The clinic's website, where bookings start.",
       },
     ],
     localAngle: {
@@ -108,6 +138,27 @@ export const SEED_PROJECTS: SeedProject[] = [
         body: "A monthly income statement with revenue, costs and profit, and a drill-down into any single day.",
       },
     ],
+    cover: {
+      src: "/work/mil/dashboard.webp",
+      alt: "MIL dashboard with today's takings by payment method, best-selling designs and tasks that need doing",
+    },
+    gallery: [
+      {
+        src: "/work/mil/inventory.webp",
+        alt: "Inventory list of shoe designs by colour, size and branch, with a low-stock flag",
+        caption: "Stock by design, colour and size for every branch, with low-stock flags.",
+      },
+      {
+        src: "/work/mil/payroll.webp",
+        alt: "Payroll for a pay period with hours, overtime and net pay per employee",
+        caption: "Payroll worked out from attendance, ready to approve.",
+      },
+      {
+        src: "/work/mil/income-statement.webp",
+        alt: "Monthly income statement with sales, cost of goods and operating expenses",
+        caption: "The month's numbers without rebuilding a spreadsheet.",
+      },
+    ],
     localAngle: {
       text: "Any shop juggling a stockroom, consignors and a staff payroll has the same headaches. That includes boutiques, hardware stores, pharmacies and bakeries with more than one branch.",
       chips: ["Boutiques", "Hardware stores", "Pharmacies", "Bakeries", "Multi-branch retail"],
@@ -146,6 +197,27 @@ export const SEED_PROJECTS: SeedProject[] = [
       {
         title: "Client billing",
         body: "A weekly sales statement for each customer, with VAT and withholding tax worked out, exported to Excel and PDF.",
+      },
+    ],
+    cover: {
+      src: "/work/kasper-trucking/payroll.webp",
+      alt: "Kasper Trucking pay week: net pay, deliveries and bags, and a payslip row for each crew member",
+    },
+    gallery: [
+      {
+        src: "/work/kasper-trucking/dashboard.webp",
+        alt: "Overview of the week's deliveries, bags hauled and deliveries still without a receipt",
+        caption: "The week at a glance, including what still needs a receipt.",
+      },
+      {
+        src: "/work/kasper-trucking/billing.webp",
+        alt: "Client billing statement with delivered kilos per route, VAT and withholding tax",
+        caption: "A client statement with VAT and withholding worked out.",
+      },
+      {
+        src: "/work/kasper-trucking/delivery.webp",
+        alt: "One truck run with five drops, bag counts and the crew's pay",
+        caption: "One run, five drops: bags, crew pay and the delivery receipt.",
       },
     ],
     localAngle: {

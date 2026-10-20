@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {
   getAllProjects,
   getProfile,
-  imageUrl,
+  projectCover,
   projectTag,
   FALLBACK_PROFILE,
   FALLBACK_PROJECTS,
@@ -26,7 +26,7 @@ export default async function ProjectsPage() {
 
   const items = projects.map((p) => ({
     project: p,
-    coverUrl: imageUrl(p.coverImage, 1200, 750),
+    cover: projectCover(p, 1200, 750),
     tag: projectTag(p),
   }));
 

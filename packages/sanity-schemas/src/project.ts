@@ -95,6 +95,27 @@ export const projectSchema = defineType({
       ],
     }),
     defineField({
+      name: "gallery",
+      title: "Gallery",
+      description: "Screenshots shown on the case study under “Inside the system”.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "image",
+          fields: [
+            {
+              name: "alt",
+              title: "Alt text",
+              type: "string",
+              validation: (rule) => rule.required().max(200),
+            },
+            { name: "caption", title: "Caption", type: "string" },
+          ],
+        }),
+      ],
+      validation: (rule) => rule.max(6),
+    }),
+    defineField({
       name: "coverMock",
       title: "Use a built-in mock instead of an image",
       description: "Shown when there's no cover image.",
