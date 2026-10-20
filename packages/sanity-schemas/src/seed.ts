@@ -176,7 +176,7 @@ export const SEED_PROJECTS: SeedProject[] = [
     role: "Design, build and support",
     typeLabel: "Operations, payroll & billing system",
     techStack: ["Next.js", "PostgreSQL", "Prisma", "React PDF", "Vercel"],
-    liveUrl: "https://kaspertrucking.com",
+    // liveUrl: "https://kaspertrucking.com" — add back once the apex domain resolves
     featured: true,
     order: 3,
     problem:
