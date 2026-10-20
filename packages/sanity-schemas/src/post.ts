@@ -73,11 +73,38 @@ export const postSchema = defineType({
             { name: "filename", type: "string", title: "Filename" },
           ],
         },
+        {
+          type: "object",
+          name: "comparisonTable",
+          title: "Comparison table",
+          description: "Two columns, e.g. “You need a website if…” vs “You need a system if…”",
+          fields: [
+            { name: "leftTitle", type: "string", title: "Left column heading" },
+            { name: "rightTitle", type: "string", title: "Right column heading" },
+            {
+              name: "rows",
+              type: "array",
+              title: "Rows",
+              of: [
+                {
+                  type: "object",
+                  fields: [
+                    { name: "left", type: "string", title: "Left" },
+                    { name: "right", type: "string", title: "Right" },
+                  ],
+                  preview: { select: { title: "left", subtitle: "right" } },
+                },
+              ],
+            },
+          ],
+          preview: { select: { title: "leftTitle", subtitle: "rightTitle" } },
+        },
       ],
     }),
     defineField({
       name: "tags",
       title: "Tags",
+      description: "The first tag is the post's category (Guides, Pricing, Examples, Tips).",
       type: "array",
       of: [{ type: "string" }],
     }),
