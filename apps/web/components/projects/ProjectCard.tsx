@@ -1,50 +1,75 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Project, StaticImage } from "@/lib/sanity";
 import { TeamCalendar } from "@/components/mocks/TeamCalendar";
 import { SalonDashboard } from "@/components/mocks/SalonDashboard";
 import { ImageSlot } from "@/components/ui/ImageSlot";
+import { BrowserWindow, PhoneFrame, Stage } from "./ScreenFrame";
 
 /**
- * A project's visual: its cover image, a built-in HTML mock, or a striped
- * placeholder. `cover` is resolved server-side so this stays usable from
- * client components.
+ * A project's visual: its screenshot staged in a browser window, a built-in
+ * HTML mock, or a striped placeholder. Images are resolved server-side so this
+ * stays usable from client components.
+ *
+ * The window is wider than the stage on purpose: it runs off the bottom-right
+ * edge, which crops the app to its top-left corner and keeps the text readable
+ * at card size.
  */
 export function ProjectVisual({
   project,
   cover,
+  phone,
+  variant = "card",
   sizes,
   priority,
-  className = "aspect-[16/10] rounded-[16px] md:rounded-[20px]",
 }: {
   project: Project;
   cover: StaticImage | null;
+  phone?: StaticImage | null;
+  variant?: "card" | "hero";
   sizes: string;
   priority?: boolean;
-  className?: string;
 }) {
+  const hero = variant === "hero";
+  const frame = hero
+    ? "h-[300px] rounded-[20px] sm:h-[420px] md:h-[600px] md:rounded-[24px]"
+    : "aspect-[16/10] rounded-[16px] md:rounded-[20px]";
+
+  if (!cover) {
+    return (
+      <div className={`bg-tint relative overflow-hidden ${frame}`}>
+        {project.coverMock === "team-calendar" ? (
+          <TeamCalendar />
+        ) : project.coverMock === "salon-dashboard" ? (
+          <div className="flex h-full items-center p-6">
+            <SalonDashboard />
+          </div>
+        ) : (
+          <ImageSlot label={`${project.title} screenshot`} />
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className={`bg-tint relative overflow-hidden ${className}`}>
-      {cover ? (
-        // Screenshots keep their header in view when the frame crops them
-        <Image
-          src={cover.src}
-          alt={cover.alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          className="object-cover object-top"
+    <Stage tone={project.tone} className={frame}>
+      <BrowserWindow
+        image={cover}
+        sizes={sizes}
+        priority={priority}
+        rounded="rounded-tl-[10px] md:rounded-tl-[14px]"
+        className={
+          hero
+            ? "absolute top-[7%] left-[4%] w-[118%] sm:w-[104%] md:top-[8%] md:left-[5%] md:w-[97%]"
+            : "absolute top-[11%] left-[7%] w-[118%] transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:-translate-x-1.5 group-hover:-translate-y-1.5"
+        }
+      />
+      {hero && phone && (
+        <PhoneFrame
+          image={phone}
+          className="absolute right-[5%] -bottom-[14%] w-[104px] sm:w-[150px] md:-bottom-[12%] md:w-[214px]"
         />
-      ) : project.coverMock === "team-calendar" ? (
-        <TeamCalendar />
-      ) : project.coverMock === "salon-dashboard" ? (
-        <div className="flex h-full items-center p-6">
-          <SalonDashboard />
-        </div>
-      ) : (
-        <ImageSlot label={`${project.title} screenshot`} />
       )}
-    </div>
+    </Stage>
   );
 }
 

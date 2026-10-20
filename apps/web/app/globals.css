@@ -39,6 +39,13 @@
   --color-sky: oklch(88% 0.08 200);
   --color-mint: oklch(88% 0.08 160);
 
+  /* Screenshot stages: one soft tone per project, matched to its own brand */
+  --color-stage-rose: oklch(90.5% 0.035 32);
+  --color-stage-clay: oklch(88.5% 0.032 58);
+  --color-stage-sky: oklch(91% 0.028 225);
+  --color-stage-mint: oklch(91% 0.032 165);
+  --color-stage-tint: oklch(93% 0.02 80);
+
   /* Display sizes: desktop → mobile, fluid between */
   --text-h1: clamp(2.375rem, 1.55rem + 3.4vw, 4.25rem);
   --text-h1--line-height: 1.03;
@@ -58,6 +65,10 @@
   --shadow-dashboard: 0 30px 60px -20px oklch(40% 0.05 60 / 0.3), 0 0 0 1px oklch(90% 0.015 70);
   --shadow-form: 0 20px 50px -20px oklch(40% 0.05 60 / 0.25);
   --shadow-float: 0 10px 30px oklch(30% 0.03 50 / 0.3);
+  --shadow-window:
+    0 0 0 1px oklch(30% 0.02 50 / 0.08), 0 2px 4px -2px oklch(30% 0.03 50 / 0.12),
+    0 32px 64px -28px oklch(28% 0.05 45 / 0.42);
+  --shadow-phone: 0 28px 60px -20px oklch(25% 0.05 45 / 0.5);
 }
 
 /* ── Utilities ───────────────────────────────────── */

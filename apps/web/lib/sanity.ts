@@ -2,7 +2,7 @@ import "server-only";
 import { createImageUrlBuilder, type SanityImageSource } from "@sanity/image-url";
 import { defineQuery } from "next-sanity";
 import type { PortableTextBlock } from "@portabletext/react";
-import { SEED_PROJECTS, type ProjectKind } from "@portfolio/sanity-schemas/seed";
+import { SEED_PROJECTS, type ProjectKind, type ProjectTone } from "@portfolio/sanity-schemas/seed";
 import { client, isSanityConfigured } from "./sanity.client";
 import { sanityFetch } from "./sanity.live";
 
@@ -41,7 +41,7 @@ async function fetchSanity<T>(query: string, params = {}, tags: string[] = []): 
 // ── Types ───────────────────────────────────────────────────────
 export type SanityImage = SanityImageSource & { alt?: string; caption?: string };
 
-export type { ProjectKind };
+export type { ProjectKind, ProjectTone };
 
 export type Project = {
   _id: string;
@@ -58,8 +58,11 @@ export type Project = {
   coverImage?: SanityImage;
   coverMock?: "team-calendar" | "salon-dashboard";
   gallery?: SanityImage[];
+  coverPhone?: SanityImage;
+  tone?: ProjectTone;
   /** Static images from the seed data, used when Sanity has none. */
   coverStatic?: StaticImage;
+  coverPhoneStatic?: StaticImage;
   galleryStatic?: StaticImage[];
   techStack: string[];
   category?: string;
@@ -122,6 +125,13 @@ export function projectCover(p: Project, width: number, height?: number): Static
   return p.coverStatic ?? null;
 }
 
+/** The optional phone screenshot shown beside the case-study cover. */
+export function projectPhone(p: Project): StaticImage | null {
+  const src = imageUrl(p.coverPhone, 600);
+  if (src) return { src, alt: p.coverPhone?.alt ?? `${p.title} on a phone` };
+  return p.coverPhoneStatic ?? null;
+}
+
 /** Screenshots for the case study: Sanity's gallery, or the static fallback. */
 export function projectGallery(p: Project): StaticImage[] {
   const fromSanity = (p.gallery ?? [])
@@ -134,7 +144,7 @@ export function projectGallery(p: Project): StaticImage[] {
 }
 
 // ── Queries ─────────────────────────────────────────────────────
-const PROJECT_CARD = `_id, _updatedAt, title, slug, headline, tagline, kind, client, builtAt,
+const PROJECT_CARD = `_id, _updatedAt, title, slug, headline, tagline, kind, client, builtAt, tone,
   coverImage{..., alt, caption}, coverMock, techStack, category, liveUrl, githubUrl, featured, order`;
 
 const featuredProjectsQuery = defineQuery(
@@ -148,7 +158,7 @@ const allProjectsQuery = defineQuery(
 const projectBySlugQuery = defineQuery(
   `*[_type == "project" && slug.current == $slug][0] {
     ${PROJECT_CARD}, role, typeLabel, overview, problem, highlights, solution, localAngle,
-    gallery[]{..., alt, caption},
+    gallery[]{..., alt, caption}, coverPhone{..., alt},
     results, publishedAt, seoTitle, seoDescription, ogImage{..., alt}
   }`,
 );
@@ -180,18 +190,28 @@ const profileQuery = defineQuery(
 );
 
 // ── Fallback projects (no Sanity, or Sanity has none yet) ───────
-export const FALLBACK_PROJECTS: Project[] = SEED_PROJECTS.map(({ slug, cover, gallery, ...p }) => ({
-  ...p,
-  _id: `fallback-${slug}`,
-  slug: { current: slug },
-  coverStatic: cover,
-  galleryStatic: gallery,
-}));
+export const FALLBACK_PROJECTS: Project[] = SEED_PROJECTS.map(
+  ({ slug, cover, coverPhone, gallery, ...p }) => ({
+    ...p,
+    _id: `fallback-${slug}`,
+    slug: { current: slug },
+    coverStatic: cover,
+    coverPhoneStatic: coverPhone,
+    galleryStatic: gallery,
+  }),
+);
 
 /** Lets a Sanity project without images fall back to the seed's static ones. */
 function withStaticImages(p: Project): Project {
   const seed = FALLBACK_PROJECTS.find((f) => f.slug.current === p.slug.current);
-  return seed ? { ...p, coverStatic: seed.coverStatic, galleryStatic: seed.galleryStatic } : p;
+  if (!seed) return p;
+  return {
+    ...p,
+    tone: p.tone ?? seed.tone,
+    coverStatic: seed.coverStatic,
+    coverPhoneStatic: seed.coverPhoneStatic,
+    galleryStatic: seed.galleryStatic,
+  };
 }
 
 // ── Data fetchers ───────────────────────────────────────────────

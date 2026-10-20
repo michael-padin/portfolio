@@ -38,24 +38,41 @@ async function uploadImage(img: SeedImage) {
   };
 }
 
-type Existing = { _id: string; slug: string; hasCover: boolean; galleryCount: number };
+type Existing = {
+  _id: string;
+  slug: string;
+  hasCover: boolean;
+  hasPhone: boolean;
+  galleryCount: number;
+};
 
 async function main() {
   const existing = await client.fetch<Existing[]>(
     `*[_type == "project" && !(_id in path("drafts.**"))]{
-      _id, "slug": slug.current, "hasCover": defined(coverImage), "galleryCount": count(gallery)
+      _id, "slug": slug.current, "hasCover": defined(coverImage), "hasPhone": defined(coverPhone),
+      "galleryCount": count(gallery)
     }`,
   );
   const bySlug = new Map(existing.map((d) => [d.slug, d]));
 
   const tx = client.transaction();
-  for (const { slug, highlights, localAngle, cover, gallery, ...fields } of SEED_PROJECTS) {
+  for (const {
+    slug,
+    highlights,
+    localAngle,
+    cover,
+    coverPhone,
+    gallery,
+    ...fields
+  } of SEED_PROJECTS) {
     const doc = bySlug.get(slug);
     const needsCover = Boolean(cover) && !doc?.hasCover;
+    const needsPhone = Boolean(coverPhone) && !doc?.hasPhone;
     const needsGallery = (gallery?.length ?? 0) > 0 && !doc?.galleryCount;
 
     const images: Record<string, unknown> = {};
     if (apply && needsCover && cover) images.coverImage = await uploadImage(cover);
+    if (apply && needsPhone && coverPhone) images.coverPhone = await uploadImage(coverPhone);
     if (apply && needsGallery && gallery) {
       images.gallery = withKeys(await Promise.all(gallery.map(uploadImage)), "g");
     }
@@ -66,7 +83,11 @@ async function main() {
       ...(localAngle && { localAngle }),
       ...images,
     };
-    const note = [needsCover && "cover", needsGallery && `${gallery?.length} screenshots`]
+    const note = [
+      needsCover && "cover",
+      needsPhone && "phone shot",
+      needsGallery && `${gallery?.length} screenshots`,
+    ]
       .filter(Boolean)
       .join(" + ");
 

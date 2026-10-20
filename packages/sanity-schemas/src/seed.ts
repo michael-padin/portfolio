@@ -28,8 +28,14 @@ export interface SeedProject {
   coverMock?: "team-calendar" | "salon-dashboard";
   /** Paths under apps/web/public. The seed script uploads them to Sanity. */
   cover?: SeedImage;
+  /** Optional phone-sized screenshot shown beside the cover on the case study. */
+  coverPhone?: SeedImage;
   gallery?: SeedImage[];
+  /** Background tone of the screenshot stage. */
+  tone?: ProjectTone;
 }
+
+export type ProjectTone = "rose" | "clay" | "sky" | "mint" | "tint";
 
 export interface SeedImage {
   src: string;
@@ -76,6 +82,11 @@ export const SEED_PROJECTS: SeedProject[] = [
       src: "/work/hermosa-glow/calendar.webp",
       alt: "Hermosa Glow staff calendar: a day of bookings across facial beds, the laser and body machines, with check-ins and a booking waiting for confirmation",
     },
+    coverPhone: {
+      src: "/work/hermosa-glow/website-mobile.webp",
+      alt: "Hermosa Glow website on a phone, with the Book a visit button",
+    },
+    tone: "rose",
     gallery: [
       {
         src: "/work/hermosa-glow/booking.webp",
@@ -142,6 +153,7 @@ export const SEED_PROJECTS: SeedProject[] = [
       src: "/work/mil/dashboard.webp",
       alt: "MIL dashboard with today's takings by payment method, best-selling designs and tasks that need doing",
     },
+    tone: "clay",
     gallery: [
       {
         src: "/work/mil/inventory.webp",
@@ -203,6 +215,7 @@ export const SEED_PROJECTS: SeedProject[] = [
       src: "/work/kasper-trucking/payroll.webp",
       alt: "Kasper Trucking pay week: net pay, deliveries and bags, and a payslip row for each crew member",
     },
+    tone: "sky",
     gallery: [
       {
         src: "/work/kasper-trucking/dashboard.webp",
@@ -261,6 +274,7 @@ export const SEED_PROJECTS: SeedProject[] = [
         body: "A business email and inquiry form that go straight to the owner. The first online inquiries arrived within weeks.",
       },
     ],
+    tone: "mint",
     localAngle: {
       text: "Boarding houses, dorms and apartments near Cebu's universities get found the same way.",
       chips: ["Boarding houses", "Dorms", "Apartments", "Resorts", "Homestays"],

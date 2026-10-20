@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import {
   getProjectBySlug,
@@ -10,10 +9,12 @@ import {
   imageUrl,
   projectCover,
   projectGallery,
+  projectPhone,
   FALLBACK_PROFILE,
 } from "@/lib/sanity";
 import { pageMetadata, siteUrl } from "@/lib/seo";
 import { ProjectVisual } from "@/components/projects/ProjectCard";
+import { BrowserWindow, Stage } from "@/components/projects/ScreenFrame";
 import { CtaBand } from "@/components/sections/CtaBand";
 
 interface Props {
@@ -59,6 +60,7 @@ export default async function ProjectPage({ params }: Props) {
   // Width only: screenshots keep their ratio and the frame crops from the top
   const cover = projectCover(project, 2400);
   const coverUrl = cover && new URL(cover.src, siteUrl).toString();
+  const phone = projectPhone(project);
   const gallery = projectGallery(project);
   const projectUrl = `${siteUrl}/projects/${project.slug.current}`;
   const heading = project.headline ?? project.title;
@@ -170,9 +172,10 @@ export default async function ProjectPage({ params }: Props) {
         <ProjectVisual
           project={project}
           cover={cover}
+          phone={phone}
+          variant="hero"
           sizes="(min-width: 1280px) 1168px, 100vw"
           priority
-          className="h-[300px] rounded-[20px] md:h-[560px]"
         />
       </div>
 
@@ -225,30 +228,48 @@ export default async function ProjectPage({ params }: Props) {
               Shown with example data, not the client&apos;s real records.
             </p>
           </div>
-          <div className="mt-5 grid gap-x-8 gap-y-8 md:mt-8 md:grid-cols-2 md:gap-y-10">
-            {gallery.map((img) => (
-              <figure key={img.src}>
-                <a
-                  href={img.src}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border-rule bg-tint relative block aspect-[16/10] overflow-hidden rounded-[16px] border"
-                >
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    fill
-                    sizes="(min-width: 768px) 584px, 100vw"
-                    className="object-cover object-top"
-                  />
-                </a>
-                {img.caption && (
-                  <figcaption className="text-muted mt-3 text-[14px] leading-normal md:text-[15px]">
-                    {img.caption}
-                  </figcaption>
-                )}
-              </figure>
-            ))}
+          <div className="mt-5 grid gap-x-6 gap-y-8 md:mt-8 md:grid-cols-2 md:gap-y-12">
+            {gallery.map((img, i) => {
+              // The first screen gets the full width; the rest pair up below it
+              const wide = i === 0 && gallery.length !== 2;
+              return (
+                <figure key={img.src} className={wide ? "md:col-span-2" : ""}>
+                  <a
+                    href={img.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open full size: ${img.alt}`}
+                    className="group block"
+                  >
+                    <Stage
+                      tone={project.tone}
+                      className={`rounded-[16px] md:rounded-[20px] ${wide ? "p-3 sm:p-6 md:px-16 md:pt-14 md:pb-0" : "p-3 sm:p-5 md:p-7"}`}
+                    >
+                      <BrowserWindow
+                        image={img}
+                        sizes={
+                          wide
+                            ? "(min-width: 1280px) 1040px, 100vw"
+                            : "(min-width: 768px) 540px, 100vw"
+                        }
+                        rounded={
+                          wide ? "rounded-[10px] md:rounded-t-[14px] md:rounded-b-none" : undefined
+                        }
+                        className="transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:-translate-y-1"
+                      />
+                    </Stage>
+                  </a>
+                  {img.caption && (
+                    <figcaption className="text-muted mt-3 flex gap-3 text-[14px] leading-normal md:mt-4 md:text-[15px]">
+                      <span className="font-heading text-mango-deep tabular-nums">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span>{img.caption}</span>
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            })}
           </div>
         </section>
       )}

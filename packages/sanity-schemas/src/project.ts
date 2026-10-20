@@ -95,6 +95,37 @@ export const projectSchema = defineType({
       ],
     }),
     defineField({
+      name: "coverPhone",
+      title: "Phone screenshot (optional)",
+      description: "A phone-sized screenshot shown beside the cover on the case study.",
+      type: "image",
+      fields: [
+        {
+          name: "alt",
+          title: "Alt text",
+          type: "string",
+          validation: (rule) => rule.max(200),
+        },
+      ],
+    }),
+    defineField({
+      name: "tone",
+      title: "Screenshot backdrop",
+      description: "The soft colour behind this project's screenshots.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Rose", value: "rose" },
+          { title: "Clay", value: "clay" },
+          { title: "Sky", value: "sky" },
+          { title: "Mint", value: "mint" },
+          { title: "Neutral", value: "tint" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "tint",
+    }),
+    defineField({
       name: "gallery",
       title: "Gallery",
       description: "Screenshots shown on the case study under “Inside the system”.",
