@@ -232,7 +232,7 @@ export const SEED_PROJECTS: SeedProject[] = [
     },
   },
   {
-    slug: "jimdaisy",
+    slug: "jimdaisy-com",
     title: "JimDaisy.com",
     headline: "From word-of-mouth to inbound deals in under a month",
     tagline: "One site for two student-housing properties, built so searches turn into inquiries.",

@@ -18,7 +18,7 @@ staff training and ongoing support.
 - [Hermosa Glow](https://michaelpadin.com/projects/hermosa-glow): online booking and a clinic system (calendar, counter, packages, digital consent) for a skin clinic in Carcar City, Cebu
 - [MIL](https://michaelpadin.com/projects/mil): inventory, consignment and payroll for a Cebu shoe brand
 - [Kasper Trucking](https://michaelpadin.com/projects/kasper-trucking): trip logging, delivery receipts, weekly crew payroll and client billing for a Cebu hauler
-- [JimDaisy.com](https://michaelpadin.com/projects/jimdaisy): lead-generation website for two student-housing properties in California
+- [JimDaisy.com](https://michaelpadin.com/projects/jimdaisy-com): lead-generation website for two student-housing properties in California
 
 ## Background
 - Image Edits (Aug 2023 – Present): full stack developer, Brisbane (remote)

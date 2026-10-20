@@ -72,7 +72,8 @@ async function main() {
 
     if (doc) {
       console.log(`update  ${slug}  (${doc._id})${note ? `  + ${note}` : ""}`);
-      tx.patch(doc._id, (p) => p.set(copy));
+      // A live link the seed leaves out is cleared, not kept from an older run
+      tx.patch(doc._id, (p) => p.set(copy).unset(fields.liveUrl ? [] : ["liveUrl"]));
     } else {
       const newId = `project-${slug}`;
       console.log(`create  ${slug}  (${newId})${note ? `  + ${note}` : ""}`);
