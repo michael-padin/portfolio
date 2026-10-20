@@ -1,194 +1,105 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProfile } from "@/lib/sanity";
+import { getProfile, FALLBACK_PROFILE } from "@/lib/sanity";
 import { features } from "@/lib/features";
 import { pageMetadata } from "@/lib/seo";
+import { AvailabilityLine } from "@/components/ui/Marked";
+import { BookButton } from "@/components/ui/BookButton";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact Michael Padin",
+  title: "Contact",
   description:
-    "Get in touch for freelance projects, full-time remote roles, or technical consultation. Replies within 24 hours.",
+    "Tell me how your business runs. Send a message or book a free 30-minute call, and get a fixed quote within 48 hours.",
   path: "/contact",
 });
 
+type Option = { title: string; detail: string; href?: string; external?: boolean };
+
 export default async function ContactPage() {
   if (!features.contact) notFound();
-  const profile = await getProfile().catch(() => null);
+  const profile = await getProfile().catch(() => FALLBACK_PROFILE);
 
-  const email = profile?.email ?? "hello@michaelpadin.com";
-  const linkedin = profile?.linkedinUrl ?? "https://linkedin.com/in/michael-padin";
-  const github = profile?.githubUrl ?? "https://github.com/michael-padin";
-  const bookingUrl = profile?.bookingUrl;
-  const location = profile?.location ?? "Cebu, Philippines";
-  const timezone = profile?.timezone ?? "UTC+8";
-  const available = profile?.availableForFreelance || profile?.availableForFullTime;
-  const availabilityNote = profile?.availabilityNote ?? "Available for new projects";
+  const social = profile.messengerUrl ?? profile.facebookUrl;
+  const options = [
+    profile.bookingUrl && {
+      title: "Book a free 30-min call",
+      detail: profile.bookingUrl.replace(/^https?:\/\//, "").replace(/\/$/, ""),
+      href: profile.bookingUrl,
+      external: true,
+    },
+    { title: "Email", detail: profile.email, href: `mailto:${profile.email}` },
+    social && {
+      title: "Facebook & Messenger",
+      detail: profile.name,
+      href: social,
+      external: true,
+    },
+    { title: "Meet in person", detail: "Cebu City and nearby. Coffee's on me" },
+  ].filter(Boolean) as Option[];
 
   return (
-    <main className="pt-[clamp(6rem,10vw,9rem)] pb-[clamp(4rem,8vw,7rem)]">
-      <div className="mx-auto w-full max-w-7xl px-[clamp(1.5rem,4vw,3rem)]">
-        {/* Document metadata strip — mobile collapsed, sm+ full */}
-        <div className="border-paper-rule border-b pb-3">
-          <div className="font-spec-mono text-ink-3 flex items-center gap-2 text-[11px] tracking-[0.04em] uppercase sm:hidden">
-            <span>§</span>
-            <span className="text-ink normal-case">Contact</span>
-            <span aria-hidden>·</span>
-            <span className="text-ink normal-case">Reply ~24h</span>
-            <span
-              aria-hidden
-              className={`ml-auto inline-block size-1.5 rounded-full ${available ? "bg-signal" : "bg-ink-3"}`}
-            />
-          </div>
-          <dl className="font-spec-mono text-ink-3 hidden text-[11px] tracking-[0.04em] uppercase sm:flex sm:flex-wrap sm:items-center sm:gap-x-8">
-            <Field label="Document">Contact</Field>
-            <Field label="Subject">{profile?.name ?? "Michael Padin"}</Field>
-            <Field label="Reply">~24h on weekdays</Field>
-            <Field label="Status">
-              <span className={available ? "text-signal" : "text-ink"}>
-                <span
-                  aria-hidden
-                  className={`mr-1.5 inline-block size-[6px] -translate-y-px rounded-full ${
-                    available ? "bg-signal" : "bg-ink"
-                  }`}
-                />
-                {available ? availabilityNote : "Not currently available"}
-              </span>
-            </Field>
-          </dl>
-        </div>
+    <section className="container-page grid items-start gap-6 pt-6 pb-12 md:grid-cols-[1fr_1.15fr] md:gap-[72px] md:pt-14 md:pb-24">
+      <div>
+        <p className="eyebrow">Contact</p>
+        <h1 className="text-h1 mt-3 md:mt-4">Tell me about your business.</h1>
+        <p className="text-lead text-body mt-3.5 max-w-[38ch] md:mt-5">
+          Send a message, or book a free call. Either way, you&apos;ll talk to me, not a sales team
+          reading from a script.
+        </p>
+        <BookButton
+          bookingUrl={profile.bookingUrl}
+          email={profile.email}
+          track="book-call-contact"
+          className="mt-5 w-full md:hidden"
+        />
 
-        {/* Title */}
-        <div className="mt-[clamp(3rem,6vw,5rem)]">
-          <h1 className="font-spec text-ink max-w-[22ch] text-[clamp(2.5rem,6vw,5rem)] leading-[1] font-medium tracking-[-0.035em]">
-            Have a project to build? Write.
-          </h1>
-          <p className="font-spec text-ink-2 mt-6 max-w-[58ch] text-[clamp(1rem,1.2vw,1.125rem)] leading-[1.55]">
-            Send me a project brief, a job spec, or a technical question. I read everything and
-            reply personally, usually within a day.
-          </p>
-        </div>
-
-        {/* Channels */}
-        <section className="mt-[clamp(3rem,5vw,4rem)]">
-          <header className="border-paper-rule mb-5 flex items-end justify-between border-b pb-3">
-            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-              Channels
-            </h2>
-            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-              §01 · Reach
-            </span>
-          </header>
-          <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-3 text-[14px]">
-            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
-              Email
-            </dt>
-            <dd>
-              <a
-                href={`mailto:${email}`}
-                className="font-spec-mono text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[15px] transition-colors"
-              >
-                {email}
-              </a>
-            </dd>
-
-            {bookingUrl && (
-              <>
-                <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
-                  Book
-                </dt>
-                <dd>
-                  <a
-                    href={bookingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-spec text-ink hover:text-signal border-ink hover:border-signal border-b pb-px text-[15px] font-medium transition-colors"
-                  >
-                    {bookingUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")} ↗
-                  </a>
-                  <span className="text-ink-3 font-spec ml-2 text-[13px]">30-min intro chat</span>
-                </dd>
-              </>
-            )}
-
-            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
-              LinkedIn
-            </dt>
-            <dd>
-              <a
-                href={linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-ink-2 hover:text-signal border-ink-3 hover:border-signal font-spec border-b pb-px transition-colors"
-              >
-                linkedin.com/in/michael-padin ↗
-              </a>
-            </dd>
-
-            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
-              GitHub
-            </dt>
-            <dd>
-              <a
-                href={github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-ink-2 hover:text-signal border-ink-3 hover:border-signal font-spec border-b pb-px transition-colors"
-              >
-                github.com/michael-padin ↗
-              </a>
-            </dd>
-
-            <dt className="font-spec-mono text-ink-3 pt-[3px] text-[11px] tracking-[0.04em] uppercase">
-              Where
-            </dt>
-            <dd className="font-spec text-ink-2">
-              {location}{" "}
-              <span className="text-ink-3 font-spec-mono ml-1 text-[12px]">· {timezone}</span>
-            </dd>
-          </dl>
-        </section>
-
-        {/* Form */}
-        <section className="mt-[clamp(4rem,6vw,5rem)]">
-          <header className="border-paper-rule mb-6 flex items-end justify-between border-b pb-3">
-            <h2 className="font-spec text-ink text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-              Form
-            </h2>
-            <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-              §02 · Structured submission
-            </span>
-          </header>
-          <div className="grid grid-cols-12 gap-x-6">
-            <div className="col-span-12 lg:col-span-9 lg:col-start-2">
-              <ContactForm />
-            </div>
-          </div>
-        </section>
-
-        {/* Document footer */}
-        <div className="border-paper-rule mt-[clamp(4rem,6vw,6rem)] flex items-baseline justify-between border-t pt-4">
-          <span className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-            End of document
-          </span>
-          <Link
-            href="/"
-            className="font-spec-mono text-ink-3 hover:text-signal text-[11px] tracking-[0.04em] uppercase transition-colors"
-          >
-            ← Back to /
-          </Link>
-        </div>
+        <ul className="border-ink mt-10 hidden border-t-[1.5px] md:block">
+          {options.map((o) => (
+            <li key={o.title} className="border-rule border-b">
+              <OptionRow option={o} />
+            </li>
+          ))}
+        </ul>
+        <AvailabilityLine text={profile.availabilityLine} className="mt-7 hidden md:block" />
       </div>
-    </main>
+
+      <div>
+        <ContactForm email={profile.email} />
+        <ul className="mt-6 md:hidden">
+          {options
+            .filter((o) => !o.title.startsWith("Book"))
+            .map((o) => (
+              <li key={o.title} className="border-rule border-t">
+                <OptionRow option={o} compact />
+              </li>
+            ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function OptionRow({ option, compact }: { option: Option; compact?: boolean }) {
+  const inner = (
+    <>
+      <div className={`font-heading ${compact ? "text-[17px]" : "text-[20px]"}`}>
+        {option.title}
+      </div>
+      <div className={`text-muted mt-0.5 ${compact ? "text-[13px]" : "text-[14px]"}`}>
+        {option.detail}
+      </div>
+    </>
+  );
+  const cls = `block transition-[padding] duration-200 ${compact ? "py-3.5" : "py-[18px]"}`;
+  if (!option.href) return <div className={cls}>{inner}</div>;
   return (
-    <div className="flex items-baseline gap-2">
-      <dt className="text-ink-3 select-none">{label}</dt>
-      <dd className="text-ink font-normal normal-case">{children}</dd>
-    </div>
+    <a
+      href={option.href}
+      {...(option.external && { target: "_blank", rel: "noopener noreferrer" })}
+      className={`${cls} hover:pl-2`}
+    >
+      {inner}
+    </a>
   );
 }

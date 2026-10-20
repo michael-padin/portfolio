@@ -15,6 +15,7 @@ import {
   visitTag,
 } from "@/lib/telegram";
 import { describePlace } from "@/lib/visitor";
+import { BUDGETS, NEEDS, ROLES, labelOf, parseContact, values } from "@/lib/contact-options";
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -30,17 +31,21 @@ const MAX_PER_HOUR = 3;
 
 // Zod schema
 const contactSchema = z.object({
+  role: z.enum(values(ROLES)).default("owner"),
   name: z.string().trim().min(2, "Name too short").max(100),
-  email: z
+  business: z.string().trim().max(120).optional(),
+  // An email address or a PH mobile number (09xx… / +639…)
+  contact: z
     .string()
     .trim()
-    .email("Invalid email")
     .max(254)
-    .refine((e) => !e.includes("\r") && !e.includes("\n"), "Invalid email"),
-  subject: z.string().trim().min(5).max(200),
-  message: z.string().trim().min(20, "Please provide more detail").max(5000),
-  type: z.enum(["client", "employer", "other"]).optional(),
-  budget: z.string().optional(),
+    .refine((v) => parseContact(v) !== null, "Enter an email address or a PH mobile number"),
+  needs: z
+    .array(z.enum(values(NEEDS)))
+    .max(NEEDS.length)
+    .default([]),
+  budget: z.enum(values(BUDGETS)).optional(),
+  message: z.string().trim().min(20, "Please tell me a little more").max(5000),
   // Honeypot — must be empty
   website_url: z.string().max(0, "Bot detected").optional(),
   // Turnstile
@@ -64,12 +69,11 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
 }
 
 async function scoreLeadWithAI(data: {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  type?: string;
+  role: string;
+  business?: string;
+  needs: string;
   budget?: string;
+  message: string;
 }): Promise<string> {
   try {
     const response = await getAnthropic().messages.create({
@@ -78,14 +82,13 @@ async function scoreLeadWithAI(data: {
       messages: [
         {
           role: "user",
-          content: `Analyze this contact form submission for a freelance full stack developer and give a brief assessment (2-3 sentences max). Rate lead quality (High/Medium/Low) and suggest the best reply angle.
+          content: `A developer in Cebu builds custom booking, ordering, inventory and staff systems for local businesses. Assess this inquiry in 2-3 sentences: rate it High/Medium/Low as a lead and suggest the best angle for the first reply.
 
-Name: ${data.name}
-Email domain: ${data.email.split("@")[1]}
-Type: ${data.type ?? "unknown"}
-Subject: ${data.subject}
-Budget mentioned: ${data.budget ?? "not specified"}
-Message: ${data.message.slice(0, 300)}`,
+Reaching out as: ${data.role}
+Business: ${data.business ?? "not given"}
+Needs: ${data.needs || "not specified"}
+Rough budget: ${data.budget ?? "not specified"}
+Message: ${data.message.slice(0, 600)}`,
         },
       ],
     });
@@ -120,25 +123,32 @@ export async function POST(req: NextRequest) {
     // Validate
     const result = contactSchema.safeParse(body);
     if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
       return NextResponse.json(
         {
-          error: "Validation failed",
-          details: result.error.flatten().fieldErrors,
+          error: Object.values(fieldErrors).flat()[0] ?? "Validation failed",
+          details: fieldErrors,
         },
         { status: 422 },
       );
     }
 
     const {
+      role,
       name,
-      email,
-      subject,
-      message,
-      type,
+      business,
+      contact,
+      needs,
       budget,
+      message,
       "cf-turnstile-response": turnstileToken,
       _loadTime,
     } = result.data;
+    const { email, phone } = parseContact(contact) ?? {};
+    const roleLabel = labelOf(ROLES, role);
+    const needsLabel = needs.map((n) => labelOf(NEEDS, n)).join(", ");
+    const budgetLabel = budget ? labelOf(BUDGETS, budget) : undefined;
+    const who = business ? `${name} (${business})` : name;
 
     // Honeypot check (already validated as empty by Zod)
     // Timing check — reject if form submitted in under 3 seconds
@@ -155,80 +165,78 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // AI lead scoring (non-blocking, runs in background)
-    const aiAssessmentPromise = scoreLeadWithAI({
-      name,
-      email,
-      subject,
+    const aiAssessment = await scoreLeadWithAI({
+      role: roleLabel,
+      business,
+      needs: needsLabel,
+      budget: budgetLabel,
       message,
-      type,
-      budget,
     });
-
-    // Sanitize message for email
-    const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
-
-    const aiAssessment = await aiAssessmentPromise;
 
     // Telegram lead alert — queued before the emails so it still lands if Resend fails
     if (isTelegramEnabled()) {
       const place = describePlace(req.headers);
-      // Telegram buttons only accept https, so replying goes via Gmail's compose URL
-      const replyUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(`Re: ${subject}`)}`;
-      const linkedinUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name)}`;
+      const buttons = [
+        // Telegram buttons only accept https, so replying goes via Gmail's compose URL.
+        // Phone numbers in the message body are tappable already.
+        email && {
+          text: "✉️ Reply",
+          url: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent("Re: your inquiry")}`,
+        },
+        {
+          text: "🔍 Look up",
+          url: `https://www.google.com/search?q=${encodeURIComponent(`${business ?? name} Cebu`)}`,
+        },
+      ].filter(Boolean) as { text: string; url: string }[];
       after(() =>
         notify(
           [
-            ["📨 <b>Contact form</b>", type && esc(type), budget && esc(clip(budget, 60))]
+            ["📨 <b>Contact form</b>", esc(roleLabel), budgetLabel && esc(budgetLabel)]
               .filter(Boolean)
               .join(" · "),
-            `<b>${esc(name)}</b> · ${esc(email)}`,
-            `<b>${esc(subject)}</b>`,
+            `<b>${esc(who)}</b> · ${esc(email ?? phone ?? contact)}`,
+            needsLabel && `Needs: ${esc(needsLabel)}`,
             `<blockquote expandable>${esc(clip(message, 1500))}</blockquote>`,
             aiAssessment && `🤖 ${esc(aiAssessment)}`,
             [esc(place), visitTag(result.data._vid)].filter(Boolean).join(" · "),
           ]
             .filter(Boolean)
             .join("\n"),
-          {
-            topic: "leads",
-            buttons: [
-              { text: "✉️ Reply", url: replyUrl },
-              { text: "🔍 LinkedIn", url: linkedinUrl },
-            ],
-          },
+          { topic: "leads", buttons },
         ),
       );
     }
 
-    // Send notification email to Michael
+    // Notification email to Michael
     await getResend().emails.send({
       from: "Portfolio Contact <noreply@michaelpadin.com>",
       to: process.env.CONTACT_EMAIL ?? "hello@michaelpadin.com",
-      replyTo: email,
-      subject: `[Portfolio] ${subject} — from ${name}`,
+      ...(email && { replyTo: email }),
+      subject: `[Portfolio] New inquiry from ${who}`,
       html: contactNotification({
         name,
+        business,
         email,
-        subject,
-        message: safeMessage,
-        type,
-        budget,
+        phone,
+        role: roleLabel,
+        needs: needsLabel,
+        budget: budgetLabel,
+        message: esc(message).replace(/\n/g, "<br>"),
         aiAssessment: aiAssessment || undefined,
         ip,
       }),
     });
 
-    // Auto-reply to sender
-    await getResend().emails.send({
-      from: "Michael Padin <hello@michaelpadin.com>",
-      to: email,
-      subject: `Got your message, ${name.split(" ")[0] ?? name}!`,
-      html: contactAutoReply({
-        firstName: name.split(" ")[0] ?? name,
-        subject,
-      }),
-    });
+    // Auto-reply, only when they left an email address
+    if (email) {
+      const firstName = name.split(" ")[0] ?? name;
+      await getResend().emails.send({
+        from: "Michael Padin <hello@michaelpadin.com>",
+        to: email,
+        subject: `Got your message, ${firstName}!`,
+        html: contactAutoReply({ firstName, business }),
+      });
+    }
 
     // Log successful submission
     submissions.set(ip, [...timestamps, now]);

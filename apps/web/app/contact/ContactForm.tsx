@@ -2,27 +2,38 @@
 import { useState, useRef } from "react";
 import Turnstile from "react-turnstile";
 import { currentVisitId } from "@/lib/track";
+import { BUDGETS, NEEDS, ROLES, parseContact, type Need, type Role } from "@/lib/contact-options";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-const inputClass =
-  "font-spec text-ink placeholder:text-ink-3 border-paper-rule focus:border-signal focus:ring-signal/20 bg-paper w-full border px-3 py-2.5 text-[15px] transition-all focus:ring-2 focus:outline-none";
-
-export function ContactForm() {
+export function ContactForm({ email }: { email: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileFailed, setTurnstileFailed] = useState(false);
-  const [visitorType, setVisitorType] = useState<"client" | "employer" | "other">("client");
+  const [role, setRole] = useState<Role>("owner");
+  const [needs, setNeeds] = useState<Need[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const loadTimeRef = useRef(Date.now());
 
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  const toggleNeed = (n: Need) =>
+    setNeeds((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]));
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status === "submitting") return;
+
+    const fd = new FormData(e.currentTarget);
+    const contact = String(fd.get("contact") ?? "");
+    if (!parseContact(contact)) {
+      setStatus("error");
+      setErrorMsg("Please enter an email address or a PH mobile number (09xx xxx xxxx).");
+      return;
+    }
     if (!turnstileToken && siteKey && !turnstileFailed) {
+      setStatus("error");
       setErrorMsg("Please complete the verification widget.");
       return;
     }
@@ -30,14 +41,14 @@ export function ContactForm() {
     setStatus("submitting");
     setErrorMsg("");
 
-    const fd = new FormData(e.currentTarget);
     const payload = {
+      role,
       name: fd.get("name"),
-      email: fd.get("email"),
-      subject: fd.get("subject"),
+      business: fd.get("business") || undefined,
+      contact,
+      needs,
+      budget: fd.get("budget") || undefined,
       message: fd.get("message"),
-      type: visitorType,
-      budget: fd.get("budget"),
       website_url: fd.get("website_url"),
       "cf-turnstile-response": turnstileToken,
       _loadTime: Date.now() - loadTimeRef.current,
@@ -53,143 +64,147 @@ export function ContactForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to send");
       setStatus("success");
+      setNeeds([]);
       formRef.current?.reset();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
       setStatus("error");
-      setErrorMsg(message);
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
     }
   }
 
   if (status === "success") {
     return (
-      <div className="border-paper-rule border-t border-b py-12 text-center">
-        <p className="font-spec-mono text-signal text-[11px] tracking-[0.04em] uppercase">
-          ✓ Transmitted
-        </p>
-        <h3 className="font-spec text-ink mt-3 text-[clamp(1.5rem,2vw,2rem)] font-medium tracking-[-0.02em]">
-          Message sent
-        </h3>
-        <p className="font-spec text-ink-2 mt-2 text-[14px]">
-          I&apos;ll reply within ~24h, usually sooner.
+      <div className="shadow-form flex flex-col items-start gap-3 rounded-[24px] bg-white p-6 md:p-9">
+        <h2 className="text-[32px] leading-[1.1] md:text-[40px]">Message sent</h2>
+        <p className="text-muted text-[16px] leading-normal">
+          I&apos;ll reply within a day, usually sooner.
         </p>
         <button
+          type="button"
           onClick={() => {
             setStatus("idle");
             loadTimeRef.current = Date.now();
           }}
-          className="font-spec-mono text-ink-3 hover:text-signal mt-6 text-[11px] tracking-[0.04em] uppercase transition-colors"
+          className="link-mango mt-3 cursor-pointer"
         >
-          ↶ Send another
+          Send another message
         </button>
       </div>
     );
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-7">
-      {/* Visitor type */}
-      <Field label="01" name="Reaching out as">
-        <div className="flex flex-wrap gap-2">
-          {(["client", "employer", "other"] as const).map((t) => (
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="shadow-form flex flex-col gap-[18px] rounded-[24px] bg-white p-[22px] md:gap-[22px] md:p-9"
+    >
+      <fieldset className="flex flex-col gap-2.5">
+        <legend className="mb-2.5 text-[14px] font-semibold">I&apos;m reaching out as</legend>
+        <div role="radiogroup" className="flex flex-wrap gap-2">
+          {ROLES.map((r) => (
             <button
-              key={t}
+              key={r.value}
               type="button"
-              onClick={() => setVisitorType(t)}
-              className={`font-spec px-4 py-2 text-[14px] font-medium transition-colors ${
-                visitorType === t
-                  ? "text-paper bg-signal border-signal border"
-                  : "text-ink-2 hover:text-signal hover:border-signal border-paper-rule border"
-              }`}
+              role="radio"
+              aria-checked={role === r.value}
+              onClick={() => setRole(r.value)}
+              className="chip"
             >
-              {t === "client" ? "Client" : t === "employer" ? "Recruiter" : "Other"}
+              {r.label}
             </button>
           ))}
         </div>
-      </Field>
+      </fieldset>
 
-      {/* Name */}
-      <Field label="02" name="Name" required htmlFor="name">
+      <div className="grid gap-[18px] md:grid-cols-2 md:gap-4">
+        <Label text="Your name" htmlFor="name">
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            minLength={2}
+            maxLength={100}
+            autoComplete="name"
+            placeholder="Juan dela Cruz"
+            className="field"
+          />
+        </Label>
+        <Label text="Business name" htmlFor="business" optional>
+          <input
+            id="business"
+            name="business"
+            type="text"
+            maxLength={120}
+            autoComplete="organization"
+            placeholder="Luna Salon"
+            className="field"
+          />
+        </Label>
+      </div>
+
+      <Label text="Email or mobile number" htmlFor="contact">
         <input
-          id="name"
-          name="name"
+          id="contact"
+          name="contact"
           type="text"
-          required
-          minLength={2}
-          maxLength={100}
-          placeholder="Your name"
-          className={inputClass}
-        />
-      </Field>
-
-      {/* Email */}
-      <Field label="03" name="Email" required htmlFor="email">
-        <input
-          id="email"
-          name="email"
-          type="email"
           required
           maxLength={254}
-          placeholder="you@company.com"
-          className={inputClass}
+          autoComplete="email"
+          placeholder="you@business.com or 09xx xxx xxxx"
+          className="field"
         />
-      </Field>
+      </Label>
 
-      {/* Subject */}
-      <Field label="04" name="Subject" required htmlFor="subject">
-        <input
-          id="subject"
-          name="subject"
-          type="text"
-          required
-          maxLength={200}
-          placeholder={
-            visitorType === "employer"
-              ? "Senior React Developer, remote role"
-              : "Project idea or question"
-          }
-          className={inputClass}
-        />
-      </Field>
+      <fieldset className="flex flex-col">
+        <legend className="mb-2.5 text-[14px] font-semibold">What do you need?</legend>
+        <div className="flex flex-wrap gap-2">
+          {NEEDS.map((n) => (
+            <button
+              key={n.value}
+              type="button"
+              aria-pressed={needs.includes(n.value)}
+              onClick={() => toggleNeed(n.value)}
+              className="chip"
+            >
+              {n.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
-      {/* Budget (client only) */}
-      {visitorType === "client" && (
-        <Field label="05" name="Approximate budget" htmlFor="budget">
-          <select id="budget" name="budget" className={`${inputClass} appearance-none`}>
+      <Label text="Rough budget" htmlFor="budget" optional>
+        <div className="relative">
+          <select id="budget" name="budget" defaultValue="" className="field appearance-none pr-10">
             <option value="">Select a range</option>
-            <option value="under-1k">Under $1,000</option>
-            <option value="1k-5k">$1,000 to $5,000</option>
-            <option value="5k-15k">$5,000 to $15,000</option>
-            <option value="15k-plus">$15,000+</option>
-            <option value="ongoing">Ongoing / retainer</option>
+            {BUDGETS.map((b) => (
+              <option key={b.value} value={b.value}>
+                {b.label}
+              </option>
+            ))}
           </select>
-        </Field>
-      )}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-[oklch(58%_0.02_50)]"
+          >
+            ▾
+          </span>
+        </div>
+      </Label>
 
-      {/* Message */}
-      <Field
-        label={visitorType === "client" ? "06" : "05"}
-        name="Message"
-        required
-        htmlFor="message"
-      >
+      <Label text="Tell me about your business" htmlFor="message">
         <textarea
           id="message"
           name="message"
           required
           minLength={20}
           maxLength={5000}
-          rows={6}
-          placeholder={
-            visitorType === "employer"
-              ? "Tell me about the role, team, and tech stack."
-              : visitorType === "client"
-                ? "Describe your project, goals, and timeline."
-                : "What's on your mind?"
-          }
-          className={`${inputClass} resize-none`}
+          rows={5}
+          placeholder="How do you handle bookings or orders today? What makes you sigh every morning?"
+          className="field resize-y"
         />
-      </Field>
+      </Label>
 
       {/* Honeypot — hidden from real users */}
       <div aria-hidden="true" className="hidden">
@@ -197,92 +212,64 @@ export function ContactForm() {
         <input id="website_url" name="website_url" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      {/* Turnstile — hides itself if the widget can't connect or the domain
-         isn't allowed. Honeypot + timing-check still protect the endpoint. */}
+      {/* Turnstile hides itself if the widget can't load. Honeypot + timing
+         check still protect the endpoint. */}
       {siteKey && !turnstileFailed && (
-        <div>
-          <Turnstile
-            sitekey={siteKey}
-            onVerify={(token) => setTurnstileToken(token)}
-            onError={() => setTurnstileFailed(true)}
-            theme="light"
-            size="normal"
-          />
-        </div>
+        <Turnstile
+          sitekey={siteKey}
+          onVerify={(token) => setTurnstileToken(token)}
+          onError={() => setTurnstileFailed(true)}
+          theme="light"
+          size="flexible"
+        />
       )}
       {turnstileFailed && (
-        <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-          Verification widget unavailable. If submission fails, write to{" "}
-          <a
-            href="mailto:hello@michaelpadin.com"
-            className="text-ink hover:text-signal border-ink hover:border-signal border-b pb-px transition-colors"
-          >
-            hello@michaelpadin.com
-          </a>{" "}
-          directly.
+        <p className="text-subtle text-[13px]">
+          The verification widget didn&apos;t load. If sending fails, email me at{" "}
+          <a href={`mailto:${email}`} className="link-mango">
+            {email}
+          </a>
+          .
         </p>
       )}
 
-      {/* Error */}
       {status === "error" && (
-        <div className="border-signal text-signal bg-signal/10 font-spec border px-3 py-2 text-[13px]">
+        <p
+          role="alert"
+          className="rounded-[14px] bg-[oklch(95%_0.04_40)] px-4 py-3 text-[14px] text-[oklch(42%_0.14_35)]"
+        >
           {errorMsg}
-        </div>
+        </p>
       )}
 
-      {/* Submit */}
-      <div className="border-paper-rule flex items-center justify-between border-t pt-5">
-        <p className="font-spec-mono text-ink-3 text-[11px] tracking-[0.04em] uppercase">
-          Protected by Cloudflare Turnstile · No spam
-        </p>
-        <button
-          type="submit"
-          disabled={status === "submitting"}
-          className="font-spec text-paper bg-ink hover:bg-signal inline-flex items-center gap-2 px-6 py-3 text-[14px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {status === "submitting" ? (
-            <>
-              <span className="border-paper/30 border-t-paper size-3 animate-spin rounded-full border-2" />
-              Transmitting
-            </>
-          ) : (
-            <>
-              Transmit
-              <span aria-hidden>→</span>
-            </>
-          )}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <span className="text-subtle text-[13px]">I reply within 24 hours, Mon–Fri.</span>
+        <button type="submit" disabled={status === "submitting"} className="btn btn-dark px-7">
+          {status === "submitting" ? "Sending…" : "Send message"}
         </button>
       </div>
     </form>
   );
 }
 
-function Field({
-  label,
-  name,
-  required,
+function Label({
+  text,
   htmlFor,
+  optional,
   children,
 }: {
-  label: string;
-  name: string;
-  required?: boolean;
-  htmlFor?: string;
+  text: string;
+  htmlFor: string;
+  optional?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-12 gap-x-4 gap-y-2">
-      <div className="col-span-12 md:col-span-3">
-        <label
-          htmlFor={htmlFor}
-          className="font-spec-mono text-ink-3 inline-flex items-baseline gap-2 text-[11px] tracking-[0.04em] uppercase"
-        >
-          <span className="text-signal tabular-nums">{label}</span>
-          <span>{name}</span>
-          {required && <span className="text-signal">*</span>}
-        </label>
-      </div>
-      <div className="col-span-12 md:col-span-9">{children}</div>
+    <div className="flex flex-col gap-2">
+      <label htmlFor={htmlFor} className="text-[14px] font-semibold">
+        {text}
+        {optional && <span className="text-subtle font-normal"> (optional)</span>}
+      </label>
+      {children}
     </div>
   );
 }
