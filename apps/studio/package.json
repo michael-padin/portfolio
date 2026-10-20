@@ -7,6 +7,7 @@
     "dev": "sanity dev",
     "schema:deploy": "sanity schema deploy",
     "schema:extract": "sanity schema extract --enforce-required-fields",
+    "seed:projects": "sanity exec scripts/seed-projects.ts --with-user-token --",
     "start": "sanity start",
     "type-check": "tsc --noEmit"
   },

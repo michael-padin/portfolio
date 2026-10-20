@@ -1,4 +1,4 @@
-import { defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const projectSchema = defineType({
   name: "project",
@@ -19,11 +19,64 @@ export const projectSchema = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "tagline",
-      title: "Tagline",
-      description: "One-line outcome: e.g. 'Increased first-time retention by 8%'",
+      name: "headline",
+      title: "Headline",
+      description:
+        "Card title and case-study H1, e.g. 'Scheduling engine with travel time and zone matching'. Falls back to the title.",
       type: "string",
-      validation: (rule) => rule.required().max(120),
+      validation: (rule) => rule.max(100),
+    }),
+    defineField({
+      name: "tagline",
+      title: "Card description",
+      description: "One or two plain-language sentences shown under the card title.",
+      type: "string",
+      validation: (rule) => rule.required().max(200),
+    }),
+    defineField({
+      name: "kind",
+      title: "Kind",
+      description: "Drives the filter chips on the Work page.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Booking", value: "booking" },
+          { title: "Web app", value: "web-app" },
+          { title: "Website", value: "website" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "client",
+      title: "Client",
+      description: "e.g. 'Hermosa Glow · Carcar City, Cebu'",
+      type: "string",
+    }),
+    defineField({
+      name: "builtAt",
+      title: "Built as",
+      description: "Employer work is labelled “Built at …”, not as a client project.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Client project", value: "client" },
+          { title: "Employer work", value: "employer" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "client",
+    }),
+    defineField({
+      name: "role",
+      title: "My role",
+      type: "string",
+    }),
+    defineField({
+      name: "typeLabel",
+      title: "Type",
+      description: "Case-study facts list, e.g. 'Booking & scheduling system'",
+      type: "string",
     }),
     defineField({
       name: "coverImage",
@@ -42,6 +95,18 @@ export const projectSchema = defineType({
       ],
     }),
     defineField({
+      name: "coverMock",
+      title: "Use a built-in mock instead of an image",
+      description: "Shown when there's no cover image.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Team calendar", value: "team-calendar" },
+          { title: "Salon dashboard", value: "salon-dashboard" },
+        ],
+      },
+    }),
+    defineField({
       name: "techStack",
       title: "Tech Stack",
       type: "array",
@@ -54,6 +119,7 @@ export const projectSchema = defineType({
       options: {
         list: ["Full Stack App", "Frontend", "Backend", "DevOps", "Freelance"],
       },
+      deprecated: { reason: "Replaced by “Kind”." },
     }),
     defineField({
       name: "liveUrl",
@@ -95,6 +161,37 @@ export const projectSchema = defineType({
       title: "The Solution",
       type: "array",
       of: [{ type: "block" }],
+    }),
+    defineField({
+      name: "highlights",
+      title: "What I built",
+      description: "Numbered list on the case study. Takes priority over “The Solution”.",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            { name: "title", type: "string", title: "Title" },
+            { name: "body", type: "text", title: "Body", rows: 3 },
+          ],
+          preview: { select: { title: "title", subtitle: "body" } },
+        }),
+      ],
+    }),
+    defineField({
+      name: "localAngle",
+      title: "What this means for a Cebu business",
+      type: "object",
+      fields: [
+        { name: "text", type: "text", title: "Text", rows: 3 },
+        {
+          name: "chips",
+          type: "array",
+          title: "Business types",
+          of: [{ type: "string" }],
+          description: "e.g. Aircon cleaning, Island tours, Salons & spas",
+        },
+      ],
     }),
     defineField({
       name: "results",
@@ -151,6 +248,6 @@ export const projectSchema = defineType({
   ],
   groups: [{ name: "seo", title: "SEO" }],
   preview: {
-    select: { title: "title", subtitle: "tagline", media: "coverImage" },
+    select: { title: "title", subtitle: "headline", media: "coverImage" },
   },
 });
