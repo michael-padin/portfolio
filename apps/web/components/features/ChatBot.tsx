@@ -3,16 +3,16 @@ import { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { currentVisitId } from "@/lib/track";
+import { Mark } from "@/components/brand/Logo";
 
 const SUGGESTED = [
-  "What's your tech stack?",
-  "Are you available for freelance?",
-  "Tell me about Image Edits",
-  "What's your rate?",
+  "How much is a system?",
+  "Can I take bookings online?",
+  "How long does it take?",
 ];
 
-const GREETING =
-  "I'm Michael's assistant. Ask about his stack, projects, experience, availability, or rates.";
+// Answers that point at a call get "Book a call" / "Not yet" pills underneath.
+const OFFERS_CALL = /\b(book|call)\b/i;
 
 function getMessageText(msg: UIMessage): string {
   let text = "";
@@ -22,9 +22,12 @@ function getMessageText(msg: UIMessage): string {
   return text;
 }
 
-export function ChatBot() {
+const bubble = "max-w-[85%] px-3.5 py-3 text-[15px] leading-[1.45]";
+
+export function ChatBot({ bookingUrl }: { bookingUrl?: string }) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [dismissedFor, setDismissedFor] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -32,11 +35,18 @@ export function ChatBot() {
   const isBusy = status === "submitted" || status === "streaming";
 
   useEffect(() => {
-    if (open) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
+    if (!open) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const t = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(t);
   }, [messages, open, status]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   async function send(text: string) {
     if (!text.trim() || isBusy) return;
@@ -44,154 +54,177 @@ export function ChatBot() {
     await sendMessage({ text }, { body: { vid: currentVisitId() } });
   }
 
+  const last = messages.at(-1);
+  const showQuickReplies =
+    !!bookingUrl &&
+    status === "ready" &&
+    last?.role === "assistant" &&
+    dismissedFor !== last.id &&
+    OFFERS_CALL.test(getMessageText(last));
+
   return (
     <>
-      {/* Floating button */}
-      <button
-        onClick={() => setOpen(!open)}
-        data-track={open ? undefined : "open-chat"}
-        className={`font-spec-mono fixed right-5 bottom-5 z-50 inline-flex h-11 items-center gap-2 px-4 text-[12px] tracking-[0.04em] uppercase transition-colors ${
-          open
-            ? "text-paper bg-signal border-signal border"
-            : "text-paper bg-ink hover:bg-signal border-ink hover:border-signal border"
-        }`}
-        aria-label={open ? "Close chat" : "Open chat"}
-      >
-        {open ? (
-          <>
-            <span aria-hidden>×</span>
-            Close
-          </>
-        ) : (
-          <>
-            <span aria-hidden className="bg-paper inline-block size-1.5 rounded-full" />
-            Ask AI
-          </>
-        )}
-      </button>
+      {!open && (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          data-track="open-chat"
+          className="bg-ink text-paper shadow-float hover:bg-ink-hover fixed right-4 bottom-4 z-50 flex items-center gap-2.5 rounded-full py-[11px] pr-5 pl-3 text-[15px] font-semibold transition-colors duration-200 md:right-7 md:bottom-7 md:py-[13px] md:pl-3.5"
+        >
+          <span aria-hidden className="bg-mango size-[26px] rounded-full" />
+          Ask me anything
+        </button>
+      )}
 
-      {/* Chat panel */}
       {open && (
         <div
           role="dialog"
-          aria-label="Ask Michael's AI assistant"
-          className="bg-paper border-paper-rule fixed right-5 bottom-20 z-50 flex max-h-[560px] w-[min(380px,calc(100vw-2.5rem))] flex-col border shadow-[0_24px_48px_-12px_oklch(20%_0.02_270/0.18)]"
+          aria-label="Chat with Michael's assistant"
+          className="bg-paper fixed right-3 bottom-3 left-3 z-50 flex max-h-[min(640px,calc(100dvh-24px))] flex-col overflow-hidden rounded-[24px] shadow-[0_20px_50px_oklch(30%_0.03_50/0.25)] sm:left-auto sm:w-[380px] md:right-7 md:bottom-7"
         >
-          {/* Header */}
-          <div className="border-paper-rule flex items-center justify-between border-b px-4 py-3">
-            <div className="flex items-baseline gap-2">
-              <span className="font-spec text-ink text-[14px] font-medium">Michael&apos;s AI</span>
-              <span className="font-spec-mono text-ink-3 text-[10px] tracking-[0.04em] uppercase">
-                · assistant
-              </span>
+          <div className="bg-ink text-paper flex items-center gap-3 px-[18px] py-4">
+            <div className="bg-mango flex size-10 shrink-0 items-center justify-center rounded-full">
+              <Mark size={26} bowl="var(--color-paper)" />
             </div>
-            <span className="font-spec-mono text-ink-3 inline-flex items-center gap-1.5 text-[10px] tracking-[0.04em] uppercase">
-              <span aria-hidden className="bg-signal size-1.5 animate-pulse rounded-full" />
-              Online
-            </span>
-          </div>
-
-          {/* Messages */}
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-            {/* Static greeting (not part of useChat state) */}
-            <div className="flex justify-start">
-              <div className="font-spec text-ink bg-paper-tint border-paper-rule max-w-[85%] border px-3 py-2 text-[13.5px] leading-[1.5]">
-                {GREETING}
+            <div className="min-w-0 flex-1">
+              <div className="font-heading text-[17px]">Michael&apos;s assistant</div>
+              <div className="flex items-center gap-1.5 text-[12px] opacity-80">
+                <span aria-hidden className="size-1.5 rounded-full bg-[oklch(75%_0.13_160)]" />
+                Online · Michael follows up personally
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close chat"
+              className="-mr-2 flex size-11 items-center justify-center text-[22px] opacity-70 transition-opacity hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+
+          <div className="flex min-h-[300px] flex-1 flex-col gap-3 overflow-y-auto p-[18px]">
+            <div className={`${bubble} self-start rounded-[18px_18px_18px_6px] bg-white`}>
+              Hi! I&apos;m Michael&apos;s assistant. Ask about what he builds, prices, timelines or
+              availability.{" "}
+              <span className="highlight">I don&apos;t drink coffee, so I&apos;m up 24/7.</span>
+            </div>
+
+            {messages.length === 0 && (
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTED.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => send(s)}
+                    disabled={isBusy}
+                    className="hover:border-ink rounded-full border-[1.5px] border-[oklch(85%_0.03_60)] px-3 py-2 text-[13px] font-medium transition-colors duration-200 disabled:opacity-50"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {messages.map((msg) => {
               const text = getMessageText(msg);
               if (!text) return null;
-              return (
+              return msg.role === "user" ? (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`${bubble} bg-mango self-end rounded-[18px_18px_6px_18px]`}
                 >
-                  <div
-                    className={`font-spec max-w-[85%] px-3 py-2 text-[13.5px] leading-[1.5] ${
-                      msg.role === "user"
-                        ? "text-paper bg-signal border-signal border"
-                        : "text-ink bg-paper-tint border-paper-rule border"
-                    }`}
-                  >
-                    {text}
-                  </div>
+                  {text}
+                </div>
+              ) : (
+                <div
+                  key={msg.id}
+                  className={`${bubble} self-start rounded-[18px_18px_18px_6px] bg-white`}
+                >
+                  {text}
                 </div>
               );
             })}
 
+            {showQuickReplies && (
+              <div className="flex gap-2">
+                <a
+                  href={bookingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track="book-call-chat"
+                  className="bg-ink text-paper hover:bg-ink-hover rounded-full px-3.5 py-[9px] text-[13px] font-semibold transition-colors duration-200"
+                >
+                  Book a call
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setDismissedFor(last!.id)}
+                  className="border-rule hover:border-ink rounded-full border-[1.5px] px-3.5 py-[9px] text-[13px] font-semibold transition-colors duration-200"
+                >
+                  Not yet
+                </button>
+              </div>
+            )}
+
             {status === "submitted" && (
-              <div className="flex justify-start">
-                <div className="bg-paper-tint border-paper-rule text-ink-3 inline-flex items-center gap-1 border px-3 py-2.5">
+              <div
+                className="flex items-center gap-1 self-start rounded-[18px_18px_18px_6px] bg-white px-4 py-4"
+                aria-label="Assistant is typing"
+              >
+                {[0, 150, 300].map((d) => (
                   <span
-                    className="bg-ink-3 size-1 animate-bounce rounded-full"
-                    style={{ animationDelay: "0ms" }}
+                    key={d}
+                    className="bg-subtle size-1.5 animate-bounce rounded-full"
+                    style={{ animationDelay: `${d}ms` }}
                   />
-                  <span
-                    className="bg-ink-3 size-1 animate-bounce rounded-full"
-                    style={{ animationDelay: "150ms" }}
-                  />
-                  <span
-                    className="bg-ink-3 size-1 animate-bounce rounded-full"
-                    style={{ animationDelay: "300ms" }}
-                  />
-                </div>
+                ))}
               </div>
             )}
 
             {error && (
-              <div className="border-signal text-signal bg-signal/10 font-spec border px-3 py-2 text-[12px]">
-                {error.message ?? "Something went wrong"}
-              </div>
+              <p
+                role="alert"
+                className="rounded-[14px] bg-[oklch(95%_0.04_40)] px-3.5 py-2.5 text-[13px] text-[oklch(42%_0.14_35)]"
+              >
+                {error.message || "Something went wrong. Try again in a moment."}
+              </p>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggestions (only before any user message) */}
-          {messages.length === 0 && (
-            <div className="border-paper-rule flex flex-wrap gap-1.5 border-t px-4 py-3">
-              {SUGGESTED.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => send(s)}
-                  disabled={isBusy}
-                  className="font-spec text-ink-2 hover:text-signal border-paper-rule hover:border-signal bg-paper border px-2 py-1 text-[12px] transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Input */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
-            className="border-paper-rule flex gap-2 border-t p-3"
+            className="flex gap-2 border-t border-[oklch(90%_0.015_70)] p-3"
           >
+            <label htmlFor="chat-input" className="sr-only">
+              Your question
+            </label>
             <input
+              id="chat-input"
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about Michael…"
+              placeholder="Type your question…"
               maxLength={500}
-              className="font-spec text-ink placeholder:text-ink-3 border-paper-rule focus:border-signal bg-paper flex-1 border px-3 py-2 text-[13.5px] transition-colors focus:outline-none"
+              className="placeholder:text-subtle min-w-0 flex-1 rounded-full bg-white px-4 py-3 text-[15px] outline-none focus-visible:outline-2 focus-visible:outline-offset-0"
             />
             <button
               type="submit"
               disabled={!input.trim() || isBusy}
-              className="font-spec text-paper bg-ink hover:bg-signal flex h-auto shrink-0 items-center px-4 text-[13px] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Send"
+              className="bg-ink hover:bg-ink-hover flex size-11 shrink-0 items-center justify-center rounded-full text-white transition-colors duration-200 disabled:opacity-40"
             >
-              Send
+              ↑
             </button>
           </form>
-          <p className="font-spec-mono text-ink-3 px-4 pb-3 text-center text-[10px] tracking-[0.04em] uppercase">
-            AI replies may not be 100% accurate · 20 msg session limit
+          <p className="text-subtle px-3 pb-3 text-center text-[11px]">
+            AI replies may not be 100% accurate
           </p>
         </div>
       )}
