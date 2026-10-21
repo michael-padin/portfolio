@@ -34,3 +34,9 @@ npm-debug.log*
 
 # TypeScript
 *.tsbuildinfo
+
+# Local design references and raw screenshots (site images live in apps/web/public/work)
+/design_handoff_client_redesign/
+/visuals/
+/image.png
+.playwright-mcp/
