@@ -14,10 +14,12 @@ export function Hero({
   phone?: StaticImage | null;
 }) {
   return (
-    <section className="container-page grid items-center gap-7 pt-5 pb-12 md:grid-cols-[1fr_1.05fr] md:gap-12 md:pt-14 md:pb-24">
+    <section className="container-page grid items-center gap-7 pt-5 pb-12 md:grid-cols-[1.2fr_1fr] md:gap-12 md:pt-14 md:pb-24">
       <div>
         <AvailabilityLine text={profile.availabilityLine} />
-        <h1 className="text-h1 mt-5 md:mt-7">{profile.heroTagline}</h1>
+        <h1 className="text-h1 mt-5 md:mt-7 lg:[font-size:min(62px,var(--text-h1))]">
+          {profile.heroTagline}
+        </h1>
         <p className="text-lead text-body mt-4 max-w-[38ch] md:mt-6">
           <Marked text={profile.heroSub} />
         </p>

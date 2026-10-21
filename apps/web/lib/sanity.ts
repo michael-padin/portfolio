@@ -398,9 +398,8 @@ export const FALLBACK_PROFILE: Profile = {
   websiteUrl: "https://michaelpadin.com",
   heroTagline: "Custom systems built around how your business runs.",
   heroSub:
-    "Booking, ordering, inventory and staff tools for local businesses. Retire the logbook, the 14-tab spreadsheet and ==the group chat called “ORDERS FINAL v2”==. One system that fits how you work.",
-  heroAside:
-    "You work with the developer directly. No agency, no account manager, no “let me check with the team.”",
+    "Booking, ordering, inventory and staff tools for local businesses. Retire the logbook and ==the group chat called “ORDERS FINAL v2”==.",
+  heroAside: "You work with the developer directly. No agency, no “let me check with the team.”",
   pains: [
     { text: "A paper logbook", joke: "(with a coffee stain on March)" },
     { text: "Orders scattered across Messenger, calls and walk-ins" },
